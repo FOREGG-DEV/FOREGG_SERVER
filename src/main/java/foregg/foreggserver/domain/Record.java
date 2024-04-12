@@ -1,6 +1,7 @@
 package foregg.foreggserver.domain;
 
 import foregg.foreggserver.domain.common.BaseEntity;
+import foregg.foreggserver.domain.enums.RecordType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,14 +9,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class Schedule extends BaseEntity {
+public class Record extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,11 +24,19 @@ public class Schedule extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime date;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @Enumerated(EnumType.STRING)
+    private RecordType type;
 
-    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL)
-    private List<Record> records;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "Schedule_id")
+    private Schedule schedule;
+
+    @OneToOne
+    @JoinColumn(name = "injection_id")
+    private Injection injection;
+
+    @OneToOne
+    @JoinColumn(name = "sideEffect_id")
+    private SideEffect sideEffect;
 
 }
