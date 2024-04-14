@@ -1,1 +1,15 @@
-spring.application.name=foreggserver
+spring:
+  datasource:
+    url: ${datasource}?createDatabaseIfNotExist=true
+    username: ${username}
+    password: ${password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        default_batch_fetch_size: 1000
