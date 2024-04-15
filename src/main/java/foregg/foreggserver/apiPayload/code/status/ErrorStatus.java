@@ -19,9 +19,10 @@ public enum ErrorStatus implements BaseErrorCode {
     _UNAUTHORIZED(UNAUTHORIZED,"COMMON401","인증이 필요합니다."),
     _FORBIDDEN(FORBIDDEN, "COMMON403", "금지된 요청입니다."),
 
-    // 멤버 관려 에러
-    MEMBER_NOT_FOUND(BAD_REQUEST, "MEMBER4001", "존재하지 않거나 승인되지 않은 사용자입니다."),
-    MEMBER_PROFILE_ERROR(BAD_REQUEST, "MEMBER4005", "프로필사진 업로드에 실패했습니다."),
+    //유저 관려 에러
+    USER_NOT_FOUND(BAD_REQUEST, "MEMBER4001", "존재하지 않거나 승인되지 않은 사용자입니다."),
+    USER_NEED_JOIN(BAD_REQUEST, "MEMBER4002", "회원가입이 필요한 사용자입니다."),
+    USER_PROFILE_ERROR(BAD_REQUEST, "MEMBER4002", "프로필사진 업로드에 실패했습니다."),
 
     //jwt
     JWT_FORBIDDEN(FORBIDDEN, "JWT4001", "권한이 존재하지 않습니다."),
