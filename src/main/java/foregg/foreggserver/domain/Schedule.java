@@ -25,8 +25,8 @@ public class Schedule extends BaseEntity {
     private LocalDateTime date;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL)
     private List<Record> records;

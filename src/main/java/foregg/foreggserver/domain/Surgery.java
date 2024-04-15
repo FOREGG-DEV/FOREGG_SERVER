@@ -1,6 +1,7 @@
 package foregg.foreggserver.domain;
 
 import foregg.foreggserver.domain.common.BaseEntity;
+import foregg.foreggserver.domain.enums.SurgeryType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,16 +22,15 @@ public class Surgery extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    @Enumerated(EnumType.STRING)
+    private SurgeryType surgeryType;
 
-    @Column(nullable = false)
     private int count;
 
-    @Column(nullable = false)
     private LocalDate startAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @JoinColumn(name = "user_id")
+    private User user;
 
 }
