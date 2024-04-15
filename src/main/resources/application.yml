@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${datasource}?createDatabaseIfNotExist=true
+    url: ${datasource}?createDatabaseIfNotExist = true
     username: ${username}
     password: ${password}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -13,3 +13,6 @@ spring:
         show_sql: true
         format_sql: true
         default_batch_fetch_size: 1000
+
+server:
+  port: 8080
