@@ -6,11 +6,17 @@ import foregg.foreggserver.domain.User;
 import foregg.foreggserver.dto.kakaoDTO.KakaoUserInfoResponse;
 import foregg.foreggserver.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
+import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.USER_NEED_JOIN;
+
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class UserQueryService {
 
     private final KakaoRequestService kakaoService;
@@ -20,7 +26,15 @@ public class UserQueryService {
     @Transactional(readOnly = true)
     public Long isSignedUp(String token) {
         KakaoUserInfoResponse userInfo = kakaoService.getUserInfo(token);
-        User user = userRepository.findByKeyCode(userInfo.getId().toString()).orElseThrow(() -> new UserHandler(ErrorStatus.USER_NEED_JOIN));
+
+        User user = userRepository.findByKeyCode(userInfo.getId().toString()).orElseThrow(() -> new UserHandler(USER_NEED_JOIN));
         return user.getId();
+    }
+
+    public void isExist(String userKeycode) {
+        Optional<User> foundUser = userRepository.findByKeyCode(userKeycode);
+        if (foundUser.isEmpty()) {
+            throw new UserHandler(USER_NEED_JOIN);
+        }
     }
 }
