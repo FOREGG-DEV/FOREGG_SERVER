@@ -1,5 +1,6 @@
 package foregg.foreggserver.domain;
 
+import foregg.foreggserver.domain.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User implements UserDetails {
+public class User extends BaseEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,16 +31,16 @@ public class User implements UserDetails {
     private String keyCode; // 로그인 식별키
 
     @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false)
     private String nickname;
 
     @Column(nullable = false)
     private String gender;
 
     @Column(nullable = false)
-    private String yearOfBirth;
+    private String name;
+
+    @Column(nullable = false)
+    private int yearOfBirth;
 
     @Column(nullable = false)
     private String birthDate;
@@ -50,12 +51,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String spouseCode;
 
-    private LocalDateTime createAt;
-
-    private LocalDateTime modifiedAt;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Surgery> surgeries;
+    @OneToOne
+    @JoinColumn(name = "surgery_id")
+    private Surgery surgery;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Inquiry> inquiries;

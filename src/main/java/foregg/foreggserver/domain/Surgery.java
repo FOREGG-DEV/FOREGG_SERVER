@@ -29,8 +29,7 @@ public class Surgery extends BaseEntity {
 
     private LocalDate startAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @OneToOne(mappedBy = "surgery")
     private User user;
 
 }
