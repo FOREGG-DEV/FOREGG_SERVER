@@ -3,6 +3,7 @@ package foregg.foreggserver.service;
 import foregg.foreggserver.converter.JsonConverter;
 import foregg.foreggserver.converter.SurgeryConverter;
 import foregg.foreggserver.converter.UserConverter;
+import foregg.foreggserver.domain.Surgery;
 import foregg.foreggserver.domain.User;
 import foregg.foreggserver.dto.UserJoinRequestDTO;
 import foregg.foreggserver.dto.kakaoDTO.KakaoUserInfoResponse;
@@ -37,8 +38,8 @@ public class UserService {
 
         String keyCode = jwtTokenProvider.getUserPk(jwtToken);
 
-        User user = userRepository.save(UserConverter.toUser(userInfo, keyCode));
-        surgeryRepository.save(SurgeryConverter.toSurgery(dto, user));
+        Surgery surgery = surgeryRepository.save(SurgeryConverter.toSurgery(dto));
+        userRepository.save(UserConverter.toUser(userInfo, keyCode, surgery));
 
         return JsonConverter.convertToJson(map);
     }
