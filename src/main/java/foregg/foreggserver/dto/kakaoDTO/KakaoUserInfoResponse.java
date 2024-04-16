@@ -1,8 +1,10 @@
 package foregg.foreggserver.dto.kakaoDTO;
 
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class KakaoUserInfoResponse {
 
     //회원가입 상태인지 아닌지를 판단하는 필드
