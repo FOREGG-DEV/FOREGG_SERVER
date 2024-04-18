@@ -1,5 +1,6 @@
 package foregg.foreggserver.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import foregg.foreggserver.domain.common.BaseEntity;
 import foregg.foreggserver.domain.enums.SurgeryType;
 import jakarta.persistence.*;
@@ -7,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
@@ -27,6 +29,8 @@ public class Surgery extends BaseEntity {
 
     private int count;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate startAt;
 
     @OneToOne(mappedBy = "surgery")
