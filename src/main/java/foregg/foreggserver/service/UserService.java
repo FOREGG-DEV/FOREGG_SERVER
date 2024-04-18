@@ -1,12 +1,11 @@
 package foregg.foreggserver.service;
 
-import foregg.foreggserver.converter.JsonConverter;
 import foregg.foreggserver.converter.SurgeryConverter;
 import foregg.foreggserver.converter.UserConverter;
 import foregg.foreggserver.domain.Surgery;
-import foregg.foreggserver.domain.User;
-import foregg.foreggserver.dto.UserJoinRequestDTO;
+import foregg.foreggserver.dto.userDTO.UserJoinRequestDTO;
 import foregg.foreggserver.dto.kakaoDTO.KakaoUserInfoResponse;
+import foregg.foreggserver.dto.userDTO.UserResponseDTO;
 import foregg.foreggserver.jwt.JwtTokenProvider;
 import foregg.foreggserver.repository.SurgeryRepository;
 import foregg.foreggserver.repository.UserRepository;
@@ -27,20 +26,26 @@ public class UserService {
     private final KakaoRequestService kakaoRequestService;
 
     // DB에 유저 정보 저장하고, JWT 토큰 만들어서 보내주기
-    public String join(String token, UserJoinRequestDTO dto) {
+    public UserResponseDTO join(String token, UserJoinRequestDTO dto) {
         KakaoUserInfoResponse userInfo = kakaoRequestService.getUserInfo(token);
         Long userId = userInfo.getId();
 
-        String jwtToken = jwtTokenProvider.createToken(userId.toString());
+        String jwt = jwtTokenProvider.createToken(userId.toString());
 
-        HashMap<Long, String> map = new HashMap<>();
-        map.put(userId, jwtToken);
+//        HashMap<Long, String> map = new HashMap<>();
+//        map.put(userId, jwtToken);
 
-        String keyCode = jwtTokenProvider.getUserPk(jwtToken);
+        String keyCode = jwtTokenProvider.getUserPk(jwt);
 
         Surgery surgery = surgeryRepository.save(SurgeryConverter.toSurgery(dto));
         userRepository.save(UserConverter.toUser(userInfo, keyCode, surgery));
 
-        return JsonConverter.convertToJson(map);
+        return UserResponseDTO.builder()
+                .keycode(keyCode)
+                .accessToken(jwt)
+                .build();
+
+
+//        return JsonConverter.convertToJson(map);
     }
 }

@@ -2,9 +2,9 @@ package foregg.foreggserver.service;
 
 import foregg.foreggserver.apiPayload.code.status.ErrorStatus;
 import foregg.foreggserver.apiPayload.exception.handler.UserHandler;
-import foregg.foreggserver.converter.JsonConverter;
 import foregg.foreggserver.domain.User;
 import foregg.foreggserver.dto.kakaoDTO.KakaoUserInfoResponse;
+import foregg.foreggserver.dto.userDTO.UserResponseDTO;
 import foregg.foreggserver.jwt.JwtTokenProvider;
 import foregg.foreggserver.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,11 +34,17 @@ public class UserQueryService {
         return user.getId();
     }
 
-    public String isExist(String userKeycode) {
+    public UserResponseDTO isExist(String userKeycode) {
         Optional<User> foundUser = userRepository.findByKeyCode(userKeycode);
         if (foundUser.isEmpty()) {
             throw new UserHandler(USER_NEED_JOIN);
         }
-        return jwtTokenProvider.createToken(userKeycode);
+
+        String jwt = jwtTokenProvider.createToken(userKeycode);
+        return UserResponseDTO.builder()
+                .keycode(userKeycode)
+                .accessToken(jwt)
+                .build();
+
     }
 }

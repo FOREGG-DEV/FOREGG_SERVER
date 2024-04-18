@@ -1,4 +1,4 @@
-package foregg.foreggserver.dto;
+package foregg.foreggserver.dto.userDTO;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import foregg.foreggserver.domain.Surgery;
