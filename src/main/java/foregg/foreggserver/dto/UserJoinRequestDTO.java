@@ -20,9 +20,6 @@ public class UserJoinRequestDTO {
 
     private SurgeryType surgeryType;
     private int count;
-
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDate startAt;
+    private String startAt;
 
 }

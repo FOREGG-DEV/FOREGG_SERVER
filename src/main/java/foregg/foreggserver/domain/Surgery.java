@@ -29,9 +29,7 @@ public class Surgery extends BaseEntity {
 
     private int count;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDate startAt;
+    private String startAt;
 
     @OneToOne(mappedBy = "surgery")
     private User user;
