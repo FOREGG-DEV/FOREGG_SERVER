@@ -1,9 +1,7 @@
 package foregg.foreggserver.converter;
 
 import foregg.foreggserver.domain.Surgery;
-import foregg.foreggserver.domain.User;
-import foregg.foreggserver.domain.enums.SurgeryType;
-import foregg.foreggserver.dto.UserJoinRequestDTO;
+import foregg.foreggserver.dto.userDTO.UserJoinRequestDTO;
 
 public class SurgeryConverter {
 

@@ -1,9 +1,9 @@
 package foregg.foreggserver.controller;
 
 import foregg.foreggserver.apiPayload.ApiResponse;
-import foregg.foreggserver.apiPayload.code.status.SuccessStatus;
-import foregg.foreggserver.dto.UserJoinRequestDTO;
+import foregg.foreggserver.dto.userDTO.UserJoinRequestDTO;
 import foregg.foreggserver.dto.kakaoDTO.KakaoUserInfoResponse;
+import foregg.foreggserver.dto.userDTO.UserResponseDTO;
 import foregg.foreggserver.jwt.JwtTokenProvider;
 import foregg.foreggserver.service.KakaoRequestService;
 import foregg.foreggserver.service.UserQueryService;
@@ -16,8 +16,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -42,10 +40,10 @@ public class AuthController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER4002", description = "존재하지 않는 사용자입니다."),
     })
-    public ApiResponse<String> login(@RequestHeader(name = "accessToken") String accessToken) {
+    public ApiResponse<UserResponseDTO> login(@RequestHeader(name = "accessToken") String accessToken) {
         KakaoUserInfoResponse userInfo = kakaoRequestService.getUserInfo(accessToken);
-        String jwt = userQueryService.isExist(userInfo.getId().toString());
-        return ApiResponse.onSuccess(jwt);
+        UserResponseDTO responseDTO = userQueryService.isExist(userInfo.getId().toString());
+        return ApiResponse.onSuccess(responseDTO);
     }
 
 
@@ -58,9 +56,9 @@ public class AuthController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
     })
-    public ApiResponse<String> join(@RequestHeader(name = "accessToken") String accessToken, @RequestBody UserJoinRequestDTO request) {
+    public ApiResponse<UserResponseDTO> join(@RequestHeader(name = "accessToken") String accessToken, @RequestBody UserJoinRequestDTO request) {
 
-        String idAndToken = userService.join(accessToken, request);
-        return ApiResponse.onSuccess(idAndToken);
+        UserResponseDTO responseDTO = userService.join(accessToken, request);
+        return ApiResponse.onSuccess(responseDTO);
     }
 }
