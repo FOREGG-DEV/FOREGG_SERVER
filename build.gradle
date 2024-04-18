@@ -44,6 +44,8 @@ dependencies {
 
 	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.68.Final:osx-aarch_64'
 
+	implementation 'javax.xml.bind:jaxb-api:2.3.0'
+
 }
 
 tasks.named('test') {

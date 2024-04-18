@@ -1,9 +1,8 @@
-package foregg.foreggserver.domain;
+package foregg.foreggserver.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import foregg.foreggserver.domain.common.BaseEntity;
+import foregg.foreggserver.domain.Surgery;
 import foregg.foreggserver.domain.enums.SurgeryType;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,29 +10,19 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.util.Date;
 
-@Entity
 @Getter
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
-public class Surgery extends BaseEntity {
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserJoinRequestDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
     private SurgeryType surgeryType;
-
     private int count;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate startAt;
-
-    @OneToOne(mappedBy = "surgery")
-    private User user;
 
 }
