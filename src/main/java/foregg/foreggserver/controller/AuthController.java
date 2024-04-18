@@ -42,10 +42,10 @@ public class AuthController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER4002", description = "존재하지 않는 사용자입니다."),
     })
-    public ApiResponse<SuccessStatus> login(@RequestHeader(name = "accessToken") String accessToken) {
+    public ApiResponse<String> login(@RequestHeader(name = "accessToken") String accessToken) {
         KakaoUserInfoResponse userInfo = kakaoRequestService.getUserInfo(accessToken);
-        userQueryService.isExist(userInfo.getId().toString());
-        return ApiResponse.onSuccess(SuccessStatus._OK);
+        String jwt = userQueryService.isExist(userInfo.getId().toString());
+        return ApiResponse.onSuccess(jwt);
     }
 
 
