@@ -3,6 +3,7 @@ package foregg.foreggserver.converter;
 import foregg.foreggserver.domain.Surgery;
 import foregg.foreggserver.domain.User;
 import foregg.foreggserver.dto.kakaoDTO.KakaoUserInfoResponse;
+import foregg.foreggserver.dto.userDTO.UserResponseDTO;
 import foregg.foreggserver.util.SpouseCodeGenerator;
 
 public class UserConverter {
@@ -19,5 +20,12 @@ public class UserConverter {
                 .yearOfBirth(1998)
                 .surgery(surgery)
                 .spouseCode(SpouseCodeGenerator.generateRandomCode()).build();
+    }
+
+    public static UserResponseDTO toUserResponseDTO(String keycode, String jwt) {
+        return UserResponseDTO.builder()
+                .keycode(keycode)
+                .accessToken(jwt)
+                .build();
     }
 }
