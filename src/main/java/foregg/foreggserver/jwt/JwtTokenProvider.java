@@ -10,9 +10,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.Base64;
 import java.util.Date;
@@ -24,6 +26,10 @@ public class JwtTokenProvider {
     @Value("${jwt.secret}") // application.properties 등에 보관한다.
     private String secretKey;
 
+    private long accessTokenValidTime = 30 * 60 * 1000L;     // 토큰 유효시간 30분
+    private long refreshTokenValidTime = 1000L * 60 *60 *24 * 7;     // 토큰 유효시간 30분
+
+
     private final UserDetailsService userDetailsService;
 
     // 객체 초기화, secretKey를 Base64로 인코딩
@@ -33,13 +39,13 @@ public class JwtTokenProvider {
     }
 
     // 토큰 생성
-    public String createToken(String userPk) {
+    public String createToken(String userPk) {  // userPK = email
         Claims claims = Jwts.claims().setSubject(userPk); // JWT payload 에 저장되는 정보단위
         Date now = new Date();
         return Jwts.builder()
                 .setClaims(claims) // 정보 저장
                 .setIssuedAt(now) // 토큰 발행 시간 정보
-                .setExpiration(new Date(now.getTime() + (30 * 60 * 1000L))) // 토큰 유효시각 설정 (30분)
+                .setExpiration(new Date(now.getTime() + accessTokenValidTime)) // 토큰 유효시각 설정
                 .signWith(SignatureAlgorithm.HS256, secretKey)  // 암호화 알고리즘과, secret 값
                 .compact();
     }
@@ -68,5 +74,15 @@ public class JwtTokenProvider {
     // Request의 Header에서 token 값 가져오기
     public String resolveToken(HttpServletRequest request) {
         return request.getHeader("X-AUTH-TOKEN");
+    }
+
+    public static String resolveToken2(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+
+        return null;
     }
 }

@@ -1,4 +1,4 @@
-package foregg.foreggserver.service;
+package foregg.foreggserver.service.userService;
 
 import foregg.foreggserver.dto.kakaoDTO.KakaoUserInfoResponse;
 import lombok.RequiredArgsConstructor;

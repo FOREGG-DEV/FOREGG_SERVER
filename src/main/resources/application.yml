@@ -15,7 +15,8 @@ spring:
         default_batch_fetch_size: 1000
   jwt:
     header: Authorization
-    secret: ${JWT_SECRET_KEY}
+    secret: ${jwt.secret}
+    token-validity-in-seconds : 3600
 
 server:
   port: 8080

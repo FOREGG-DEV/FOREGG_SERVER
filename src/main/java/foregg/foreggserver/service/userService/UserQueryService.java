@@ -1,12 +1,12 @@
-package foregg.foreggserver.service;
+package foregg.foreggserver.service.userService;
 
-import foregg.foreggserver.apiPayload.code.status.ErrorStatus;
 import foregg.foreggserver.apiPayload.exception.handler.UserHandler;
 import foregg.foreggserver.domain.User;
 import foregg.foreggserver.dto.kakaoDTO.KakaoUserInfoResponse;
 import foregg.foreggserver.dto.userDTO.UserResponseDTO;
 import foregg.foreggserver.jwt.JwtTokenProvider;
 import foregg.foreggserver.repository.UserRepository;
+import foregg.foreggserver.service.userService.KakaoRequestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -45,6 +45,5 @@ public class UserQueryService {
                 .keycode(userKeycode)
                 .accessToken(jwt)
                 .build();
-
     }
 }
