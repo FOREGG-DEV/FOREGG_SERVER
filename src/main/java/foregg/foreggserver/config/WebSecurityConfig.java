@@ -4,6 +4,8 @@ import foregg.foreggserver.jwt.JwtAuthFilter;
 import foregg.foreggserver.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -11,32 +13,34 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @RequiredArgsConstructor
 @EnableWebSecurity
+@Configuration
 public class WebSecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
 
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/auth/**","/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs");
+    public WebSecurityCustomizer webSecurityCustomizer(){
+        // 아래 url은 filter 에서 제외
+        return web ->
+                web.ignoring()
+                        .requestMatchers("/auth/**", "/token/refresh");
     }
-
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf().disable()
-                // 세션 사용 안함
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .authorizeRequests()
-                // 회원가입, 로그인 관련 API는 Jwt 인증 없이 접근 가능
-                // 나머지 모든 API는 Jwt 인증 필요
-                .anyRequest().authenticated()
-                .and()
-                // Http 요청에 대한 Jwt 유효성 선 검사
-                .addFilterBefore(new JwtAuthFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
+    public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
+        return http.cors(withDefaults())
+                .csrf((csrf) -> csrf.disable())
+                .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/auth/**", "/token/refresh").permitAll()
+                        .anyRequest().authenticated())
+                .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .formLogin(httpSecurityFormLoginConfigurer -> httpSecurityFormLoginConfigurer.disable()) // 로그인 폼 미사용
+                .httpBasic(httpSecurityHttpBasicConfigurer -> httpSecurityHttpBasicConfigurer.disable()) // http basic 미사용
+                .addFilterBefore(new JwtAuthFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
+
 }
