@@ -22,7 +22,7 @@ public class Schedule extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private LocalDateTime date;
+    private String yearmonth;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
