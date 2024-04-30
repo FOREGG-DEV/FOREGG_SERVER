@@ -1,5 +1,6 @@
 package foregg.foreggserver.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import foregg.foreggserver.domain.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,28 +8,22 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class Schedule extends BaseEntity {
+@AllArgsConstructor
+@NoArgsConstructor
+public class RepeatTime extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String yearmonth;
+    private String time;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL)
-    private List<Record> records;
+    @JoinColumn(name = "record_id")
+    private Record record;
 
 }
