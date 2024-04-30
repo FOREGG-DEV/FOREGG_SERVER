@@ -19,7 +19,7 @@ public enum ErrorStatus implements BaseErrorCode {
     _UNAUTHORIZED(UNAUTHORIZED,"COMMON401","인증이 필요합니다."),
     _FORBIDDEN(FORBIDDEN, "COMMON403", "금지된 요청입니다."),
 
-    //유저 관려 에러
+    //유저 관련 에러
     USER_NOT_FOUND(BAD_REQUEST, "USER4001", "존재하지 않거나 승인되지 않은 사용자입니다."),
     USER_NEED_JOIN(BAD_REQUEST, "USER4002", "회원가입이 필요한 사용자입니다."),
     USER_PROFILE_ERROR(BAD_REQUEST, "USER4002", "프로필사진 업로드에 실패했습니다."),
@@ -29,7 +29,12 @@ public enum ErrorStatus implements BaseErrorCode {
     JWT_UNAUTHORIZED(UNAUTHORIZED, "JWT4002", "자격증명이 유효하지 않습니다."),
     JWT_EXPIRATION(UNAUTHORIZED, "JWT4003", "만료된 jwt 토큰입니다"),
     JWT_WRONG_SIGNATURE(UNAUTHORIZED, "JWT4004", "잘못된 jwt 서명입니다"),
-    JWT_WRONG_REFRESHTOKEN(UNAUTHORIZED, "JWT4005", "잘못된 refresh 토큰입니다.");
+    JWT_WRONG_REFRESHTOKEN(UNAUTHORIZED, "JWT4005", "잘못된 refresh 토큰입니다."),
+
+    //일정 관련 에러
+    RECORD_NOT_FOUND(BAD_REQUEST, "RECORD4001", "존재하지 않는 일정입니다"),
+    NOT_HOSPITAL_RECORD(BAD_REQUEST, "RECORD4002", "병원 일정이 아닙니다"),
+    NOT_REPEAT_TIME(BAD_REQUEST, "RECORD4003", "반복 시간이 존재하지 않습니다");
 
 
 
