@@ -21,5 +21,7 @@ public class UserJoinRequestDTO {
     private SurgeryType surgeryType;
     private int count;
     private String startAt;
+    private String spouseCode;
+    private String ssn;
 
 }
