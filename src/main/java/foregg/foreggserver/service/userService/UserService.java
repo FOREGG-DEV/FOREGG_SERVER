@@ -39,7 +39,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final SurgeryRepository surgeryRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserQueryService userQueryService;
     private final UserDetailsService userDetailsService;
     private final KakaoRequestService kakaoRequestService;
 
@@ -66,7 +65,7 @@ public class UserService {
         String keyCode = jwtTokenProvider.getUserPk(jwt);
 
         Surgery surgery = surgeryRepository.save(SurgeryConverter.toSurgery(dto));
-        userRepository.save(UserConverter.toUser(userInfo, keyCode, surgery));
+        userRepository.save(UserConverter.toUser(userInfo, keyCode, surgery, dto));
 
         return UserConverter.toUserResponseDTO(keyCode, jwt);
     }
