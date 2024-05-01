@@ -34,16 +34,7 @@ public class User extends BaseEntity implements UserDetails {
     private String nickname;
 
     @Column(nullable = false)
-    private String gender;
-
-    @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false)
-    private int yearOfBirth;
-
-    @Column(nullable = false)
-    private String birthDate;
+    private String ssn;
 
     @Column(nullable = false)
     private String email;
