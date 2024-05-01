@@ -1,6 +1,7 @@
 package foregg.foreggserver.util;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,5 +59,35 @@ public class DateUtil {
         return adjacentMonths;
     }
 
+    public static String formatLocalDateTime(LocalDate localDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return localDate.format(formatter);
+    }
+
+    public static List<String> getIntervalDates(String startDateStr, String endDateStr) {
+        List<String> dates = new ArrayList<>();
+
+        LocalDate startDate = LocalDate.parse(startDateStr);
+        LocalDate endDate = LocalDate.parse(endDateStr);
+
+        while (!startDate.isAfter(endDate)) {
+            dates.add(startDate.format(DateTimeFormatter.ISO_DATE));
+            startDate = startDate.plusDays(1);
+
+            // 윤년 체크
+            boolean leapYear = startDate.isLeapYear();
+
+            // 윤달 체크
+            int lastDayOfMonth = startDate.lengthOfMonth();
+            int currentDayOfMonth = startDate.getDayOfMonth();
+            if (leapYear && startDate.getMonthValue() == 2 && currentDayOfMonth == 28) {
+                startDate = startDate.plusDays(1); // 윤년이고 2월 28일인 경우 하루 추가
+            } else if (currentDayOfMonth == lastDayOfMonth) {
+                startDate = startDate.plusMonths(1).withDayOfMonth(1); // 다음달 1일로 이동
+            }
+        }
+
+        return dates;
+    }
 
 }
