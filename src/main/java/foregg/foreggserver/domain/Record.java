@@ -77,7 +77,9 @@ public class Record extends BaseEntity {
         this.dose = dto.getDose();
         this.memo = dto.getMemo();
         this.yearmonth = DateUtil.getYearAndMonth(dto.getDate());
-        this.start_end_yearmonth = DateUtil.getMonthsBetween(dto.getStartDate(), dto.getEndDate());
+        if (dto.getStartDate() != null) {
+            this.start_end_yearmonth = DateUtil.getMonthsBetween(dto.getStartDate(), dto.getEndDate());
+        }
     }
 
     public void setMedical_record(String memo) {
