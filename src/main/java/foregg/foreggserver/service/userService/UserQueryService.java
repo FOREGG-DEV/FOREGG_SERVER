@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.USER_NEED_JOIN;
+import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.USER_NOT_FOUND;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -37,7 +38,7 @@ public class UserQueryService {
     public UserResponseDTO isExist(String userKeycode) {
         Optional<User> foundUser = userRepository.findByKeyCode(userKeycode);
         if (foundUser.isEmpty()) {
-            throw new UserHandler(USER_NEED_JOIN);
+            return null;
         }
 
         String jwt = jwtTokenProvider.createToken(userKeycode);
@@ -45,5 +46,10 @@ public class UserQueryService {
                 .keycode(userKeycode)
                 .accessToken(jwt)
                 .build();
+    }
+
+    public User getUser(String keycode) {
+        User user = userRepository.findByKeyCode(keycode).orElseThrow(() -> new UserHandler(USER_NOT_FOUND));
+        return user;
     }
 }
