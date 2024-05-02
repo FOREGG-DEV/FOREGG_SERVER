@@ -1,8 +1,10 @@
 package foregg.foreggserver.util;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +32,6 @@ public class DateUtil {
             // 다음 달로 이동
             currentDate = currentDate.plusMonths(1);
         }
-
         return monthsBetween;
     }
 
@@ -86,8 +87,26 @@ public class DateUtil {
                 startDate = startDate.plusMonths(1).withDayOfMonth(1); // 다음달 1일로 이동
             }
         }
-
         return dates;
+    }
+
+    public static List<String> getWeekDates() {
+        String dateStr = formatLocalDateTime(LocalDate.now());
+        List<String> weekDates = new ArrayList<>();
+        LocalDate date = LocalDate.parse(dateStr);
+
+        // 해당 주의 시작일을 찾음 (일요일부터)
+        LocalDate startOfWeek = date.with(TemporalAdjusters.previous(DayOfWeek.SUNDAY));
+        // 해당 주의 마지막일을 찾음 (토요일까지)
+        LocalDate endOfWeek = date.with(TemporalAdjusters.next(DayOfWeek.SATURDAY));
+
+        // 주의 시작일부터 마지막일까지 날짜를 리스트에 추가
+        while (!startOfWeek.isAfter(endOfWeek)) {
+            weekDates.add(startOfWeek.toString());
+            startOfWeek = startOfWeek.plusDays(1);
+        }
+
+        return weekDates;
     }
 
 }
