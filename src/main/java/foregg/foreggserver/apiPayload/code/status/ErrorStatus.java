@@ -34,7 +34,16 @@ public enum ErrorStatus implements BaseErrorCode {
     //일정 관련 에러
     RECORD_NOT_FOUND(BAD_REQUEST, "RECORD4001", "존재하지 않는 일정입니다"),
     NOT_HOSPITAL_RECORD(BAD_REQUEST, "RECORD4002", "병원 일정이 아닙니다"),
-    NOT_REPEAT_TIME(BAD_REQUEST, "RECORD4003", "반복 시간이 존재하지 않습니다");
+    NOT_REPEAT_TIME(BAD_REQUEST, "RECORD4003", "반복 시간이 존재하지 않습니다"),
+
+    //챌린지 관련 에러
+    CHALLENGE_NOT_FOUND(BAD_REQUEST, "CHALLENGE4001", "존재하지 않는 챌린지입니다"),
+    NOT_FOUND_MY_CHALLENGE(BAD_REQUEST, "CHALLENGE4002", "나의 챌린지가 존재하지 않습니다"),
+    NO_PARTICIPATING_CHALLENGE(BAD_REQUEST, "CHALLENGE4003", "참여하고 있는 챌린지가 아닙니다"),
+    ALREADY_PARTICIPATING(BAD_REQUEST, "CHALLENGE4004", "이미 참여하고 있는 챌린지입니다"),
+    DUPLICATED_SUCCESS_DATE(BAD_REQUEST,"CHALLENGE4005", "이미 성공한 날짜입니다");
+
+
 
 
 
