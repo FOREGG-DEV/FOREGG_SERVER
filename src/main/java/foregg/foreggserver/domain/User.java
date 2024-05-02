@@ -55,6 +55,9 @@ public class User extends BaseEntity implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Notification> notifications;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<ChallengeParticipation> challengeParticipations;
+
     // Jwt 전용 설정 (UserDetails 인터페이스 구현)
 
     @ElementCollection(fetch = FetchType.EAGER) //roles 컬렉션
