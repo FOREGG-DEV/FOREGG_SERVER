@@ -41,7 +41,12 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_FOUND_MY_CHALLENGE(BAD_REQUEST, "CHALLENGE4002", "나의 챌린지가 존재하지 않습니다"),
     NO_PARTICIPATING_CHALLENGE(BAD_REQUEST, "CHALLENGE4003", "참여하고 있는 챌린지가 아닙니다"),
     ALREADY_PARTICIPATING(BAD_REQUEST, "CHALLENGE4004", "이미 참여하고 있는 챌린지입니다"),
-    DUPLICATED_SUCCESS_DATE(BAD_REQUEST,"CHALLENGE4005", "이미 성공한 날짜입니다");
+    DUPLICATED_SUCCESS_DATE(BAD_REQUEST,"CHALLENGE4005", "이미 성공한 날짜입니다"),
+
+    //가계부 관련 에러
+    LEDGER_NOT_FOUND(BAD_REQUEST, "LEDGER4001", "존재하지 않는 가계부입니다"),
+    NOT_FOUND_MY_LEDGER(BAD_REQUEST, "LEDGER4002", "나의 가계부가 존재하지 않습니다");
+
 
 
 

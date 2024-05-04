@@ -105,8 +105,36 @@ public class DateUtil {
             weekDates.add(startOfWeek.toString());
             startOfWeek = startOfWeek.plusDays(1);
         }
-
         return weekDates;
     }
+
+    public static List<String> getPast30Days(String endDateStr) {
+        // 끝 날짜를 LocalDate 객체로 변환
+        LocalDate endDate = LocalDate.parse(endDateStr, DateTimeFormatter.ISO_DATE);
+
+        // 시작 날짜 계산 (끝 날짜에서 30일 전)
+        LocalDate startDate = endDate.minusDays(30);
+
+        // 날짜들을 저장할 리스트 생성
+        List<String> dates = new ArrayList<>();
+
+        // 시작 날짜부터 끝 날짜까지 하루씩 증가하면서 리스트에 추가
+        LocalDate currentDate = startDate;
+        while (!currentDate.isAfter(endDate)) {
+            dates.add(currentDate.format(DateTimeFormatter.ISO_DATE));
+            currentDate = currentDate.plusDays(1);
+        }
+        return dates;
+    }
+
+    public static boolean extractSameYearmonth(String date1Str, String date2Str) {
+        // 첫 번째와 두 번째 날짜를 LocalDate 객체로 변환
+        LocalDate date1 = LocalDate.parse(date1Str + "-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        LocalDate date2 = LocalDate.parse(date2Str, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+        // 연도와 월이 일치하는지 확인
+        return date1.getYear() == date2.getYear() && date1.getMonth() == date2.getMonth();
+    }
+
 
 }
