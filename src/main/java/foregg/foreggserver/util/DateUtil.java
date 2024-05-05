@@ -91,16 +91,16 @@ public class DateUtil {
     }
 
     public static List<String> getWeekDates() {
-        String dateStr = formatLocalDateTime(LocalDate.now());
         List<String> weekDates = new ArrayList<>();
-        LocalDate date = LocalDate.parse(dateStr);
+        LocalDate today = LocalDate.now();
+        LocalDate startOfWeek = today.with(DayOfWeek.SUNDAY);
+        LocalDate endOfWeek = today.with(DayOfWeek.SATURDAY);
 
-        // 해당 주의 시작일을 찾음 (일요일부터)
-        LocalDate startOfWeek = date.with(TemporalAdjusters.previous(DayOfWeek.SUNDAY));
-        // 해당 주의 마지막일을 찾음 (토요일까지)
-        LocalDate endOfWeek = date.with(TemporalAdjusters.next(DayOfWeek.SATURDAY));
+        // 오늘이 토요일이거나 토요일 이후라면 시작일을 현재 주의 일요일로 설정
+        if (today.getDayOfWeek() != DayOfWeek.SATURDAY) {
+            startOfWeek = today.with(DayOfWeek.SUNDAY);
+        }
 
-        // 주의 시작일부터 마지막일까지 날짜를 리스트에 추가
         while (!startOfWeek.isAfter(endOfWeek)) {
             weekDates.add(startOfWeek.toString());
             startOfWeek = startOfWeek.plusDays(1);
