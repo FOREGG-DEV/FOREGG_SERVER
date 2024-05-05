@@ -42,6 +42,8 @@ public class User extends BaseEntity implements UserDetails {
     @Column(nullable = false)
     private String spouseCode;
 
+    private User spouse;
+
     @OneToOne
     @JoinColumn(name = "surgery_id")
     private Surgery surgery;
