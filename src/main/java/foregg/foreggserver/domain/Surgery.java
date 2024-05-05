@@ -3,6 +3,7 @@ package foregg.foreggserver.domain;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import foregg.foreggserver.domain.common.BaseEntity;
 import foregg.foreggserver.domain.enums.SurgeryType;
+import foregg.foreggserver.dto.myPageDTO.MyPageRequestDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,5 +34,11 @@ public class Surgery extends BaseEntity {
 
     @OneToOne(mappedBy = "surgery")
     private User user;
+
+    public void update(MyPageRequestDTO dto) {
+        this.surgeryType = dto.getSurgeryType();
+        this.count = dto.getCount();
+        this.startAt = dto.getStartDate();
+    }
 
 }
