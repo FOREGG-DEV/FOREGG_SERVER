@@ -20,10 +20,11 @@ public class UserConverter {
                 .spouseCode(dto.getSpouseCode()).build();
     }
 
-    public static UserResponseDTO toUserResponseDTO(String keycode, String jwt) {
+    public static UserResponseDTO toUserResponseDTO(String keycode, String jwt, String spouseCode) {
         return UserResponseDTO.builder()
                 .keycode(keycode)
                 .accessToken(jwt)
+                .spouseCode(spouseCode)
                 .build();
     }
 }

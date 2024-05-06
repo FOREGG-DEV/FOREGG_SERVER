@@ -46,8 +46,8 @@ public class AuthController {
     public ApiResponse<Object> login(@RequestHeader(name = "accessToken") String accessToken) {
         KakaoUserInfoResponse userInfo = kakaoRequestService.getUserInfo(accessToken);
         UserResponseDTO responseDTO = userQueryService.isExist(userInfo.getId().toString());
-        if (responseDTO == null) {
-            return ApiResponse.onFailureOnLogin(spouseCodeGenerator.generateRandomCode());
+        if (responseDTO.getAccessToken() == null) {
+            return ApiResponse.onFailureOnLogin(responseDTO);
         }
         return ApiResponse.onSuccess(responseDTO);
     }
