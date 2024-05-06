@@ -95,8 +95,8 @@ public class RecordQueryService {
     public HomeResponseDTO getTodayRecord() {
         List<HomeRecordResponseDTO> resultList = new ArrayList<>();
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
-        String todayDate = DateUtil.formatLocalDateTime(LocalDate.now());
         Optional<List<Record>> foundRecord = recordRepository.findByUser(user);
+        String todayDate = DateUtil.formatLocalDateTime(LocalDate.now());
 
         if(foundRecord.isEmpty()){
             return null;
