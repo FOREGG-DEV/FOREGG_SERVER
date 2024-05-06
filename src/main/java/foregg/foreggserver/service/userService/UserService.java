@@ -67,7 +67,7 @@ public class UserService {
         Surgery surgery = surgeryRepository.save(SurgeryConverter.toSurgery(dto));
         userRepository.save(UserConverter.toUser(userInfo, keyCode, surgery, dto));
 
-        return UserConverter.toUserResponseDTO(keyCode, jwt);
+        return UserConverter.toUserResponseDTO(keyCode, jwt, null);
     }
 
 }
