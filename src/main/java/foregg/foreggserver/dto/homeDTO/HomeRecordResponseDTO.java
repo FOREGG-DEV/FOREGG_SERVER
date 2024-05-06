@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,6 +16,7 @@ public class HomeRecordResponseDTO {
 
     private Long id;
     private RecordType recordType;
+    private List<String> times;
     private String name;
     private String memo;
 
