@@ -50,8 +50,7 @@ public class AuthController {
         KakaoUserInfoResponse userInfo = kakaoRequestService.getUserInfo(accessToken);
         UserResponseDTO responseDTO = userQueryService.isExist(userInfo.getId().toString());
         if (responseDTO.getAccessToken() == null) {
-            throw new UserHandler(USER_NEED_JOIN, responseDTO);
-            //return ApiResponse.onFailureOnLogin(responseDTO);
+            return ApiResponse.onFailureOnLogin(responseDTO);
         }
         return ApiResponse.onSuccess(responseDTO);
     }
