@@ -107,7 +107,8 @@ public class User extends BaseEntity implements UserDetails {
 
     // Jwt 전용 설정 종료
 
-
-    // 그 외 유저의 다른 속성 및 메서드...
+    public void setSpouse(User user) {
+        this.spouse = user;
+    }
 
 }
