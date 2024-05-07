@@ -1,7 +1,8 @@
 package foregg.foreggserver.controller;
 
 import foregg.foreggserver.apiPayload.ApiResponse;
-import foregg.foreggserver.domain.SpouseCode;
+import foregg.foreggserver.apiPayload.exception.handler.UserHandler;
+import foregg.foreggserver.dto.userDTO.UserHusbandJoinRequestDTO;
 import foregg.foreggserver.dto.userDTO.UserJoinRequestDTO;
 import foregg.foreggserver.dto.kakaoDTO.KakaoUserInfoResponse;
 import foregg.foreggserver.dto.userDTO.UserResponseDTO;
@@ -18,6 +19,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.USER_NEED_JOIN;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -47,11 +50,11 @@ public class AuthController {
         KakaoUserInfoResponse userInfo = kakaoRequestService.getUserInfo(accessToken);
         UserResponseDTO responseDTO = userQueryService.isExist(userInfo.getId().toString());
         if (responseDTO.getAccessToken() == null) {
-            return ApiResponse.onFailureOnLogin(responseDTO);
+            throw new UserHandler(USER_NEED_JOIN, responseDTO);
+            //return ApiResponse.onFailureOnLogin(responseDTO);
         }
         return ApiResponse.onSuccess(responseDTO);
     }
-
 
     //회원가입이 완료되었을때 JWT를 반환하게끔
     @Operation(summary = "회원가입 API")
@@ -62,9 +65,25 @@ public class AuthController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
     })
-    public ApiResponse<UserResponseDTO> join(@RequestHeader(name = "accessToken") String accessToken, @RequestBody UserJoinRequestDTO request) {
+    public ApiResponse<UserResponseDTO> join(@RequestHeader(name = "accessToken") String accessToken,
+                                             @RequestBody UserJoinRequestDTO request) {
 
         UserResponseDTO responseDTO = userService.join(accessToken, request);
+        return ApiResponse.onSuccess(responseDTO);
+    }
+
+    @Operation(summary = "남편 회원가입 API")
+    @Parameters({
+            @Parameter(name = "accessToken", description = "헤더의 엑세스 토큰입니다."),
+    })
+    @PostMapping("/husbandJoin")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER4004", description = "유효하지 않은 배우자코드입니다"),
+    })
+    public ApiResponse<UserResponseDTO> husbandJoin(@RequestHeader(name = "accessToken") String accessToken,
+                                           @RequestBody UserHusbandJoinRequestDTO dto) {
+        UserResponseDTO responseDTO = userService.husbandJoin(accessToken, dto);
         return ApiResponse.onSuccess(responseDTO);
     }
 }
