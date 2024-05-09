@@ -22,6 +22,10 @@ public class SideEffect extends BaseEntity {
     private String content;
 
     @Column(nullable = false)
-    private String image;
+    private String date;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "record_id")
+    private Record record;
 
 }
