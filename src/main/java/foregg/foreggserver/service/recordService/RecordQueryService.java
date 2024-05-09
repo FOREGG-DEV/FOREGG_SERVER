@@ -1,11 +1,13 @@
 package foregg.foreggserver.service.recordService;
 
+import foregg.foreggserver.apiPayload.exception.handler.RecordHandler;
 import foregg.foreggserver.apiPayload.exception.handler.UserHandler;
 import foregg.foreggserver.converter.HomeConverter;
 import foregg.foreggserver.converter.RecordConverter;
 import foregg.foreggserver.domain.Record;
 import foregg.foreggserver.domain.RepeatTime;
 import foregg.foreggserver.domain.User;
+import foregg.foreggserver.domain.enums.RecordType;
 import foregg.foreggserver.dto.homeDTO.HomeRecordResponseDTO;
 import foregg.foreggserver.dto.homeDTO.HomeResponseDTO;
 import foregg.foreggserver.dto.recordDTO.RecordResponseDTO;
@@ -21,11 +23,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Security;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 
-import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.USER_NOT_FOUND;
+import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
 
 @Transactional(readOnly = true)
 @Service
@@ -118,6 +120,30 @@ public class RecordQueryService {
             }
         }
         return HomeConverter.toHomeResponseDTO(user.getNickname(), todayDate, resultList);
+    }
+
+    public Record getNearestHospitalRecord() {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        List<Record> foundRecords = recordRepository.findByUserAndType(user,RecordType.HOSPITAL)
+                .orElseThrow(() -> new RecordHandler(NOT_RESERVED_HOSPITAL_RECORD));
+        List<String> dates = new ArrayList<>();
+
+        for (Record record : foundRecords) {
+            if (dates != null) {
+                dates.add(record.getDate());
+            }
+        }
+
+        LocalDate today = LocalDate.now();
+
+        while (true) {
+            String resultDate;
+            today = today.plusDays(1);
+            if (dates.contains(DateUtil.formatLocalDateTime(today))) {
+                resultDate = DateUtil.formatLocalDateTime(today);
+                return recordRepository.findByDateAndType(resultDate, RecordType.HOSPITAL);
+            }
+        }
     }
 
 
