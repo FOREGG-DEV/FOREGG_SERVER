@@ -1,6 +1,7 @@
 package foregg.foreggserver.dto.recordDTO;
 
 import foregg.foreggserver.domain.SideEffect;
+import foregg.foreggserver.dto.dailyDTO.SideEffectResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,6 +16,6 @@ import java.util.List;
 public class MedicalRecordResponseDTO {
 
     private String medicalRecord;
-    private List<SideEffect> sideEffects;
+    private List<SideEffectResponseDTO> sideEffects;
 
 }
