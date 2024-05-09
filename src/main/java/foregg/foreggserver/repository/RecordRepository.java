@@ -2,6 +2,7 @@ package foregg.foreggserver.repository;
 
 import foregg.foreggserver.domain.Record;
 import foregg.foreggserver.domain.User;
+import foregg.foreggserver.domain.enums.RecordType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -12,5 +13,10 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
     Optional<List<Record>> findByUserAndYearmonth(User user, String yearmonth);
 
     Optional<List<Record>> findByUser(User user);
+
+    Optional<List<Record>> findByUserAndType(User user, RecordType type);
+
+    Record findByDateAndType(String date, RecordType type);
+
 
 }
