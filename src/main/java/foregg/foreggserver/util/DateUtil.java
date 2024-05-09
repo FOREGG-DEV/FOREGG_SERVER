@@ -1,10 +1,10 @@
 package foregg.foreggserver.util;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -93,13 +93,10 @@ public class DateUtil {
     public static List<String> getWeekDates() {
         List<String> weekDates = new ArrayList<>();
         LocalDate today = LocalDate.now();
-        LocalDate startOfWeek = today.with(DayOfWeek.SUNDAY);
-        LocalDate endOfWeek = today.with(DayOfWeek.SATURDAY);
+        LocalDate startOfWeek = today.with(DayOfWeek.MONDAY);
+        LocalDate endOfWeek = today.with(DayOfWeek.SUNDAY);
 
-        // 오늘이 토요일이거나 토요일 이후라면 시작일을 현재 주의 일요일로 설정
-        if (today.getDayOfWeek() != DayOfWeek.SATURDAY) {
-            startOfWeek = today.with(DayOfWeek.SUNDAY);
-        }
+        weekDates.add(String.valueOf(startOfWeek.minusDays(1)));
 
         while (!startOfWeek.isAfter(endOfWeek)) {
             weekDates.add(startOfWeek.toString());

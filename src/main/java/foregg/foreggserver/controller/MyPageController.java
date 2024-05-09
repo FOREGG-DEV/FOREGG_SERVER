@@ -48,8 +48,8 @@ public class MyPageController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "RECORD4004", description = "나의 기록이 존재하지 않습니다"),
     })
-    public ApiResponse<List<MyPageRecordResponseDTO>> medicalInfo(@RequestParam(name = "sort") String sort) {
-        List<MyPageRecordResponseDTO> result = myPageQueryService.getMedicalInformation(sort);
+    public ApiResponse<MyPageMedicalRecordResponseDTO> medicalInfo(@RequestParam(name = "sort") String sort) {
+        MyPageMedicalRecordResponseDTO result = myPageQueryService.getMedicalInformation(sort);
         return ApiResponse.onSuccess(result);
     }
 

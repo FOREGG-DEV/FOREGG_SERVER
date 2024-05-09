@@ -14,6 +14,7 @@ public class ChallengeConverter {
                 .id(challenge.getId())
                 .name(challenge.getName())
                 .description(challenge.getDescription())
+                .image(challenge.getImage())
                 .participants(participants)
                 .build();
     }
@@ -23,6 +24,7 @@ public class ChallengeConverter {
                 .id(challenge.getId())
                 .name(challenge.getName())
                 .description(challenge.getDescription())
+                .image(challenge.getImage())
                 .participants(participants)
                 .successDays(successDays)
                 .build();
