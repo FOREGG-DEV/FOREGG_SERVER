@@ -59,13 +59,8 @@ public class Record extends BaseEntity {
     @JoinColumn(name = "Schedule_id")
     private Schedule schedule;
 
-    @OneToOne
-    @JoinColumn(name = "injection_id")
-    private Injection injection;
-
-    @OneToOne
-    @JoinColumn(name = "sideEffect_id")
-    private SideEffect sideEffect;
+    @OneToMany(mappedBy = "record")
+    private List<SideEffect> sideEffect;
 
     public void updateRecord(RecordRequestDTO dto) {
         this.type = dto.getRecordType();

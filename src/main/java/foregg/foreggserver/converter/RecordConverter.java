@@ -2,8 +2,8 @@ package foregg.foreggserver.converter;
 
 import foregg.foreggserver.domain.Record;
 import foregg.foreggserver.domain.RepeatTime;
-import foregg.foreggserver.domain.SideEffect;
 import foregg.foreggserver.domain.User;
+import foregg.foreggserver.dto.dailyDTO.SideEffectResponseDTO;
 import foregg.foreggserver.dto.recordDTO.MedicalRecordResponseDTO;
 import foregg.foreggserver.dto.recordDTO.RecordRequestDTO;
 import foregg.foreggserver.dto.recordDTO.RecordResponseDTO;
@@ -11,7 +11,6 @@ import foregg.foreggserver.dto.recordDTO.RepeatTimeResponseDTO;
 import foregg.foreggserver.util.DateUtil;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class RecordConverter {
@@ -42,9 +41,11 @@ public class RecordConverter {
     }
 
     public static MedicalRecordResponseDTO toMedicalRecordResponse(Record record) {
+        List<SideEffectResponseDTO> resultList = DailyConverter.toSideEffectResponseDTO(record.getSideEffect());
         return MedicalRecordResponseDTO.builder()
                 .medicalRecord(record.getMedical_record())
-                .sideEffects((List<SideEffect>) record.getSideEffect()).build();
+                .sideEffects(resultList)
+                .build();
     }
 
     public static RecordResponseDTO toRecordResponseDTO(Record record, List<RepeatTime> repeatTimes)  {

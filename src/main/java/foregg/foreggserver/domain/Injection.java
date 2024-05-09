@@ -1,7 +1,6 @@
 package foregg.foreggserver.domain;
 
 import foregg.foreggserver.domain.common.BaseEntity;
-import foregg.foreggserver.domain.enums.InjectionPart;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,11 +29,5 @@ public class Injection extends BaseEntity {
 
     @Column(nullable = false)
     private String caution;
-
-    @Enumerated(EnumType.STRING)
-    private InjectionPart injectionPart;
-
-    @OneToOne(mappedBy = "injection")
-    private Record record;
 
 }

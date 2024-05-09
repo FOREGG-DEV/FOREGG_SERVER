@@ -1,16 +1,13 @@
 package foregg.foreggserver.controller;
 
 import foregg.foreggserver.apiPayload.ApiResponse;
-import foregg.foreggserver.apiPayload.exception.handler.UserHandler;
 import foregg.foreggserver.dto.userDTO.UserHusbandJoinRequestDTO;
 import foregg.foreggserver.dto.userDTO.UserJoinRequestDTO;
 import foregg.foreggserver.dto.kakaoDTO.KakaoUserInfoResponse;
 import foregg.foreggserver.dto.userDTO.UserResponseDTO;
-import foregg.foreggserver.jwt.JwtTokenProvider;
 import foregg.foreggserver.service.userService.KakaoRequestService;
 import foregg.foreggserver.service.userService.UserQueryService;
 import foregg.foreggserver.service.userService.UserService;
-import foregg.foreggserver.util.SpouseCodeGenerator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -20,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.USER_NEED_JOIN;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -32,8 +28,6 @@ public class AuthController {
     private final UserService userService;
     private final UserQueryService userQueryService;
     private final KakaoRequestService kakaoRequestService;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final SpouseCodeGenerator spouseCodeGenerator;
 
 
     // 카카오 로그인을 위해 회원가입 여부 확인, 이미 회원이면 Jwt 토큰 발급

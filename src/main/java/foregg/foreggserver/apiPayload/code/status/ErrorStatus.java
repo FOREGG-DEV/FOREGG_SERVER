@@ -37,6 +37,7 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_HOSPITAL_RECORD(BAD_REQUEST, "RECORD4002", "병원 일정이 아닙니다"),
     NOT_REPEAT_TIME(BAD_REQUEST, "RECORD4003", "반복 시간이 존재하지 않습니다"),
     NOT_FOUND_MY_RECORD(BAD_REQUEST, "RECORD4004", "나의 기록이 존재하지 않습니다"),
+    NOT_RESERVED_HOSPITAL_RECORD(BAD_REQUEST, "RECORD4005", "예약된 병원 기록이 존재하지 않습니다"),
 
     //챌린지 관련 에러
     CHALLENGE_NOT_FOUND(BAD_REQUEST, "CHALLENGE4001", "존재하지 않는 챌린지입니다"),
@@ -54,7 +55,11 @@ public enum ErrorStatus implements BaseErrorCode {
 
     //마이페이지 관련 에러
     NO_BOARD_FOUND(BAD_REQUEST, "MYPAGE4001", "공지가 존재하지 않습니다"),
-    NO_FAQ_FOUND(BAD_REQUEST, "MYPAGE4002", "FAQ가 존재하지 않습니다");
+    NO_FAQ_FOUND(BAD_REQUEST, "MYPAGE4002", "FAQ가 존재하지 않습니다"),
+
+    //하루기록 관련 에러
+    ALREADY_WRITTEN(BAD_REQUEST, "DAILY4001", "오늘의 하루기록이 이미 존재합니다"),
+    NOT_FOUND_DAILY(BAD_REQUEST, "DAILY4002","하루 기록이 존재하지 않습니다");
 
 
 

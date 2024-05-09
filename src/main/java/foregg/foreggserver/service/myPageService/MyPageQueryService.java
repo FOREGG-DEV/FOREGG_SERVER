@@ -7,10 +7,7 @@ import foregg.foreggserver.converter.MyPageConverter;
 import foregg.foreggserver.domain.*;
 import foregg.foreggserver.domain.Record;
 import foregg.foreggserver.domain.enums.RecordType;
-import foregg.foreggserver.dto.myPageDTO.MyPageBoardResponseDTO;
-import foregg.foreggserver.dto.myPageDTO.MyPageFAQResponseDTO;
-import foregg.foreggserver.dto.myPageDTO.MyPageRecordResponseDTO;
-import foregg.foreggserver.dto.myPageDTO.MyPageResponseDTO;
+import foregg.foreggserver.dto.myPageDTO.*;
 import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.*;
 import foregg.foreggserver.service.userService.UserQueryService;
@@ -42,7 +39,7 @@ public class MyPageQueryService {
         return MyPageConverter.toMyPageResponseDTO(user, surgery);
     }
 
-    public List<MyPageRecordResponseDTO> getMedicalInformation(String sort) {
+    public MyPageMedicalRecordResponseDTO getMedicalInformation(String sort) {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
         List<Record> records = recordRepository.findByUser(user).orElseThrow(() -> new RecordHandler(NOT_FOUND_MY_RECORD));
         List<MyPageRecordResponseDTO> resultList = new ArrayList<>();
@@ -96,24 +93,24 @@ public class MyPageQueryService {
         return resultList;
     }
 
-    private List<MyPageRecordResponseDTO> getMedicineRecord(List<Record> records) {
+    private MyPageMedicalRecordResponseDTO getMedicineRecord(List<Record> records) {
         List<MyPageRecordResponseDTO> resultList = new ArrayList<>();
         for (Record record : records) {
             if (record.getType() == RecordType.MEDICINE) {
                 resultList.add(MyPageConverter.toMyPageRecordResponseDTO(record));
             }
         }
-        return resultList;
+        return MyPageMedicalRecordResponseDTO.builder().myPageRecordResponseDTO(resultList).build();
     }
 
-    private List<MyPageRecordResponseDTO> getInjectionRecord(List<Record> records) {
+    private MyPageMedicalRecordResponseDTO getInjectionRecord(List<Record> records) {
         List<MyPageRecordResponseDTO> resultList = new ArrayList<>();
         for (Record record : records) {
             if (record.getType() == RecordType.INJECTION) {
                 resultList.add(MyPageConverter.toMyPageRecordResponseDTO(record));
             }
         }
-        return resultList;
+        return MyPageMedicalRecordResponseDTO.builder().myPageRecordResponseDTO(resultList).build();
     }
 
 }
