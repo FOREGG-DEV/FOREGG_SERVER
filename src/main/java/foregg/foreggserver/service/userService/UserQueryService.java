@@ -5,6 +5,7 @@ import foregg.foreggserver.converter.UserConverter;
 import foregg.foreggserver.domain.User;
 import foregg.foreggserver.dto.kakaoDTO.KakaoUserInfoResponse;
 import foregg.foreggserver.dto.userDTO.UserResponseDTO;
+import foregg.foreggserver.dto.userDTO.UserSpouseCodeResponseDTO;
 import foregg.foreggserver.jwt.JwtTokenProvider;
 import foregg.foreggserver.repository.UserRepository;
 import foregg.foreggserver.util.SpouseCodeGenerator;
@@ -41,9 +42,13 @@ public class UserQueryService {
         Optional<User> foundUser = userRepository.findByKeyCode(userKeycode);
         String jwt = jwtTokenProvider.createToken(userKeycode);
         if (foundUser.isEmpty()) {
-            return UserConverter.toUserResponseDTO(null, null, spouseCodeGenerator.generateRandomCode());
+            throw new UserHandler(USER_NEED_JOIN);
         }
-        return UserConverter.toUserResponseDTO(userKeycode, jwt, null);
+        return UserConverter.toUserResponseDTO(userKeycode, jwt);
+    }
+
+    public UserSpouseCodeResponseDTO getUserSpouseCode() {
+        return UserSpouseCodeResponseDTO.builder().spouseCode(spouseCodeGenerator.generateRandomCode()).build();
     }
 
     public User getUser(String keycode) {

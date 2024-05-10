@@ -5,6 +5,7 @@ import foregg.foreggserver.dto.userDTO.UserHusbandJoinRequestDTO;
 import foregg.foreggserver.dto.userDTO.UserJoinRequestDTO;
 import foregg.foreggserver.dto.kakaoDTO.KakaoUserInfoResponse;
 import foregg.foreggserver.dto.userDTO.UserResponseDTO;
+import foregg.foreggserver.dto.userDTO.UserSpouseCodeResponseDTO;
 import foregg.foreggserver.service.userService.KakaoRequestService;
 import foregg.foreggserver.service.userService.UserQueryService;
 import foregg.foreggserver.service.userService.UserService;
@@ -16,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
 
 
 @Slf4j
@@ -43,9 +45,6 @@ public class AuthController {
     public ApiResponse<Object> login(@RequestHeader(name = "accessToken") String accessToken) {
         KakaoUserInfoResponse userInfo = kakaoRequestService.getUserInfo(accessToken);
         UserResponseDTO responseDTO = userQueryService.isExist(userInfo.getId().toString());
-        if (responseDTO.getAccessToken() == null) {
-            return ApiResponse.onFailureOnLogin(responseDTO);
-        }
         return ApiResponse.onSuccess(responseDTO);
     }
 
@@ -79,4 +78,15 @@ public class AuthController {
         UserResponseDTO responseDTO = userService.husbandJoin(accessToken, dto);
         return ApiResponse.onSuccess(responseDTO);
     }
+
+    @Operation(summary = "배우자 코드 API")
+    @GetMapping("/spouseCode")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+    })
+    public ApiResponse<UserSpouseCodeResponseDTO> getSpouseCode() {
+        UserSpouseCodeResponseDTO userSpouseCode = userQueryService.getUserSpouseCode();
+        return ApiResponse.onSuccess(userSpouseCode);
+    }
+
 }
