@@ -71,9 +71,13 @@ public class Record extends BaseEntity {
         this.repeat_date = dto.getRepeatDate();
         this.dose = dto.getDose();
         this.memo = dto.getMemo();
-        this.yearmonth = DateUtil.getYearAndMonth(dto.getDate());
+        if (dto.getDate() != null) {
+            this.yearmonth = DateUtil.getYearAndMonth(dto.getDate());
+            this.start_end_yearmonth = null;
+        }
         if (dto.getStartDate() != null) {
             this.start_end_yearmonth = DateUtil.getMonthsBetween(dto.getStartDate(), dto.getEndDate());
+            this.yearmonth = null;
         }
     }
 
