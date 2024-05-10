@@ -61,7 +61,7 @@ public class UserService {
         Surgery surgery = surgeryRepository.save(SurgeryConverter.toSurgery(dto));
         userRepository.save(UserConverter.toUser(userInfo, keyCode, surgery, dto));
 
-        return UserConverter.toUserResponseDTO(keyCode, jwt, null);
+        return UserConverter.toUserResponseDTO(keyCode, jwt);
     }
 
     public UserResponseDTO husbandJoin(String token, UserHusbandJoinRequestDTO dto) {
@@ -79,7 +79,7 @@ public class UserService {
         wife.setSpouse(husband);
         userRepository.save(husband);
 
-        return UserConverter.toUserResponseDTO(keyCode, jwt, null);
+        return UserConverter.toUserResponseDTO(keyCode, jwt);
 
     }
 
