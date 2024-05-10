@@ -27,9 +27,9 @@ public class WebclientConfig {
     @Bean
     public WebClient webClient() {
         Function<HttpClient, HttpClient> mapper = client -> HttpClient.create()
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000)
                 .doOnConnected(connection -> connection.addHandlerLast(new ReadTimeoutHandler(10))
-                        .addHandlerLast(new WriteTimeoutHandler(10)))
+                        .addHandlerLast(new WriteTimeoutHandler(30)))
                 .responseTimeout(Duration.ofSeconds(1));
 
         ClientHttpConnector connector =
