@@ -11,6 +11,5 @@ public class UserResponseDTO {
 
     private String keycode;
     private String accessToken;
-    private String spouseCode;
 
 }
