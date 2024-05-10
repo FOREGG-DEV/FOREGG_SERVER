@@ -32,11 +32,10 @@ public class UserConverter {
                 .build();
     }
 
-    public static UserResponseDTO toUserResponseDTO(String keycode, String jwt, String spouseCode) {
+    public static UserResponseDTO toUserResponseDTO(String keycode, String jwt) {
         return UserResponseDTO.builder()
                 .keycode(keycode)
                 .accessToken(jwt)
-                .spouseCode(spouseCode)
                 .build();
     }
 }
