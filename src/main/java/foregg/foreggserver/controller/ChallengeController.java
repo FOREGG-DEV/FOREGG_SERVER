@@ -1,7 +1,8 @@
 package foregg.foreggserver.controller;
 
 import foregg.foreggserver.apiPayload.ApiResponse;
-import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO;
+import foregg.foreggserver.dto.challengeDTO.ChallengeAllResponseDTO;
+import foregg.foreggserver.dto.challengeDTO.ChallengeMyResponseDTO;
 import foregg.foreggserver.service.challengeService.ChallengeQueryService;
 import foregg.foreggserver.service.challengeService.ChallengeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,8 +27,8 @@ public class ChallengeController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
     })
-    public ApiResponse<List<ChallengeResponseDTO>> seeAllChallenges() {
-        List<ChallengeResponseDTO> result = challengeQueryService.getAllChallenges();
+    public ApiResponse<List<ChallengeAllResponseDTO>> seeAllChallenges() {
+        List<ChallengeAllResponseDTO> result = challengeQueryService.getAllChallenges();
         return ApiResponse.onSuccess(result);
     }
 
@@ -49,8 +50,8 @@ public class ChallengeController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4002", description = "나의 챌린지가 존재하지 않습니다"),
     })
-    public ApiResponse<List<ChallengeResponseDTO>> seeMyChallenges() {
-        List<ChallengeResponseDTO> myChallenges = challengeQueryService.getMyChallenges();
+    public ApiResponse<List<ChallengeMyResponseDTO>> seeMyChallenges() {
+        List<ChallengeMyResponseDTO> myChallenges = challengeQueryService.getMyChallenges();
         return ApiResponse.onSuccess(myChallenges);
     }
 
