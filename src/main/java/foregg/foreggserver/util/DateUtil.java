@@ -138,6 +138,9 @@ public class DateUtil {
         List<String> dayOfWeekList = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+        if (dates == null) {
+            return null;
+        }
         for (String date : dates) {
             LocalDate localDate = LocalDate.parse(date, formatter);
             DayOfWeek dayOfWeek = localDate.getDayOfWeek();
