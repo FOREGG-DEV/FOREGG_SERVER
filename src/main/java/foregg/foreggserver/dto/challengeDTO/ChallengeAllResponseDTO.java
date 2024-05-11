@@ -5,19 +5,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChallengeResponseDTO {
-
+public class ChallengeAllResponseDTO {
     private Long id;
     private String name;
     private String description;
     private String image;
     private int participants;
-    private List<String> successDays;
-
+    private boolean ifMine;
 }

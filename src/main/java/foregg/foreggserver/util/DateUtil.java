@@ -102,6 +102,7 @@ public class DateUtil {
             weekDates.add(startOfWeek.toString());
             startOfWeek = startOfWeek.plusDays(1);
         }
+        weekDates.remove(7);
         return weekDates;
     }
 
@@ -131,6 +132,55 @@ public class DateUtil {
 
         // 연도와 월이 일치하는지 확인
         return date1.getYear() == date2.getYear() && date1.getMonth() == date2.getMonth();
+    }
+
+    public static List<String> convertDatesToDayOfWeek(List<String> dates) {
+        List<String> dayOfWeekList = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        for (String date : dates) {
+            LocalDate localDate = LocalDate.parse(date, formatter);
+            DayOfWeek dayOfWeek = localDate.getDayOfWeek();
+            String dayOfWeekString = dayOfWeek.toString();
+            // 한글 요일로 변환
+            switch (dayOfWeekString) {
+                case "MONDAY":
+                    dayOfWeekString = "월";
+                    break;
+                case "TUESDAY":
+                    dayOfWeekString = "화";
+                    break;
+                case "WEDNESDAY":
+                    dayOfWeekString = "수";
+                    break;
+                case "THURSDAY":
+                    dayOfWeekString = "목";
+                    break;
+                case "FRIDAY":
+                    dayOfWeekString = "금";
+                    break;
+                case "SATURDAY":
+                    dayOfWeekString = "토";
+                    break;
+                case "SUNDAY":
+                    dayOfWeekString = "일";
+                    break;
+            }
+            dayOfWeekList.add(dayOfWeekString);
+        }
+
+        return dayOfWeekList;
+    }
+
+    public static String getWeekOfMonth(String dateStr) {
+        // 입력된 날짜 문자열을 LocalDate로 변환
+        LocalDate date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+        // 해당 날짜의 월과 주차를 계산
+        int month = date.getMonthValue();
+        int weekOfMonth = (date.getDayOfMonth() - 1) / 7 + 1;
+
+        return month + "월 " + weekOfMonth + "주차";
     }
 
 
