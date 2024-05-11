@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChallengeResponseDTO {
+public class ChallengeMyResponseDTO {
 
     private Long id;
     private String name;
@@ -19,5 +19,6 @@ public class ChallengeResponseDTO {
     private String image;
     private int participants;
     private List<String> successDays;
+    private String weekOfMonth;
 
 }
