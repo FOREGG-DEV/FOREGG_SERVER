@@ -3,30 +3,33 @@ package foregg.foreggserver.converter;
 import foregg.foreggserver.domain.Challenge;
 import foregg.foreggserver.domain.ChallengeParticipation;
 import foregg.foreggserver.domain.User;
-import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO;
+import foregg.foreggserver.dto.challengeDTO.ChallengeAllResponseDTO;
+import foregg.foreggserver.dto.challengeDTO.ChallengeMyResponseDTO;
 
 import java.util.List;
 
 public class ChallengeConverter {
 
-    public static ChallengeResponseDTO toChallengeResponseDTO(Challenge challenge, int participants) {
-        return ChallengeResponseDTO.builder()
+    public static ChallengeAllResponseDTO toChallengeAllResponseDTO(Challenge challenge, int participants, boolean ifMine) {
+        return ChallengeAllResponseDTO.builder()
                 .id(challenge.getId())
                 .name(challenge.getName())
                 .description(challenge.getDescription())
                 .image(challenge.getImage())
                 .participants(participants)
+                .ifMine(ifMine)
                 .build();
     }
 
-    public static ChallengeResponseDTO toChallengeResponseDTO(Challenge challenge, int participants, List<String> successDays) {
-        return ChallengeResponseDTO.builder()
+    public static ChallengeMyResponseDTO toChallengeMyResponseDTO(Challenge challenge, int participants, List<String> successDays, String weekOfMonth) {
+        return ChallengeMyResponseDTO.builder()
                 .id(challenge.getId())
                 .name(challenge.getName())
                 .description(challenge.getDescription())
                 .image(challenge.getImage())
                 .participants(participants)
                 .successDays(successDays)
+                .weekOfMonth(weekOfMonth)
                 .build();
     }
 
