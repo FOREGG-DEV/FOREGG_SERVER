@@ -16,6 +16,7 @@ import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.RecordRepository;
 import foregg.foreggserver.repository.RepeatTimeRepository;
 import foregg.foreggserver.repository.UserRepository;
+import foregg.foreggserver.service.dailyService.DailyQueryService;
 import foregg.foreggserver.service.userService.UserQueryService;
 import foregg.foreggserver.util.DateUtil;
 import lombok.RequiredArgsConstructor;
@@ -39,44 +40,41 @@ public class RecordQueryService {
     private final RecordRepository recordRepository;
     private final RepeatTimeRepository repeatTimeRepository;
     private final UserQueryService userQueryService;
+    private final DailyQueryService dailyQueryService;
 
     public ScheduleResponseDTO calendar(String yearmonth) {
+        //인접 월
         List<String> adjacentMonths = DateUtil.getAdjacentMonths(yearmonth);
         User user = getUser(SecurityUtil.getCurrentUser());
-        List<RecordResponseDTO> recordList = new ArrayList<>();
+        List<RecordResponseDTO> resultList = new ArrayList<>();
 
-        for (String s : adjacentMonths) {
-            Optional<List<Record>> result = recordRepository.findByUserAndYearmonth(user, s);
-            if (result.isPresent()) {
-                List<Record> records = result.get();
-                for (Record record : records) {
-                    RecordResponseDTO resultDTO = getRepeatTimes(record);
-                    // 중복 체크
-                    if (!recordList.stream().anyMatch(dto -> dto.getId() == resultDTO.getId())) {
-                        recordList.add(resultDTO);
+        Optional<List<Record>> foundRecords = recordRepository.findByUser(user);
+        if (foundRecords.isEmpty()) {
+            return null;
+        }
+
+        List<Record> records = foundRecords.get();
+        for (Record record : records) {
+            if (record.getDate() == null) {
+                //반복 주기가 설정되어 있는 일정
+                for (String s : adjacentMonths) {
+                    if (record.getStart_end_yearmonth().contains(s)) {
+                        //시작 연월부터 끝 연월까지 인접 연월을 포함하고 있다면
+                        resultList.add(includeRepeatTimes(record));
+                        break;
                     }
+                }
+
+            }else{
+                //반복 주기가 설정되어 있지 않은 일정
+                if (adjacentMonths.contains(record.getYearmonth())) {
+                    //인접 월에 yearmonth가 포함
+                    resultList.add(includeRepeatTimes(record));
                 }
             }
         }
 
-        for (String s : adjacentMonths) {
-            Optional<List<Record>> result = recordRepository.findByUser(user);
-            if (result.isPresent()) {
-                List<Record> records = result.get();
-                for (Record record : records) {
-                    List<String> startEndYearmonth = record.getStart_end_yearmonth();
-                    RecordResponseDTO resultDTO = getRepeatTimes(record);
-                    if (startEndYearmonth != null && startEndYearmonth.contains(s)) {
-                        // 중복 체크
-                        if (!recordList.stream().anyMatch(dto -> dto.getId() == resultDTO.getId())) {
-                            recordList.add(resultDTO);
-                        }
-                    }
-                }
-            }
-        }
-
-        return ScheduleResponseDTO.builder().records(recordList).build();
+        return ScheduleResponseDTO.builder().records(resultList).build();
     }
 
 
@@ -85,9 +83,9 @@ public class RecordQueryService {
         return user;
     }
 
-    private RecordResponseDTO getRepeatTimes(Record record) {
+    private RecordResponseDTO includeRepeatTimes(Record record) {
         Optional<List<RepeatTime>> repeatTimes = repeatTimeRepository.findByRecord(record);
-        if(repeatTimes.isPresent()){
+        if (repeatTimes.isPresent()) {
             List<RepeatTime> result = repeatTimes.get();
             return RecordConverter.toRecordResponseDTO(record, result);
         }
@@ -95,12 +93,17 @@ public class RecordQueryService {
     }
 
     public HomeResponseDTO getTodayRecord() {
+        User user = null;
         List<HomeRecordResponseDTO> resultList = new ArrayList<>();
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        if (SecurityUtil.ifCurrentUserIsHusband()) {
+            user = userQueryService.findWife();
+        } else {
+            user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        }
         Optional<List<Record>> foundRecord = recordRepository.findByUser(user);
         String todayDate = DateUtil.formatLocalDateTime(LocalDate.now());
 
-        if(foundRecord.isEmpty()){
+        if (foundRecord.isEmpty()) {
             return null;
         }
 
@@ -112,19 +115,23 @@ public class RecordQueryService {
                 if (intervalDates.contains(todayDate)) {
                     resultList.add(HomeConverter.toHomeRecordResponseDTO(record));
                 }
-            }else{
+            } else {
                 //반복주기가 설정되지 않은 일정
                 if (record.getDate().equals(todayDate)) {
                     resultList.add(HomeConverter.toHomeRecordResponseDTO(record));
                 }
             }
         }
-        return HomeConverter.toHomeResponseDTO(user.getNickname(), todayDate, resultList);
+
+        if (SecurityUtil.ifCurrentUserIsHusband()) {
+            return HomeConverter.toHomeResponseDTO(user.getNickname(), todayDate, resultList, dailyQueryService.getTodayDaily(), null);
+        }
+        return HomeConverter.toHomeResponseDTO(user.getNickname(), todayDate, resultList, null, null);
     }
 
     public Record getNearestHospitalRecord() {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
-        List<Record> foundRecords = recordRepository.findByUserAndType(user,RecordType.HOSPITAL)
+        List<Record> foundRecords = recordRepository.findByUserAndType(user, RecordType.HOSPITAL)
                 .orElseThrow(() -> new RecordHandler(NOT_RESERVED_HOSPITAL_RECORD));
         List<String> dates = new ArrayList<>();
 
