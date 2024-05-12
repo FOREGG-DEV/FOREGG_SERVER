@@ -8,10 +8,12 @@ import foregg.foreggserver.dto.dailyDTO.DailyTotalResponseDTO;
 import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.DailyRepository;
 import foregg.foreggserver.service.userService.UserQueryService;
+import foregg.foreggserver.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,8 +27,8 @@ public class DailyQueryService {
     private final UserQueryService userQueryService;
 
     public DailyTotalResponseDTO getDaily() {
+        User user = userQueryService.returnWifeOrHusband();
         List<DailyResponseDTO> resultList = new ArrayList<>();
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
         Optional<List<Daily>> daily = dailyRepository.findByUser(user);
         if (daily.isEmpty()) {
             return null;
@@ -38,6 +40,15 @@ public class DailyQueryService {
         return DailyTotalResponseDTO.builder()
                 .dailyResponseDTO(resultList)
                 .build();
+    }
+
+    public Daily getTodayDaily() {
+        String today = DateUtil.formatLocalDateTime(LocalDate.now());
+        Optional<Daily> byDate = dailyRepository.findByDate(today);
+        if (byDate.isEmpty()) {
+            return null;
+        }
+        return byDate.get();
     }
 
 }
