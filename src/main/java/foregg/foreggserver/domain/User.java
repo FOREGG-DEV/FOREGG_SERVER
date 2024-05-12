@@ -114,4 +114,8 @@ public class User extends BaseEntity implements UserDetails {
         this.spouse = user;
     }
 
+    public void setRole(String role) {
+        this.roles.add(role);
+    }
+
 }
