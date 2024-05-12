@@ -35,8 +35,9 @@ public class LedgerQueryService {
     public LedgerTotalResponseDTO all() {
         List<LedgerResponseDTO> resultList = new ArrayList<>();
         List<Ledger> ls = new ArrayList<>();
+        User infoUser = userQueryService.returnWifeOrHusband();
 
-        List<Ledger> ledgers = findLedgerByUser();
+        List<Ledger> ledgers = findLedgerByUser(infoUser);
         List<String> pastDays = DateUtil.getPast30Days(DateUtil.formatLocalDateTime(LocalDate.now()));
 
         for (Ledger ledger : ledgers) {
@@ -49,7 +50,9 @@ public class LedgerQueryService {
     }
 
     public LedgerTotalResponseDTO byCount(int count) {
-        List<Ledger> ledgers = findLedgerByUser();
+        User infoUser = userQueryService.returnWifeOrHusband();
+
+        List<Ledger> ledgers = findLedgerByUser(infoUser);
         List<LedgerResponseDTO> resultList = new ArrayList<>();
         List<Ledger> ls = new ArrayList<>();
 
@@ -63,7 +66,9 @@ public class LedgerQueryService {
     }
 
     public LedgerTotalResponseDTO byMonth(String yearmonth) {
-        List<Ledger> ledgers = findLedgerByUser();
+        User infoUser = userQueryService.returnWifeOrHusband();
+
+        List<Ledger> ledgers = findLedgerByUser(infoUser);
         List<LedgerResponseDTO> resultList = new ArrayList<>();
         List<Ledger> ls = new ArrayList<>();
 
@@ -77,7 +82,9 @@ public class LedgerQueryService {
     }
 
     public LedgerTotalResponseDTO byCondition(String from, String to) {
-        List<Ledger> ledgers = findLedgerByUser();
+        User infoUser = userQueryService.returnWifeOrHusband();
+
+        List<Ledger> ledgers = findLedgerByUser(infoUser);
         List<String> dates = DateUtil.getIntervalDates(from, to);
         List<LedgerResponseDTO> resultList = new ArrayList<>();
         List<Ledger> ls = new ArrayList<>();
@@ -109,8 +116,7 @@ public class LedgerQueryService {
         return LedgerConverter.toLedgerSummaryDTO(totalExpense, subsidy, personal);
     }
 
-    private List<Ledger> findLedgerByUser() {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+    private List<Ledger> findLedgerByUser(User user) {
         return ledgerRepository.findByUser(user).orElseThrow(() -> new LedgerHandler(NOT_FOUND_MY_LEDGER));
     }
 
