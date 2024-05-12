@@ -3,12 +3,14 @@ package foregg.foreggserver.controller;
 import foregg.foreggserver.apiPayload.ApiResponse;
 import foregg.foreggserver.dto.recordDTO.ScheduleResponseDTO;
 import foregg.foreggserver.service.recordService.RecordQueryService;
+import foregg.foreggserver.util.DateUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,6 +32,7 @@ public class ScheduleController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
     })
+    @PreAuthorize("isAuthenticated()")
     public ApiResponse<ScheduleResponseDTO> calendar(@RequestParam(name = "yearmonth") String yearmonth) {
         ScheduleResponseDTO calendar = recordQueryService.calendar(yearmonth);
         return ApiResponse.onSuccess(calendar);
