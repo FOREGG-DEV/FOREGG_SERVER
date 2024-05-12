@@ -9,18 +9,10 @@ import foregg.foreggserver.dto.myPageDTO.MyPageResponseDTO;
 
 public class MyPageConverter {
 
-    public static MyPageResponseDTO toMyPageResponseDTO(User user, Surgery surgery) {
-
-        String spouseName;
-
-        if (user.getSpouse() == null) {
-            spouseName = null;
-        }else{
-            spouseName = user.getSpouse().getNickname();
-        }
+    public static MyPageResponseDTO toMyPageResponseDTO(User me,User user, Surgery surgery, String spouseName) {
 
         return MyPageResponseDTO.builder()
-                .nickname(user.getNickname())
+                .nickname(me.getNickname())
                 .surgeryType(surgery.getSurgeryType())
                 .count(surgery.getCount())
                 .startDate(surgery.getStartAt())
