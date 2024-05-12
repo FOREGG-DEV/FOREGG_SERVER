@@ -33,7 +33,8 @@ public class UserConverter {
                 .email("동의 후 삽입")
                 .nickname(userInfo.getProperties().getNickname())
                 .ssn(dto.getSsn())
-                .spouse(spouse)
+                .spouseId(spouse.getId())
+                .spouseCode(spouse.getSpouseCode())
                 .roles(new ArrayList<>())
                 .build();
         user.setRole("ROLE_HUSBAND");
