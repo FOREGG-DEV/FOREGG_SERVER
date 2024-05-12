@@ -42,7 +42,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(nullable = false)
     private String spouseCode;
 
-    private User spouse;
+    private Long spouseId;
 
     @OneToOne
     @JoinColumn(name = "surgery_id")
@@ -110,8 +110,8 @@ public class User extends BaseEntity implements UserDetails {
 
     // Jwt 전용 설정 종료
 
-    public void setSpouse(User user) {
-        this.spouse = user;
+    public void setSpouseId(Long spouseId) {
+        this.spouseId = spouseId;
     }
 
     public void setRole(String role) {
