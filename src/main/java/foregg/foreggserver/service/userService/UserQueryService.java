@@ -18,8 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.Security;
 import java.util.Optional;
 
-import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.USER_NEED_JOIN;
-import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.USER_NOT_FOUND;
+import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -58,19 +57,22 @@ public class UserQueryService {
         return user;
     }
 
-    public User findWife() {
-        User user = getUser(SecurityUtil.getCurrentUser());
-        if (!SecurityUtil.ifCurrentUserIsHusband()) {
-            return null;
-        }
-        return user.getSpouse();
-    }
-
     public User returnWifeOrHusband() {
         if (SecurityUtil.ifCurrentUserIsHusband()) {
-            return findWife();
+            Long spouseId = getUser(SecurityUtil.getCurrentUser()).getSpouseId();
+            return userRepository.findById(spouseId).orElseThrow(() -> new UserHandler(SPOUSE_NOT_FOUND));
         }else{
             return getUser(SecurityUtil.getCurrentUser());
         }
+    }
+
+    public User returnSpouse() {
+        User user = getUser(SecurityUtil.getCurrentUser());
+        Long spouseId = user.getSpouseId();
+        Optional<User> spouse = userRepository.findById(spouseId);
+        if (spouse.isEmpty()) {
+            return null;
+        }
+        return spouse.get();
     }
 }
