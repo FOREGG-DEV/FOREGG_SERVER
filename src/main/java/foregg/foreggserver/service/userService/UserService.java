@@ -67,17 +67,16 @@ public class UserService {
     public UserResponseDTO husbandJoin(String token, UserHusbandJoinRequestDTO dto) {
         // 배우자 코드가 존재하지 않거나, 해당 배우자 코드를 가지고 있는 유저가 이미 남편을 등록해놓은 경우 예외처리
         User wife = userRepository.findBySpouseCode(dto.getSpouseCode()).orElseThrow(() -> new UserHandler(INVALID_SPOUSE_CODE));
-        if (wife.getSpouse() != null) {
+        if (wife.getSpouseId() != null) {
             throw new UserHandler(INVALID_SPOUSE_CODE);
         }
         KakaoUserInfoResponse userInfo = kakaoRequestService.getUserInfo(token);
         Long userId = userInfo.getId();
         String jwt = jwtTokenProvider.createToken(userId.toString());
         String keyCode = jwtTokenProvider.getUserPk(jwt);
-        User husband = UserConverter.toHusband(userInfo, keyCode, wife, dto);
 
-        wife.setSpouse(husband);
-        userRepository.save(husband);
+        User husband = userRepository.save(UserConverter.toHusband(userInfo, keyCode, wife, dto));
+        wife.setSpouseId(husband.getId());
 
         return UserConverter.toUserResponseDTO(keyCode, jwt);
 

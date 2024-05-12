@@ -24,6 +24,7 @@ public enum ErrorStatus implements BaseErrorCode {
     USER_NEED_JOIN(BAD_REQUEST, "USER4002", "회원가입이 필요한 사용자입니다."),
     USER_PROFILE_ERROR(BAD_REQUEST, "USER4003", "프로필사진 업로드에 실패했습니다."),
     INVALID_SPOUSE_CODE(BAD_REQUEST, "USER4004", "유효하지 않은 배우자코드입니다"),
+    SPOUSE_NOT_FOUND(BAD_REQUEST, "USER4005", "배우자가 존재하지 않습니다"),
 
     //jwt
     JWT_FORBIDDEN(FORBIDDEN, "JWT4001", "권한이 존재하지 않습니다."),
