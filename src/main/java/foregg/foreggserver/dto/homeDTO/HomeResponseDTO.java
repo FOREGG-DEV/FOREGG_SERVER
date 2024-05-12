@@ -15,8 +15,10 @@ import java.util.List;
 public class HomeResponseDTO {
 
     private String userName;
+    private String spouseName;
     private String todayDate;
     private List<HomeRecordResponseDTO> homeRecordResponseDTO;
+    private String ssn;
     //남편에게만
     private DailyConditionType dailyConditionType;
     private String dailyContent;
