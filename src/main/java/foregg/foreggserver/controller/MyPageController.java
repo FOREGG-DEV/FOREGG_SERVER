@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class MyPageController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SURGERY4001", description = "나의 시술이 존재하지 않습니다"),
     })
+    @PreAuthorize("isAuthenticated()")
     public ApiResponse<MyPageResponseDTO> myPage() {
         return ApiResponse.onSuccess(myPageQueryService.getInformation());
     }
@@ -37,6 +39,7 @@ public class MyPageController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SURGERY4001", description = "나의 시술이 존재하지 않습니다"),
     })
+    @PreAuthorize("hasRole('ROLE_WIFE')")
     public ApiResponse<String> modify(@RequestBody MyPageRequestDTO dto) {
         myPageService.modifySurgery(dto);
         return ApiResponse.onSuccess();
@@ -48,6 +51,7 @@ public class MyPageController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "RECORD4004", description = "나의 기록이 존재하지 않습니다"),
     })
+    @PreAuthorize("isAuthenticated()")
     public ApiResponse<MyPageMedicalRecordResponseDTO> medicalInfo(@RequestParam(name = "sort") String sort) {
         MyPageMedicalRecordResponseDTO result = myPageQueryService.getMedicalInformation(sort);
         return ApiResponse.onSuccess(result);
@@ -58,6 +62,7 @@ public class MyPageController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
     })
+    @PreAuthorize("hasRole('ROLE_WIFE')")
     public ApiResponse<List<MyPageBoardResponseDTO>> getBoards() {
         return ApiResponse.onSuccess(myPageQueryService.getBoards());
     }
@@ -67,6 +72,7 @@ public class MyPageController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
     })
+    @PreAuthorize("hasRole('ROLE_WIFE')")
     public ApiResponse<List<MyPageBoardResponseDTO>> boardSearch(@RequestParam(name = "keyword") String keyword) {
         return ApiResponse.onSuccess(myPageQueryService.boardSearch(keyword));
     }
@@ -76,6 +82,7 @@ public class MyPageController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
     })
+    @PreAuthorize("hasRole('ROLE_WIFE')")
     public ApiResponse<List<MyPageFAQResponseDTO>> getFAQ() {
         return ApiResponse.onSuccess(myPageQueryService.getFAQs());
     }
@@ -85,6 +92,7 @@ public class MyPageController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
     })
+    @PreAuthorize("hasRole('ROLE_WIFE')")
     public ApiResponse<List<MyPageFAQResponseDTO>> faqSearch(@RequestParam(name = "keyword") String keyword) {
         return ApiResponse.onSuccess(myPageQueryService.faqSearch(keyword));
     }

@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,6 +28,7 @@ public class DailyController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
     })
+    @PreAuthorize("isAuthenticated()")
     public ApiResponse<DailyTotalResponseDTO> getDaily() {
         return ApiResponse.onSuccess(dailyQueryService.getDaily());
     }
@@ -37,6 +39,7 @@ public class DailyController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DAILY4001", description = "오늘의 하루기록이 이미 존재합니다"),
     })
+    @PreAuthorize("hasRole('ROLE_WIFE')")
     public ApiResponse<String> write(@RequestBody DailyRequestDTO dto) {
         dailyService.writeDaily(dto);
         return ApiResponse.onSuccess();
@@ -48,6 +51,7 @@ public class DailyController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DAILY4002", description = "해당 하루기록이 존재하지 않습니다"),
     })
+    @PreAuthorize("hasRole('ROLE_HUSBAND')")
     public ApiResponse<String> emotion(@PathVariable(name = "id") Long id, @RequestBody EmotionRequestDTO dto) {
         dailyService.putEmotion(id, dto);
         return ApiResponse.onSuccess();
@@ -59,6 +63,7 @@ public class DailyController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "RECORD4005", description = "예약된 병원 기록이 존재하지 않습니다"),
     })
+    @PreAuthorize("hasRole('ROLE_WIFE')")
     public ApiResponse<String> sideEffect(@RequestBody SideEffectRequestDTO dto) {
         dailyService.writeSideEffect(dto);
         return ApiResponse.onSuccess();

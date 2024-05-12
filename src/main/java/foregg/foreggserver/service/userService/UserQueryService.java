@@ -7,6 +7,7 @@ import foregg.foreggserver.dto.kakaoDTO.KakaoUserInfoResponse;
 import foregg.foreggserver.dto.userDTO.UserResponseDTO;
 import foregg.foreggserver.dto.userDTO.UserSpouseCodeResponseDTO;
 import foregg.foreggserver.jwt.JwtTokenProvider;
+import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.UserRepository;
 import foregg.foreggserver.util.SpouseCodeGenerator;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Security;
 import java.util.Optional;
 
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.USER_NEED_JOIN;
@@ -54,5 +56,21 @@ public class UserQueryService {
     public User getUser(String keycode) {
         User user = userRepository.findByKeyCode(keycode).orElseThrow(() -> new UserHandler(USER_NOT_FOUND));
         return user;
+    }
+
+    public User findWife() {
+        User user = getUser(SecurityUtil.getCurrentUser());
+        if (!SecurityUtil.ifCurrentUserIsHusband()) {
+            return null;
+        }
+        return user.getSpouse();
+    }
+
+    public User returnWifeOrHusband() {
+        if (SecurityUtil.ifCurrentUserIsHusband()) {
+            return findWife();
+        }else{
+            return getUser(SecurityUtil.getCurrentUser());
+        }
     }
 }
