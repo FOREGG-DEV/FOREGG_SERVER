@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,6 +29,7 @@ public class RecordController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
     })
+    @PreAuthorize("hasRole('ROLE_WIFE')")
     public ApiResponse<RecordResponseDTO> addRecord(@RequestBody RecordRequestDTO dto) {
         RecordResponseDTO resultDTO = recordService.addRecord(dto);
         return ApiResponse.onSuccess(resultDTO);
@@ -42,6 +44,7 @@ public class RecordController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "RECORD4001", description = "존재하지 않는 일정입니다"),
     })
+    @PreAuthorize("hasRole('ROLE_WIFE')")
     public ApiResponse<String> deleteRecord(@PathVariable("id") Long id) {
         recordService.deleteRecord(id);
         return ApiResponse.onSuccess();
@@ -56,6 +59,7 @@ public class RecordController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "RECORD4001", description = "존재하지 않는 일정입니다"),
     })
+    @PreAuthorize("hasRole('ROLE_WIFE')")
     public ApiResponse<String> modifyRecord(@PathVariable("id") Long id, @RequestBody RecordRequestDTO dto) {
         recordService.modifyRecord(id, dto);
         return ApiResponse.onSuccess();
@@ -70,6 +74,7 @@ public class RecordController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "RECORD4001", description = "존재하지 않는 일정입니다"),
     })
+    @PreAuthorize("isAuthenticated()")
     public ApiResponse<RecordResponseDTO> specificRecord(@PathVariable(name = "id") Long id) {
         RecordResponseDTO resultDTO = recordService.recordDetail(id);
         return ApiResponse.onSuccess(resultDTO);
@@ -85,7 +90,7 @@ public class RecordController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "RECORD4001", description = "존재하지 않는 일정입니다"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "RECORD4002", description = "병원 일정이 아닙니다"),
     })
-
+    @PreAuthorize("hasRole('ROLE_WIFE')")
     public ApiResponse<String> addMedicalRecord(@PathVariable(name = "id") Long id, @RequestBody MedicalRecordRequestDTO dto) {
         recordService.addMedicalRecord(id, dto);
         return ApiResponse.onSuccess();
@@ -101,6 +106,7 @@ public class RecordController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "RECORD4001", description = "존재하지 않는 일정입니다"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "RECORD4002", description = "병원 일정이 아닙니다"),
     })
+    @PreAuthorize("isAuthenticated()")
     public ApiResponse<MedicalRecordResponseDTO> medicalRecordAndSideEffect(@PathVariable(name = "id") Long id) {
         MedicalRecordResponseDTO dto = recordService.medicalRecordAndSideEffect(id);
         return ApiResponse.onSuccess(dto);

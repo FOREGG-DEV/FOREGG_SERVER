@@ -1,7 +1,9 @@
 package foregg.foreggserver.converter;
 
+import foregg.foreggserver.domain.Daily;
 import foregg.foreggserver.domain.Record;
 import foregg.foreggserver.domain.RepeatTime;
+import foregg.foreggserver.domain.enums.DailyConditionType;
 import foregg.foreggserver.dto.homeDTO.HomeRecordResponseDTO;
 import foregg.foreggserver.dto.homeDTO.HomeResponseDTO;
 
@@ -26,11 +28,27 @@ public class HomeConverter {
                 .memo(record.getMemo()).build();
     }
 
-    public static HomeResponseDTO toHomeResponseDTO(String userName, String todayDate, List<HomeRecordResponseDTO> homeRecordResponseDTOS) {
+    public static HomeResponseDTO toHomeResponseDTO(String userName,
+                                                    String todayDate,
+                                                    List<HomeRecordResponseDTO> homeRecordResponseDTOS,
+                                                    Daily daily,
+                                                    String medicalRecord) {
+
+        String dailyContent = null;
+        DailyConditionType type = null;
+        if (daily != null) {
+            dailyContent = daily.getContent();
+            type = daily.getDailyConditionType();
+        }
+
         return HomeResponseDTO.builder()
                 .userName(userName)
                 .todayDate(todayDate)
-                .homeRecordResponseDTO(homeRecordResponseDTOS).build();
+                .homeRecordResponseDTO(homeRecordResponseDTOS)
+                .dailyConditionType(type)
+                .dailyContent(dailyContent)
+                .latestMedicalRecord(medicalRecord)
+                .build();
     }
 
 }

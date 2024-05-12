@@ -30,7 +30,7 @@ public class MyPageConverter {
 
     public static MyPageRecordResponseDTO toMyPageRecordResponseDTO(Record record) {
 
-        if (record.getDate() == null) {
+        if (record.getDate() != null) {
             return MyPageRecordResponseDTO.builder()
                     .id(record.getId())
                     .date(record.getDate())

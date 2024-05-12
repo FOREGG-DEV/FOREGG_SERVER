@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,23 +18,23 @@ public class DateUtil {
         return date.format(DateTimeFormatter.ofPattern("yyyy-MM"));
     }
 
-    public static List<String> getMonthsBetween(String startDateString, String endDateString) {
-        List<String> monthsBetween = new ArrayList<>();
+    public static List<String> getMonthsBetween(String startDateStr, String endDateStr) {
+        List<String> months = new ArrayList<>();
 
-        LocalDate startDate = LocalDate.parse(startDateString, DateTimeFormatter.ISO_LOCAL_DATE);
-        LocalDate endDate = LocalDate.parse(endDateString, DateTimeFormatter.ISO_LOCAL_DATE);
+        LocalDate startDate = LocalDate.parse(startDateStr);
+        LocalDate endDate = LocalDate.parse(endDateStr);
 
-        LocalDate currentDate = startDate;
-        while (!currentDate.isAfter(endDate)) {
-            String yearMonth = currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM"));
-            if (!monthsBetween.contains(yearMonth)) {
-                monthsBetween.add(yearMonth);
-            }
-            // 다음 달로 이동
-            currentDate = currentDate.plusMonths(1);
+        YearMonth startYearMonth = YearMonth.from(startDate);
+        YearMonth endYearMonth = YearMonth.from(endDate);
+
+        while (!startYearMonth.isAfter(endYearMonth)) {
+            months.add(startYearMonth.toString());
+            startYearMonth = startYearMonth.plusMonths(1);
         }
-        return monthsBetween;
+
+        return months;
     }
+
 
     public static List<String> getAdjacentMonths(String monthString) {
         List<String> adjacentMonths = new ArrayList<>();
