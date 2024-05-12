@@ -69,6 +69,9 @@ public class UserQueryService {
     public User returnSpouse() {
         User user = getUser(SecurityUtil.getCurrentUser());
         Long spouseId = user.getSpouseId();
+        if (spouseId == null) {
+            return null;
+        }
         Optional<User> spouse = userRepository.findById(spouseId);
         if (spouse.isEmpty()) {
             return null;
