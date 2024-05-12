@@ -45,7 +45,7 @@ public class RecordQueryService {
     public ScheduleResponseDTO calendar(String yearmonth) {
         //인접 월
         List<String> adjacentMonths = DateUtil.getAdjacentMonths(yearmonth);
-        User user = getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.returnWifeOrHusband();
         List<RecordResponseDTO> resultList = new ArrayList<>();
 
         Optional<List<Record>> foundRecords = recordRepository.findByUser(user);
@@ -93,15 +93,13 @@ public class RecordQueryService {
     }
 
     public HomeResponseDTO getTodayRecord() {
-        User user = null;
-        List<HomeRecordResponseDTO> resultList = new ArrayList<>();
-        if (SecurityUtil.ifCurrentUserIsHusband()) {
-            user = userQueryService.findWife();
-        } else {
-            user = userQueryService.getUser(SecurityUtil.getCurrentUser());
-        }
+        User me = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.returnWifeOrHusband();
+        User spouse = userQueryService.returnSpouse();
         Optional<List<Record>> foundRecord = recordRepository.findByUser(user);
         String todayDate = DateUtil.formatLocalDateTime(LocalDate.now());
+
+        List<HomeRecordResponseDTO> resultList = new ArrayList<>();
 
         if (foundRecord.isEmpty()) {
             return null;
@@ -123,10 +121,15 @@ public class RecordQueryService {
             }
         }
 
-        if (SecurityUtil.ifCurrentUserIsHusband()) {
-            return HomeConverter.toHomeResponseDTO(user.getNickname(), todayDate, resultList, dailyQueryService.getTodayDaily(), null);
+        String spouseName = null;
+        if (spouse != null) {
+            spouseName = spouse.getNickname();
         }
-        return HomeConverter.toHomeResponseDTO(user.getNickname(), todayDate, resultList, null, null);
+
+        if (SecurityUtil.ifCurrentUserIsHusband()) {
+            return HomeConverter.toHomeResponseDTO(me.getNickname(), spouseName, todayDate, me.getSsn() ,resultList, dailyQueryService.getTodayDaily(), null);
+        }
+        return HomeConverter.toHomeResponseDTO(me.getNickname(),spouseName, todayDate, me.getSsn(),resultList, null, null);
     }
 
     public Record getNearestHospitalRecord() {

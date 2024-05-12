@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
 
@@ -34,15 +35,21 @@ public class MyPageQueryService {
     private final FAQRepository faqRepository;
 
     public MyPageResponseDTO getInformation() {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
-        Surgery surgery = surgeryRepository.findByUser(user).orElseThrow(() -> new SurgeryHandler(NOT_FOUND_MY_SURGERY));
-        return MyPageConverter.toMyPageResponseDTO(user, surgery);
+        User me = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User infoUser = userQueryService.returnWifeOrHusband();
+        User spouse = userQueryService.returnSpouse();
+        Surgery surgery = null;
+        Optional<Surgery> byUser = surgeryRepository.findByUser(infoUser);
+        if (byUser.isPresent()) {
+            surgery = byUser.get();
+        }
+        return MyPageConverter.toMyPageResponseDTO(me,infoUser, surgery, spouse.getNickname());
     }
 
     public MyPageMedicalRecordResponseDTO getMedicalInformation(String sort) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
-        List<Record> records = recordRepository.findByUser(user).orElseThrow(() -> new RecordHandler(NOT_FOUND_MY_RECORD));
-        List<MyPageRecordResponseDTO> resultList = new ArrayList<>();
+        User infoUser = userQueryService.returnWifeOrHusband();
+        User me = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        List<Record> records = recordRepository.findByUser(infoUser).orElseThrow(() -> new RecordHandler(NOT_FOUND_MY_RECORD));
 
         if (sort.equals("medicine")) {
             return getMedicineRecord(records);

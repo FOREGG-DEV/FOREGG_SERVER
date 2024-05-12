@@ -29,7 +29,9 @@ public class HomeConverter {
     }
 
     public static HomeResponseDTO toHomeResponseDTO(String userName,
+                                                    String spouseName,
                                                     String todayDate,
+                                                    String ssn,
                                                     List<HomeRecordResponseDTO> homeRecordResponseDTOS,
                                                     Daily daily,
                                                     String medicalRecord) {
@@ -43,7 +45,9 @@ public class HomeConverter {
 
         return HomeResponseDTO.builder()
                 .userName(userName)
+                .spouseName(spouseName)
                 .todayDate(todayDate)
+                .ssn(ssn)
                 .homeRecordResponseDTO(homeRecordResponseDTOS)
                 .dailyConditionType(type)
                 .dailyContent(dailyContent)
