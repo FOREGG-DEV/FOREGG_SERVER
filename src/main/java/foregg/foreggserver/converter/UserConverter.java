@@ -41,10 +41,11 @@ public class UserConverter {
         return user;
     }
 
-    public static UserResponseDTO toUserResponseDTO(String keycode, String jwt) {
+    public static UserResponseDTO toUserResponseDTO(String keycode, String accessToken, String refreshToken) {
         return UserResponseDTO.builder()
-                .keycode(keycode)
-                .accessToken(jwt)
+                .keyCode(keycode)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 }
