@@ -32,6 +32,7 @@ public enum ErrorStatus implements BaseErrorCode {
     JWT_EXPIRATION(UNAUTHORIZED, "JWT4003", "만료된 jwt 토큰입니다"),
     JWT_WRONG_SIGNATURE(UNAUTHORIZED, "JWT4004", "잘못된 jwt 서명입니다"),
     JWT_WRONG_REFRESHTOKEN(UNAUTHORIZED, "JWT4005", "잘못된 refresh 토큰입니다."),
+    JWT_NOT_SUPPORTED(UNAUTHORIZED,"JWT4006", "지원되지 않는 jwt 토큰입니다"),
 
     //일정 관련 에러
     RECORD_NOT_FOUND(BAD_REQUEST, "RECORD4001", "존재하지 않는 일정입니다"),
