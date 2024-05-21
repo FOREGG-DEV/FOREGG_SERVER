@@ -1,11 +1,10 @@
 package foregg.foreggserver.controller;
 
 import foregg.foreggserver.apiPayload.ApiResponse;
-import foregg.foreggserver.dto.userDTO.UserHusbandJoinRequestDTO;
-import foregg.foreggserver.dto.userDTO.UserJoinRequestDTO;
+import foregg.foreggserver.domain.User;
+import foregg.foreggserver.dto.userDTO.*;
 import foregg.foreggserver.dto.kakaoDTO.KakaoUserInfoResponse;
-import foregg.foreggserver.dto.userDTO.UserResponseDTO;
-import foregg.foreggserver.dto.userDTO.UserSpouseCodeResponseDTO;
+import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.service.userService.KakaoRequestService;
 import foregg.foreggserver.service.userService.UserQueryService;
 import foregg.foreggserver.service.userService.UserService;
@@ -14,6 +13,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -44,8 +45,10 @@ public class AuthController {
     })
     public ApiResponse<Object> login(@RequestHeader(name = "accessToken") String accessToken) {
         KakaoUserInfoResponse userInfo = kakaoRequestService.getUserInfo(accessToken);
-        UserResponseDTO responseDTO = userQueryService.isExist(userInfo.getId().toString());
-        return ApiResponse.onSuccess(responseDTO);
+        // 유저가 있는지 없는지 검사
+        userQueryService.isExist(userInfo.getId().toString());
+        UserResponseDTO userDTO = userService.login(userInfo.getId().toString());
+        return ApiResponse.onSuccess(userDTO);
     }
 
     //회원가입이 완료되었을때 JWT를 반환하게끔
@@ -59,7 +62,6 @@ public class AuthController {
     })
     public ApiResponse<UserResponseDTO> join(@RequestHeader(name = "accessToken") String accessToken,
                                              @RequestBody UserJoinRequestDTO request) {
-
         UserResponseDTO responseDTO = userService.join(accessToken, request);
         return ApiResponse.onSuccess(responseDTO);
     }
@@ -74,7 +76,7 @@ public class AuthController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "USER4004", description = "유효하지 않은 배우자코드입니다"),
     })
     public ApiResponse<UserResponseDTO> husbandJoin(@RequestHeader(name = "accessToken") String accessToken,
-                                           @RequestBody UserHusbandJoinRequestDTO dto) {
+                                                    @RequestBody UserHusbandJoinRequestDTO dto) {
         UserResponseDTO responseDTO = userService.husbandJoin(accessToken, dto);
         return ApiResponse.onSuccess(responseDTO);
     }
@@ -87,6 +89,13 @@ public class AuthController {
     public ApiResponse<UserSpouseCodeResponseDTO> getSpouseCode() {
         UserSpouseCodeResponseDTO userSpouseCode = userQueryService.getUserSpouseCode();
         return ApiResponse.onSuccess(userSpouseCode);
+    }
+
+    @Operation(summary = "새로운 토큰 발급")
+    @PostMapping("/renewalToken")
+    public ApiResponse<UserResponseDTO> renewalAccessToken(HttpServletRequest request, HttpServletResponse response) {
+        UserResponseDTO userResponseDTO = userService.renewalAccessToken(request, response);
+        return ApiResponse.onSuccess(userResponseDTO);
     }
 
 }

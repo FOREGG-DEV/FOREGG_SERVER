@@ -39,13 +39,11 @@ public class UserQueryService {
         return user.getId();
     }
 
-    public UserResponseDTO isExist(String userKeycode) {
+    public void isExist(String userKeycode) {
         Optional<User> foundUser = userRepository.findByKeyCode(userKeycode);
-        String jwt = jwtTokenProvider.createToken(userKeycode);
         if (foundUser.isEmpty()) {
             throw new UserHandler(USER_NEED_JOIN);
         }
-        return UserConverter.toUserResponseDTO(userKeycode, jwt);
     }
 
     public UserSpouseCodeResponseDTO getUserSpouseCode() {

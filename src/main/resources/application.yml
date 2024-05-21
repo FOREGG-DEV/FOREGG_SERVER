@@ -17,6 +17,13 @@ spring:
     header: Authorization
     secret: ${jwt.secret}
     token-validity-in-seconds : 3600
+    refresh-secret: ${jwt.secret.refresh}
+
+  data:
+    redis:
+      port: ${REDIS_PORT}
+      host: ${REDIS_HOST}
+      password: ${REDIS_PASSWORD}
 
 server:
   port: 8080
