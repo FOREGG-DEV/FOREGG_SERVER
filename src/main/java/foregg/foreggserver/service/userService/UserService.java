@@ -12,9 +12,13 @@ import foregg.foreggserver.dto.userDTO.UserResponseDTO;
 import foregg.foreggserver.jwt.JwtTokenProvider;
 import foregg.foreggserver.repository.SurgeryRepository;
 import foregg.foreggserver.repository.UserRepository;
+import foregg.foreggserver.service.redisService.RedisService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -23,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.INVALID_SPOUSE_CODE;
+import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.JWT_WRONG_REFRESHTOKEN;
 
 @Service
 @Slf4j
@@ -35,6 +40,7 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsService userDetailsService;
     private final KakaoRequestService kakaoRequestService;
+    private final RedisService redisService;
 
 
     public UserResponseDTO login(String userPk) {
@@ -42,10 +48,13 @@ public class UserService {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-        String jwt = jwtTokenProvider.createToken(userPk);
+        String accessToken = jwtTokenProvider.createToken(userPk);
+        String refreshToken = jwtTokenProvider.createRefresh(userPk);
+
         return UserResponseDTO.builder()
-                .keycode(userPk)
-                .accessToken(jwt)
+                .keyCode(userPk)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -54,14 +63,15 @@ public class UserService {
         KakaoUserInfoResponse userInfo = kakaoRequestService.getUserInfo(token);
         Long userId = userInfo.getId();
 
-        String jwt = jwtTokenProvider.createToken(userId.toString());
+        String accessToken = jwtTokenProvider.createToken(userId.toString());
+        String refreshToken = jwtTokenProvider.createRefresh(userId.toString());
 
-        String keyCode = jwtTokenProvider.getUserPk(jwt);
+       // String keyCode = jwtTokenProvider.getUserPk(accessToken);
 
         Surgery surgery = surgeryRepository.save(SurgeryConverter.toSurgery(dto));
-        userRepository.save(UserConverter.toUser(userInfo, keyCode, surgery, dto));
+        userRepository.save(UserConverter.toUser(userInfo, userId.toString(), surgery, dto));
 
-        return UserConverter.toUserResponseDTO(keyCode, jwt);
+        return UserConverter.toUserResponseDTO(userId.toString(), accessToken, refreshToken);
     }
 
     public UserResponseDTO husbandJoin(String token, UserHusbandJoinRequestDTO dto) {
@@ -72,14 +82,36 @@ public class UserService {
         }
         KakaoUserInfoResponse userInfo = kakaoRequestService.getUserInfo(token);
         Long userId = userInfo.getId();
-        String jwt = jwtTokenProvider.createToken(userId.toString());
-        String keyCode = jwtTokenProvider.getUserPk(jwt);
+        String accessToken = jwtTokenProvider.createToken(userId.toString());
+        String refreshToken = jwtTokenProvider.createRefresh(userId.toString());
+        //String keyCode = jwtTokenProvider.getUserPk(jwt);
 
-        User husband = userRepository.save(UserConverter.toHusband(userInfo, keyCode, wife, dto));
+        User husband = userRepository.save(UserConverter.toHusband(userInfo, userId.toString(), wife, dto));
         wife.setSpouseId(husband.getId());
 
-        return UserConverter.toUserResponseDTO(keyCode, jwt);
+        return UserConverter.toUserResponseDTO(userId.toString(), accessToken, refreshToken);
+    }
 
+    public UserResponseDTO renewalAccessToken(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = jwtTokenProvider.resolveToken2(request);
+        Authentication authentication = jwtTokenProvider.getAuthentication(refreshToken);
+
+        String tokenOwnerKeycode = authentication.getName();
+        String redisToken = redisService.getData(tokenOwnerKeycode);
+
+        if (refreshToken.equals(redisToken)) {
+            String newAccessToken = jwtTokenProvider.createToken(tokenOwnerKeycode);
+            String newRefreshToken = jwtTokenProvider.createRefresh(tokenOwnerKeycode);
+
+            return UserResponseDTO.builder()
+                    .keyCode(tokenOwnerKeycode)
+                    .accessToken(newAccessToken)
+                    .refreshToken(newRefreshToken)
+                    .build();
+        }
+        else{
+            throw new UserHandler(JWT_WRONG_REFRESHTOKEN);
+        }
     }
 
 }
