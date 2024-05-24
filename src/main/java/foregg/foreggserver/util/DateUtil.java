@@ -187,5 +187,22 @@ public class DateUtil {
         return month + "월 " + weekOfMonth + "주차";
     }
 
+    public static String getKoreanDayOfWeek(String date) {
+        // 날짜 형식 정의 (예: yyyy-MM-dd)
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        // 문자열을 LocalDate 객체로 변환
+        LocalDate localDate = LocalDate.parse(date, formatter);
+
+        // DayOfWeek 객체를 가져옴
+        DayOfWeek dayOfWeek = localDate.getDayOfWeek();
+
+        // 한글 요일 배열
+        String[] koreanDays = {"월", "화", "수", "목", "금", "토", "일"};
+
+        // DayOfWeek의 ordinal() 메서드는 0부터 6까지의 값을 반환하므로 이를 사용
+        return koreanDays[dayOfWeek.getValue() - 1];
+    }
+
 
 }

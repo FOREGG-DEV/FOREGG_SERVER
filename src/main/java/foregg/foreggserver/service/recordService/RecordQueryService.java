@@ -110,7 +110,7 @@ public class RecordQueryService {
             if (record.getDate() == null) {
                 //반복주기가 설정된 일정
                 List<String> intervalDates = DateUtil.getIntervalDates(record.getStart_date(), record.getEnd_date());
-                if (intervalDates.contains(todayDate)) {
+                if (intervalDates.contains(todayDate)&& ((record.getRepeat_date().contains(DateUtil.getKoreanDayOfWeek(todayDate)))|| record.getRepeat_date().contains("매일"))) {
                     resultList.add(HomeConverter.toHomeRecordResponseDTO(record));
                 }
             } else {
