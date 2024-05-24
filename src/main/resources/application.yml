@@ -1,5 +1,7 @@
 spring:
   datasource:
+    hikari:
+      connection-timeout: 10000
     url: ${datasource}?createDatabaseIfNotExist = true
     username: ${username}
     password: ${password}
