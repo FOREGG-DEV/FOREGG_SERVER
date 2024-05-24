@@ -1,6 +1,7 @@
 package foregg.foreggserver.config;
 
 import foregg.foreggserver.jwt.JwtAuthFilter;
+import foregg.foreggserver.jwt.JwtExceptionFilter;
 import foregg.foreggserver.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +22,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class WebSecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final JwtExceptionFilter jwtExceptionFilter;
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer(){
@@ -34,12 +36,13 @@ public class WebSecurityConfig {
         return http.cors(withDefaults())
                 .csrf((csrf) -> csrf.disable())
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/auth/**", "/token/refresh","/swagger-ui/**","/v3/api-docs/**","/auth/renewalToken").permitAll()
+                        .requestMatchers("/auth/**", "/token/refresh", "/swagger-ui/**", "/v3/api-docs/**", "/auth/renewalToken").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .formLogin(httpSecurityFormLoginConfigurer -> httpSecurityFormLoginConfigurer.disable()) // 로그인 폼 미사용
                 .httpBasic(httpSecurityHttpBasicConfigurer -> httpSecurityHttpBasicConfigurer.disable()) // http basic 미사용
                 .addFilterBefore(new JwtAuthFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtExceptionFilter, JwtAuthFilter.class)
                 .build();
     }
 
