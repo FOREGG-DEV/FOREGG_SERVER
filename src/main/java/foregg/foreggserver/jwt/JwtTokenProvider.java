@@ -103,6 +103,10 @@ public class JwtTokenProvider {
         }
     }
 
+    public void getClaim(String jwtToken) {
+        Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);
+    }
+
     // Request의 Header에서 token 값 가져오기
     public String resolveToken(HttpServletRequest request) {
         return request.getHeader("X-AUTH-TOKEN");
