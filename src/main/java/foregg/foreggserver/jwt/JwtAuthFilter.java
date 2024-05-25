@@ -26,6 +26,8 @@ import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
 
+import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.LOGOUT_USER;
+
 @RequiredArgsConstructor
 @Component
 @Configuration
@@ -55,7 +57,7 @@ public class JwtAuthFilter extends GenericFilterBean {
 //        chain.doFilter(request, response);
 //    }
 
-        if (jwt != null && doNotLogout(jwt)) {
+        if (jwt != null && doNotLogoutOrWithdrawal(jwt)) {
             // try {
             jwtTokenProvider.getClaim(jwt);
             Authentication authentication = jwtTokenProvider.getAuthentication(jwt);
@@ -78,7 +80,7 @@ public class JwtAuthFilter extends GenericFilterBean {
         chain.doFilter(request, response);
     }
 
-    private boolean doNotLogout(String accessToken) {
+    private boolean doNotLogoutOrWithdrawal(String accessToken) {
         String isLogout = redisService.getData(accessToken);
         if (isLogout == null) {
             return true;
