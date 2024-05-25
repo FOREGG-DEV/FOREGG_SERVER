@@ -146,14 +146,17 @@ public class RecordQueryService {
 
         LocalDate today = LocalDate.now();
 
-        while (true) {
-            String resultDate;
-            today = today.plusDays(1);
-            if (dates.contains(DateUtil.formatLocalDateTime(today))) {
+        List<String> sortedDates = DateUtil.sortDates(dates);
+        String resultDate;
+
+        for (String date : sortedDates) {
+            if (date.contains(DateUtil.formatLocalDateTime(today))) {
                 resultDate = DateUtil.formatLocalDateTime(today);
-                return recordRepository.findByDateAndType(resultDate, RecordType.HOSPITAL);
+                return recordRepository.findByDateAndTypeAndUser(resultDate, RecordType.HOSPITAL, user);
             }
+            today = today.plusDays(1);
         }
+        return null;
     }
 
 

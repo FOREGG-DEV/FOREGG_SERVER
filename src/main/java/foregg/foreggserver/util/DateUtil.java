@@ -204,5 +204,26 @@ public class DateUtil {
         return koreanDays[dayOfWeek.getValue() - 1];
     }
 
+    public static List<String> sortDates(List<String> dateStrings) {
+        // 날짜 형식 지정
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+        // 문자열을 LocalDate로 변환하여 리스트에 저장
+        List<LocalDate> dates = new ArrayList<>();
+        for (String dateString : dateStrings) {
+            LocalDate date = LocalDate.parse(dateString, formatter);
+            dates.add(date);
+        }
+
+        // LocalDate 리스트를 정렬
+        Collections.sort(dates);
+
+        // 정렬된 LocalDate를 다시 문자열로 변환
+        List<String> sortedDateStrings = new ArrayList<>();
+        for (LocalDate date : dates) {
+            sortedDateStrings.add(date.format(formatter));
+        }
+
+        return sortedDateStrings;
+    }
 }
