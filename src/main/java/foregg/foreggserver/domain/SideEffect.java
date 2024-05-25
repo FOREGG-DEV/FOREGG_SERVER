@@ -28,4 +28,7 @@ public class SideEffect extends BaseEntity {
     @JoinColumn(name = "record_id")
     private Record record;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 }
