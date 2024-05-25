@@ -9,6 +9,7 @@ import foregg.foreggserver.domain.User;
 import foregg.foreggserver.dto.dailyDTO.DailyRequestDTO;
 import foregg.foreggserver.dto.dailyDTO.EmotionRequestDTO;
 import foregg.foreggserver.dto.dailyDTO.SideEffectRequestDTO;
+import foregg.foreggserver.dto.dailyDTO.SideEffectResponseDTO;
 import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.DailyRepository;
 import foregg.foreggserver.repository.SideEffectRepository;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Security;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.ALREADY_WRITTEN;
@@ -58,8 +60,19 @@ public class DailyService {
     }
 
     public void writeSideEffect(SideEffectRequestDTO dto) {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
         Record hospitalRecord = recordQueryService.getNearestHospitalRecord();
-        SideEffect sideEffect = DailyConverter.toSideEffect(dto, hospitalRecord);
+        SideEffect sideEffect = DailyConverter.toSideEffect(dto, hospitalRecord, user);
         sideEffectRepository.save(sideEffect);
+    }
+
+    public List<SideEffectResponseDTO> getSideEffectList() {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        Optional<List<SideEffect>> foundSideEffect = sideEffectRepository.findByUser(user);
+        if (foundSideEffect.isEmpty()) {
+            return null;
+        }
+        List<SideEffect> sideEffects = foundSideEffect.get();
+        return DailyConverter.toSideEffectResponseDTO(sideEffects);
     }
 }
