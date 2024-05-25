@@ -40,7 +40,7 @@ public class UserService {
     private final UserDetailsService userDetailsService;
     private final KakaoRequestService kakaoRequestService;
     private final RedisService redisService;
-
+    private final UserQueryService userQueryService;
 
     public UserResponseDTO login(String userPk) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(userPk);
@@ -121,11 +121,28 @@ public class UserService {
         if (redisService.isExists(jwt)) {
             throw new UserHandler(LOGOUT_USER);
         }// 존재하지 않는다면
-        else{
-            redisService.deleteData(SecurityUtil.getCurrentUser());
-            Long expiration = jwtTokenProvider.getExpiration(jwt);
-            redisService.setBlackList(jwt, "logout", expiration);
+
+        redisService.deleteData(SecurityUtil.getCurrentUser());
+        Long expiration = jwtTokenProvider.getExpiration(jwt);
+        redisService.setBlackList(jwt, "logout", expiration);
+
+    }
+
+    public void withdrawal(HttpServletRequest request) {
+        String jwt = jwtTokenProvider.resolveToken2(request);
+
+        // 아내 계정이면 남편 계정까지 삭제
+        if (!SecurityUtil.ifCurrentUserIsHusband()) {
+            User husband = userQueryService.returnSpouse();
+            userRepository.delete(husband);
         }
+
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        userRepository.delete(user);
+
+        redisService.deleteData(SecurityUtil.getCurrentUser());
+        Long expiration = jwtTokenProvider.getExpiration(jwt);
+        redisService.setBlackList(jwt, "withdrawn", expiration);
     }
 
 }
