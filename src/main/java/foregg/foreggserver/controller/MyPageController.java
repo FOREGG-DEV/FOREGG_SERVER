@@ -97,12 +97,4 @@ public class MyPageController {
         return ApiResponse.onSuccess(myPageQueryService.faqSearch(keyword));
     }
 
-    @Operation(summary = "회원 탈퇴 API")
-    @PostMapping("/withdrawal")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-    })
-    public void withdrawal() {
-
-    }
 }
