@@ -5,6 +5,7 @@ import foregg.foreggserver.converter.SurgeryConverter;
 import foregg.foreggserver.converter.UserConverter;
 import foregg.foreggserver.domain.Surgery;
 import foregg.foreggserver.domain.User;
+import foregg.foreggserver.dto.userDTO.LogoutWithdrawalResponseDTO;
 import foregg.foreggserver.dto.userDTO.UserHusbandJoinRequestDTO;
 import foregg.foreggserver.dto.userDTO.UserJoinRequestDTO;
 import foregg.foreggserver.dto.kakaoDTO.KakaoUserInfoResponse;
@@ -113,7 +114,7 @@ public class UserService {
         }
     }
 
-    public void logout(HttpServletRequest request) {
+    public LogoutWithdrawalResponseDTO logout(HttpServletRequest request) {
 
         String jwt = jwtTokenProvider.resolveToken2(request);
 
@@ -125,16 +126,19 @@ public class UserService {
         redisService.deleteData(SecurityUtil.getCurrentUser());
         Long expiration = jwtTokenProvider.getExpiration(jwt);
         redisService.setBlackList(jwt, "logout", expiration);
+        return LogoutWithdrawalResponseDTO.builder().content("로그아웃 처리 되었습니다").build();
 
     }
 
-    public void withdrawal(HttpServletRequest request) {
+    public LogoutWithdrawalResponseDTO withdrawal(HttpServletRequest request) {
         String jwt = jwtTokenProvider.resolveToken2(request);
 
         // 아내 계정이면 남편 계정까지 삭제
         if (!SecurityUtil.ifCurrentUserIsHusband()) {
             User husband = userQueryService.returnSpouse();
-            userRepository.delete(husband);
+            if (husband != null) {
+                userRepository.delete(husband);
+            }
         }
 
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
@@ -143,6 +147,7 @@ public class UserService {
         redisService.deleteData(SecurityUtil.getCurrentUser());
         Long expiration = jwtTokenProvider.getExpiration(jwt);
         redisService.setBlackList(jwt, "withdrawn", expiration);
+        return LogoutWithdrawalResponseDTO.builder().content("정상적으로 탈퇴 되었습니다").build();
     }
 
 }
