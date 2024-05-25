@@ -27,9 +27,6 @@ public class JwtTokenProvider {
     @Value("${jwt.secret}") // application.properties 등에 보관한다.
     private String secretKey;
 
-    @Value("${jwt.secret.refresh}")
-    private String refreshSecretKey;
-
     private long accessTokenValidTime = 30 * 60 * 1000L;
     // 토큰 유효시간 30분
     private long refreshTokenValidTime = 1000L * 60 * 60 * 24 * 7;     // 토큰 유효시간 30분
@@ -81,6 +78,15 @@ public class JwtTokenProvider {
     // 토큰에서 회원 정보 추출
     public String getUserPk(String token) {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public Long getExpiration(String jwt){
+        //에세스 토큰 만료시간
+        Date expiration = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwt).getBody()
+                .getExpiration();
+        //현재시간
+        long now = new Date().getTime();
+        return (expiration.getTime()-now);
     }
 
     // 토큰 유효성, 만료일자 확인
