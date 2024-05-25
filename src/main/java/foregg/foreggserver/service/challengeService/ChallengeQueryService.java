@@ -68,7 +68,6 @@ public class ChallengeQueryService {
             List<String> successDates = extractSuccessDays(successDays, weekDates);
             List<String> successDaysResult = DateUtil.convertDatesToDayOfWeek(successDates);
 
-
             ChallengeMyResponseDTO resultDTO = ChallengeConverter.toChallengeMyResponseDTO(challenge, getChallengeParticipants(byChallenge),successDaysResult, DateUtil.getWeekOfMonth(DateUtil.formatLocalDateTime(LocalDate.now())));
             resultList.add(resultDTO);
         }
@@ -82,14 +81,14 @@ public class ChallengeQueryService {
         return challengeParticipations.get().size();
     }
 
-    private List<String> extractSuccessDays(List<String> original, List<String> target) {
+    private List<String> extractSuccessDays(List<String> weekDates, List<String> successDates) {
         List<String> resultList = new ArrayList<>();
-        if (original == null) {
+        if (successDates == null) {
             return null;
         }
-        for (String s : target) {
-            if (original.contains(s)) {
-                resultList.add(s);
+        for (String successDate : weekDates) {
+            if (weekDates.contains(successDate)) {
+                resultList.add(successDate);
             }
         }
         return resultList;

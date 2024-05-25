@@ -103,9 +103,8 @@ public class AuthController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
     })
-    public ApiResponse<String> logout(HttpServletRequest request) {
-        userService.logout(request);
-        return ApiResponse.onSuccess("로그아웃 처리 되었습니다");
+    public ApiResponse<LogoutWithdrawalResponseDTO> logout(HttpServletRequest request) {
+        return ApiResponse.onSuccess(userService.logout(request));
     }
 
     @Operation(summary = "회원 탈퇴 API")
@@ -113,9 +112,7 @@ public class AuthController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
     })
-    public ApiResponse<String> withdrawal(HttpServletRequest request) {
-        userService.withdrawal(request);
-        return ApiResponse.onSuccess("정상적으로 탈퇴되었습니다");
+    public ApiResponse<LogoutWithdrawalResponseDTO> withdrawal(HttpServletRequest request) {
+        return ApiResponse.onSuccess(userService.withdrawal(request));
     }
-
 }
