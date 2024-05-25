@@ -35,11 +35,12 @@ public class DailyConverter {
                 .build();
     }
 
-    public static SideEffect toSideEffect(SideEffectRequestDTO dto, Record record) {
+    public static SideEffect toSideEffect(SideEffectRequestDTO dto, Record record, User user) {
         return SideEffect.builder()
                 .content(dto.getContent())
                 .date(DateUtil.formatLocalDateTime(LocalDate.now()))
                 .record(record)
+                .user(user)
                 .build();
     }
 
