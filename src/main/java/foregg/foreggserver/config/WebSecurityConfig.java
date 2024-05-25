@@ -3,6 +3,7 @@ package foregg.foreggserver.config;
 import foregg.foreggserver.jwt.JwtAuthFilter;
 import foregg.foreggserver.jwt.JwtExceptionFilter;
 import foregg.foreggserver.jwt.JwtTokenProvider;
+import foregg.foreggserver.service.redisService.RedisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +24,7 @@ public class WebSecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtExceptionFilter jwtExceptionFilter;
+    private final RedisService redisService;
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer(){
@@ -41,7 +43,7 @@ public class WebSecurityConfig {
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .formLogin(httpSecurityFormLoginConfigurer -> httpSecurityFormLoginConfigurer.disable()) // 로그인 폼 미사용
                 .httpBasic(httpSecurityHttpBasicConfigurer -> httpSecurityHttpBasicConfigurer.disable()) // http basic 미사용
-                .addFilterBefore(new JwtAuthFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthFilter(jwtTokenProvider, redisService), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtExceptionFilter, JwtAuthFilter.class)
                 .build();
     }
