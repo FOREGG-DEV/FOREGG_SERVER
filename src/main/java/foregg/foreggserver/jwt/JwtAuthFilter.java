@@ -3,6 +3,7 @@ package foregg.foreggserver.jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import foregg.foreggserver.apiPayload.code.ErrorReasonDTO;
 import foregg.foreggserver.apiPayload.code.status.ErrorStatus;
+import foregg.foreggserver.service.redisService.RedisService;
 import io.jsonwebtoken.*;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -12,7 +13,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,6 +32,7 @@ import java.io.IOException;
 public class JwtAuthFilter extends GenericFilterBean {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisService redisService;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -51,12 +55,12 @@ public class JwtAuthFilter extends GenericFilterBean {
 //        chain.doFilter(request, response);
 //    }
 
-        if (jwt != null) {
-           // try {
-                jwtTokenProvider.getClaim(jwt);
-                Authentication authentication = jwtTokenProvider.getAuthentication(jwt);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                logger.info("Security Context에 '{}' 인증 정보를 저장했습니다, uri:" + authentication.getName());
+        if (jwt != null && doNotLogout(jwt)) {
+            // try {
+            jwtTokenProvider.getClaim(jwt);
+            Authentication authentication = jwtTokenProvider.getAuthentication(jwt);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            logger.info("Security Context에 '{}' 인증 정보를 저장했습니다, uri:" + authentication.getName());
 //            } catch (SignatureException e) {
 //                logger.info("잘못된 JWT 서명입니다.");
 //                throw e;
@@ -70,8 +74,15 @@ public class JwtAuthFilter extends GenericFilterBean {
 //                logger.info("JWT 토큰이 잘못되었습니다.");
 //                throw e;
 //            }
-            }
-
+        }
         chain.doFilter(request, response);
+    }
+
+    private boolean doNotLogout(String accessToken) {
+        String isLogout = redisService.getData(accessToken);
+        if (isLogout == null) {
+            return true;
+        }
+        return false;
     }
 }

@@ -10,6 +10,7 @@ import foregg.foreggserver.dto.userDTO.UserJoinRequestDTO;
 import foregg.foreggserver.dto.kakaoDTO.KakaoUserInfoResponse;
 import foregg.foreggserver.dto.userDTO.UserResponseDTO;
 import foregg.foreggserver.jwt.JwtTokenProvider;
+import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.SurgeryRepository;
 import foregg.foreggserver.repository.UserRepository;
 import foregg.foreggserver.service.redisService.RedisService;
@@ -25,9 +26,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
-import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.INVALID_SPOUSE_CODE;
-import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.JWT_WRONG_REFRESHTOKEN;
+import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
 
 @Service
 @Slf4j
@@ -111,6 +110,21 @@ public class UserService {
         }
         else{
             throw new UserHandler(JWT_WRONG_REFRESHTOKEN);
+        }
+    }
+
+    public void logout(HttpServletRequest request) {
+
+        String jwt = jwtTokenProvider.resolveToken2(request);
+
+        // 엑세스 토큰이 key로 존재한다면
+        if (redisService.isExists(jwt)) {
+            throw new UserHandler(LOGOUT_USER);
+        }// 존재하지 않는다면
+        else{
+            redisService.deleteData(SecurityUtil.getCurrentUser());
+            Long expiration = jwtTokenProvider.getExpiration(jwt);
+            redisService.setBlackList(jwt, "logout", expiration);
         }
     }
 

@@ -1,10 +1,7 @@
 package foregg.foreggserver.controller;
 
 import foregg.foreggserver.apiPayload.ApiResponse;
-import foregg.foreggserver.dto.dailyDTO.DailyRequestDTO;
-import foregg.foreggserver.dto.dailyDTO.DailyTotalResponseDTO;
-import foregg.foreggserver.dto.dailyDTO.EmotionRequestDTO;
-import foregg.foreggserver.dto.dailyDTO.SideEffectRequestDTO;
+import foregg.foreggserver.dto.dailyDTO.*;
 import foregg.foreggserver.service.dailyService.DailyQueryService;
 import foregg.foreggserver.service.dailyService.DailyService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,6 +10,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -67,6 +66,14 @@ public class DailyController {
     public ApiResponse<String> sideEffect(@RequestBody SideEffectRequestDTO dto) {
         dailyService.writeSideEffect(dto);
         return ApiResponse.onSuccess();
+    }
+
+    @Operation(summary = "부작용 보기 API")
+    @GetMapping("/sideEffectList")
+    @PreAuthorize("hasRole('ROLE_WIFE')")
+    public ApiResponse<List<SideEffectResponseDTO>> writeSideEffect() {
+        List<SideEffectResponseDTO> sideEffectList = dailyService.getSideEffectList();
+        return ApiResponse.onSuccess(sideEffectList);
     }
 
 }
