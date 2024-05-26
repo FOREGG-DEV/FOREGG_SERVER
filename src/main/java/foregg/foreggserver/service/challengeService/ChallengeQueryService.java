@@ -65,7 +65,7 @@ public class ChallengeQueryService {
             List<String> successDays = result.getSuccessDays();
             Optional<List<ChallengeParticipation>> byChallenge = challengeParticipationRespository.findByChallenge(challenge);
 
-            List<String> successDates = extractSuccessDays(successDays, weekDates);
+            List<String> successDates = extractSuccessDays(weekDates, successDays);
             List<String> successDaysResult = DateUtil.convertDatesToDayOfWeek(successDates);
 
             ChallengeMyResponseDTO resultDTO = ChallengeConverter.toChallengeMyResponseDTO(challenge, getChallengeParticipants(byChallenge),successDaysResult, DateUtil.getWeekOfMonth(DateUtil.formatLocalDateTime(LocalDate.now())));
