@@ -1,7 +1,9 @@
 package foregg.foreggserver.controller;
 
 import foregg.foreggserver.apiPayload.ApiResponse;
+import foregg.foreggserver.apiPayload.exception.handler.UserHandler;
 import foregg.foreggserver.domain.User;
+import foregg.foreggserver.dto.fcmDTO.FcmRenewalRequest;
 import foregg.foreggserver.dto.userDTO.*;
 import foregg.foreggserver.dto.kakaoDTO.KakaoUserInfoResponse;
 import foregg.foreggserver.jwt.SecurityUtil;
@@ -19,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.ALREADY_ISSUED;
 
 
 @Slf4j
@@ -88,6 +91,10 @@ public class AuthController {
     })
     public ApiResponse<UserSpouseCodeResponseDTO> getSpouseCode() {
         UserSpouseCodeResponseDTO userSpouseCode = userQueryService.getUserSpouseCode();
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        if (user != null) {
+            throw new UserHandler(ALREADY_ISSUED);
+        }
         return ApiResponse.onSuccess(userSpouseCode);
     }
 
@@ -114,5 +121,11 @@ public class AuthController {
     })
     public ApiResponse<LogoutWithdrawalResponseDTO> withdrawal(HttpServletRequest request) {
         return ApiResponse.onSuccess(userService.withdrawal(request));
+    }
+
+    @PostMapping("/renewalFcm")
+    public ApiResponse<String> renewalFcmToken(@RequestBody FcmRenewalRequest dto) {
+        userService.renewalFcm(dto);
+        return ApiResponse.onSuccess();
     }
 }
