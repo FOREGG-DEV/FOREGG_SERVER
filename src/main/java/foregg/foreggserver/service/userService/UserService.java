@@ -5,6 +5,7 @@ import foregg.foreggserver.converter.SurgeryConverter;
 import foregg.foreggserver.converter.UserConverter;
 import foregg.foreggserver.domain.Surgery;
 import foregg.foreggserver.domain.User;
+import foregg.foreggserver.dto.fcmDTO.FcmRenewalRequest;
 import foregg.foreggserver.dto.userDTO.LogoutWithdrawalResponseDTO;
 import foregg.foreggserver.dto.userDTO.UserHusbandJoinRequestDTO;
 import foregg.foreggserver.dto.userDTO.UserJoinRequestDTO;
@@ -148,6 +149,11 @@ public class UserService {
         Long expiration = jwtTokenProvider.getExpiration(jwt);
         redisService.setBlackList(jwt, "withdrawn", expiration);
         return LogoutWithdrawalResponseDTO.builder().content("정상적으로 탈퇴 되었습니다").build();
+    }
+
+    public void renewalFcm(FcmRenewalRequest dto) {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        user.setFcmToken(dto.getFcm());
     }
 
 }

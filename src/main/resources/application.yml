@@ -27,5 +27,9 @@ spring:
       host: ${REDIS_HOST}
       password: ${REDIS_PASSWORD}
 
+fcm:
+  key:
+    path: foregg-56830-firebase-adminsdk-tgmbx-739218a1a0.json
+
 server:
   port: 8080

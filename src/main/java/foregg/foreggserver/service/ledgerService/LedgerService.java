@@ -7,11 +7,13 @@ import foregg.foreggserver.domain.User;
 import foregg.foreggserver.dto.ledgerDTO.LedgerRequestDTO;
 import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.LedgerRepository;
+import foregg.foreggserver.service.fcmService.FcmService;
 import foregg.foreggserver.service.userService.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.LEDGER_NOT_FOUND;
@@ -23,9 +25,18 @@ public class LedgerService {
 
     private final LedgerRepository ledgerRepository;
     private final UserQueryService userQueryService;
+    private final FcmService fcmService;
 
     public void add(LedgerRequestDTO dto) {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User spouse = userQueryService.returnSpouse();
+        if (spouse != null) {
+            try {
+                fcmService.sendMessageTo(spouse.getFcmToken(), "새로운 가계부가 등록되었습니다", String.format("%s님이 가계부를 추가했습니다.", user.getNickname()));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
         ledgerRepository.save(LedgerConverter.toLedger(dto, user));
     }
 

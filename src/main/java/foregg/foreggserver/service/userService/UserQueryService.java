@@ -28,7 +28,6 @@ public class UserQueryService {
 
     private final KakaoRequestService kakaoService;
     private final UserRepository userRepository;
-    private final JwtTokenProvider jwtTokenProvider;
     private final SpouseCodeGenerator spouseCodeGenerator;
 
     //클라이언트에게서 받은 access token을 이용해서 서버 측에 getUserInfo로 유저 정보를 받아 온다. 그 후에 db를 뒤져 있는 사용자 인지 아닌지 확인

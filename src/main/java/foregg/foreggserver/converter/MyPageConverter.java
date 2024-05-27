@@ -17,6 +17,7 @@ public class MyPageConverter {
                 .count(surgery.getCount())
                 .startDate(surgery.getStartAt())
                 .ssn(user.getSsn())
+                .spouseCode(me.getSpouseCode())
                 .spouse(spouseName).build();
     }
 

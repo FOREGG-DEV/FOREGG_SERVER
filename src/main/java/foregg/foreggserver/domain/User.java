@@ -44,6 +44,8 @@ public class User extends BaseEntity implements UserDetails {
 
     private Long spouseId;
 
+    private String fcmToken;
+
     @OneToOne
     @JoinColumn(name = "surgery_id")
     private Surgery surgery;
@@ -122,6 +124,10 @@ public class User extends BaseEntity implements UserDetails {
 
     public void setRole(String role) {
         this.roles.add(role);
+    }
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
     }
 
 }
