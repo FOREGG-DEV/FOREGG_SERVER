@@ -76,4 +76,12 @@ public class DailyController {
         return ApiResponse.onSuccess(sideEffectList);
     }
 
+    @Operation(summary = "주사 투여 완료 공유하기 API")
+    @PreAuthorize("hasRole('ROLE_WIFE')")
+    @PostMapping("/shareInjection")
+    public ApiResponse<String> sendNotificationInjection() {
+        dailyService.shareInjection();
+        return ApiResponse.onSuccess();
+    }
+
 }
