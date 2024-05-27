@@ -15,12 +15,15 @@ import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.RecordRepository;
 import foregg.foreggserver.repository.RepeatTimeRepository;
 import foregg.foreggserver.repository.UserRepository;
+import foregg.foreggserver.service.fcmService.FcmService;
+import foregg.foreggserver.service.userService.UserQueryService;
 import foregg.foreggserver.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +38,8 @@ public class RecordService {
     private final RecordRepository recordRepository;
     private final RepeatTimeRepository repeatTimeRepository;
     private final UserRepository userRepository;
+    private final UserQueryService userQueryService;
+    private final FcmService fcmService;
 
     //일정 추가하기
     public RecordResponseDTO addRecord(RecordRequestDTO dto) {
@@ -44,6 +49,15 @@ public class RecordService {
         for (RepeatTime time : repeatTimes) {
             RepeatTime repeatTime = RepeatTimeConverter.toRepeatTime(time, record);
             repeatTimeRepository.save(repeatTime);
+        }
+
+        User spouse = userQueryService.returnSpouse();
+        if (spouse != null) {
+            try {
+                fcmService.sendMessageTo(spouse.getFcmToken(), "새로운 일정이 등록되었습니다", String.format("%s님이 일정을 추가했습니다.", user.getNickname()));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         return getRepeatTimes(record);
     }
