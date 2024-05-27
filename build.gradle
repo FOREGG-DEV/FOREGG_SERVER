@@ -49,6 +49,10 @@ dependencies {
 	//redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+	implementation 'com.google.firebase:firebase-admin:9.2.0'           // Google Firebase Admin
+	implementation 'com.fasterxml.jackson.core:jackson-core:2.16.1'
+	implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+
 }
 
 tasks.named('test') {
