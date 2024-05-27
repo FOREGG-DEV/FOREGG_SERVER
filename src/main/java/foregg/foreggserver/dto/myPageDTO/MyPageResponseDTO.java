@@ -18,5 +18,6 @@ public class MyPageResponseDTO {
     private String startDate;
     private String spouse;
     private String ssn;
+    private String spouseCode;
 
 }
