@@ -37,3 +37,5 @@ out/
 .vscode/
 
 application.yml
+
+src/main/resources/foregg-56830-firebase-adminsdk-tgmbx-739218a1a0.json
