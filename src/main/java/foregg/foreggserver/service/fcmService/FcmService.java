@@ -36,7 +36,7 @@ public class FcmService{
 
         HttpEntity entity = new HttpEntity<>(message, headers);
 
-        String API_URL = "<https://fcm.googleapis.com/v1/projects/foregg-56830/messages:send>";
+        String API_URL = "https://fcm.googleapis.com/v1/projects/foregg-56830/messages:send";
         ResponseEntity response = restTemplate.exchange(API_URL, HttpMethod.POST, entity, String.class);
 
         System.out.println(response.getStatusCode());
@@ -50,11 +50,11 @@ public class FcmService{
      * @return Bearer token
      */
     private String getAccessToken() throws IOException {
-        String firebaseConfigPath = "firebase/foregg-56830-firebase-adminsdk-tgmbx-739218a1a0.json";
+        String firebaseConfigPath = "foregg-56830-firebase-adminsdk-tgmbx-739218a1a0.json";
 
         GoogleCredentials googleCredentials = GoogleCredentials
                 .fromStream(new ClassPathResource(firebaseConfigPath).getInputStream())
-                .createScoped(List.of("<https://www.googleapis.com/auth/cloud-platform>"));
+                .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
 
         googleCredentials.refreshIfExpired();
         return googleCredentials.getAccessToken().getTokenValue();
