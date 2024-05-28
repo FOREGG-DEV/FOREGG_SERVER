@@ -38,11 +38,15 @@ public class MyPageQueryService {
         User me = userQueryService.getUser(SecurityUtil.getCurrentUser());
         User spouse = userQueryService.returnSpouse();
         String spouseNickname = null;
-        Surgery surgery = null;
-        Optional<Surgery> foundSurgery = surgeryRepository.findByUser(me);
-        if (foundSurgery.isPresent()) {
-            surgery = foundSurgery.get();
+        Surgery surgery;
+        if (SecurityUtil.ifCurrentUserIsHusband()) {
+            Surgery foundSurgery = surgeryRepository.findByUser(spouse).orElseThrow(() -> new SurgeryHandler(NOT_FOUND_MY_SURGERY));
+            surgery = foundSurgery;
+        }else{
+            Surgery foundSurgery = surgeryRepository.findByUser(me).orElseThrow(() -> new SurgeryHandler(NOT_FOUND_MY_SURGERY));
+            surgery = foundSurgery;
         }
+
         if (spouse != null) {
             spouseNickname = spouse.getNickname();
         }
