@@ -19,6 +19,7 @@ public class UserConverter {
                 .nickname(userInfo.getProperties().getNickname())
                 .ssn(dto.getSsn())
                 .surgery(surgery)
+                .fcmToken(dto.getFcmToken())
                 .roles(new ArrayList<>())
                 .spouseCode(dto.getSpouseCode()).build();
         user.setRole("ROLE_WIFE");
@@ -34,6 +35,7 @@ public class UserConverter {
                 .nickname(userInfo.getProperties().getNickname())
                 .ssn(dto.getSsn())
                 .spouseId(spouse.getId())
+                .fcmToken(dto.getFcmToken())
                 .spouseCode(spouse.getSpouseCode())
                 .roles(new ArrayList<>())
                 .build();

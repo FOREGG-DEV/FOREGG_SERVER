@@ -23,5 +23,6 @@ public class UserJoinRequestDTO {
     private String startAt;
     private String spouseCode;
     private String ssn;
+    private String fcmToken;
 
 }
