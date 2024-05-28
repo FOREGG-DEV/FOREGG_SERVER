@@ -55,7 +55,7 @@ public class DailyService {
 
     public void writeDaily(DailyRequestDTO dto) {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
-        Optional<Daily> daily = dailyRepository.findByDate(DateUtil.formatLocalDateTime(LocalDate.now()));
+        Optional<Daily> daily = dailyRepository.findByUserAndDate(user,DateUtil.formatLocalDateTime(LocalDate.now()));
         if (daily.isPresent()) {
             throw new RecordHandler(ALREADY_WRITTEN);
         }
