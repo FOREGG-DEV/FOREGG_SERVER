@@ -15,7 +15,7 @@ public class FcmMessageDTO {
     @AllArgsConstructor
     @Getter
     public static class Message {
-        private FcmMessageDTO.Notification notification;
+        private FcmMessageDTO.Notification data;
         private String token;
     }
 
@@ -25,6 +25,7 @@ public class FcmMessageDTO {
     public static class Notification {
         private String title;
         private String body;
-        private String image;
+        private String type;
+        private Long targetId;
     }
 }
