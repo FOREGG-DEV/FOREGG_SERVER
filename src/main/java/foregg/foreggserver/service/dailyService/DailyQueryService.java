@@ -42,9 +42,9 @@ public class DailyQueryService {
                 .build();
     }
 
-    public Daily getTodayDaily() {
+    public Daily getTodayDaily(User spouse) {
         String today = DateUtil.formatLocalDateTime(LocalDate.now());
-        Optional<Daily> byDate = dailyRepository.findByDate(today);
+        Optional<Daily> byDate = dailyRepository.findByUserAndDate(spouse,today);
         if (byDate.isEmpty()) {
             return null;
         }
