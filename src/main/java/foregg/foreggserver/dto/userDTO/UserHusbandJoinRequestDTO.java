@@ -9,4 +9,5 @@ import lombok.*;
 public class UserHusbandJoinRequestDTO {
     private String spouseCode;
     private String ssn;
+    private String fcmToken;
 }
