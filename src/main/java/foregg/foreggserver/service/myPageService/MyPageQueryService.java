@@ -36,18 +36,17 @@ public class MyPageQueryService {
 
     public MyPageResponseDTO getInformation() {
         User me = userQueryService.getUser(SecurityUtil.getCurrentUser());
-        User infoUser = userQueryService.returnWifeOrHusband();
         User spouse = userQueryService.returnSpouse();
         String spouseNickname = null;
         Surgery surgery = null;
-        Optional<Surgery> byUser = surgeryRepository.findByUser(infoUser);
-        if (byUser.isPresent()) {
-            surgery = byUser.get();
+        Optional<Surgery> foundSurgery = surgeryRepository.findByUser(me);
+        if (foundSurgery.isPresent()) {
+            surgery = foundSurgery.get();
         }
         if (spouse != null) {
             spouseNickname = spouse.getNickname();
         }
-        return MyPageConverter.toMyPageResponseDTO(me,infoUser, surgery, spouseNickname);
+        return MyPageConverter.toMyPageResponseDTO(me, surgery, spouseNickname);
     }
 
     public MyPageMedicalRecordResponseDTO getMedicalInformation(String sort) {
