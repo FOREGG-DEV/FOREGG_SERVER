@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.ALREADY_ISSUED;
@@ -91,10 +92,6 @@ public class AuthController {
     })
     public ApiResponse<UserSpouseCodeResponseDTO> getSpouseCode() {
         UserSpouseCodeResponseDTO userSpouseCode = userQueryService.getUserSpouseCode();
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
-        if (user != null) {
-            throw new UserHandler(ALREADY_ISSUED);
-        }
         return ApiResponse.onSuccess(userSpouseCode);
     }
 
