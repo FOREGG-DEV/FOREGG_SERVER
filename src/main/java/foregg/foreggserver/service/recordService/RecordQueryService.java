@@ -127,7 +127,7 @@ public class RecordQueryService {
         }
 
         if (SecurityUtil.ifCurrentUserIsHusband()) {
-            return HomeConverter.toHomeResponseDTO(me.getNickname(), spouseName, todayDate, me.getSsn() ,resultList, dailyQueryService.getTodayDaily(), null);
+            return HomeConverter.toHomeResponseDTO(me.getNickname(), spouseName, todayDate, me.getSsn() ,resultList, dailyQueryService.getTodayDaily(spouse), null);
         }
         return HomeConverter.toHomeResponseDTO(me.getNickname(),spouseName, todayDate, me.getSsn(),resultList, null, null);
     }
