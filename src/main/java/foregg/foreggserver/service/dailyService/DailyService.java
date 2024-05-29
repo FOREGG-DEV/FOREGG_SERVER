@@ -45,12 +45,7 @@ public class DailyService {
 
     public void putEmotion(Long id, EmotionRequestDTO dto) {
         Daily daily = dailyRepository.findById(id).orElseThrow(() -> new RecordHandler(NOT_FOUND_DAILY));
-        log.info("데일리 " + daily.getContent());
-        log.info("이모지리퀘 " + dto.getEmotionType());
-
         daily.setEmotionType(dto.getEmotionType());
-        log.info("데일리 이모지 " + daily.getEmotionType());
-
     }
 
     public void writeDaily(DailyRequestDTO dto) {
