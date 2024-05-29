@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -225,5 +226,13 @@ public class DateUtil {
         }
 
         return sortedDateStrings;
+    }
+
+    public static String formatCreatedAt(LocalDateTime createdAt) {
+        // 원하는 형식 지정
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+        // LocalDateTime을 지정한 형식으로 변환하여 반환
+        return createdAt.format(formatter);
     }
 }
