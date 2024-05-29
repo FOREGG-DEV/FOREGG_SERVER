@@ -62,13 +62,15 @@ public class ChallengeService {
         List<String> successDays = challengeParticipation.getSuccessDays();
         if (successDays == null) {
             successDays = new ArrayList<>();
-            challengeParticipation.setSuccessDays(successDays);
+            successDays.add(now);
+        }else{
+            if (successDays.contains(now)) {
+                throw new ChallengeHandler(DUPLICATED_SUCCESS_DATE);
+            }
+            successDays.add(now);
         }
-        if (successDays.contains(now)) {
-            throw new ChallengeHandler(DUPLICATED_SUCCESS_DATE);
-        }
-        successDays.add(now);
-        challengeParticipationRespository.save(challengeParticipation);
+
+        challengeParticipation.setSuccessDays(successDays);
     }
 
 }

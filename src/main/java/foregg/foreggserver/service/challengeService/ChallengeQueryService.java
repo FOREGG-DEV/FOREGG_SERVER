@@ -86,7 +86,7 @@ public class ChallengeQueryService {
         if (successDates == null) {
             return null;
         }
-        for (String successDate : weekDates) {
+        for (String successDate : successDates) {
             if (weekDates.contains(successDate)) {
                 resultList.add(successDate);
             }

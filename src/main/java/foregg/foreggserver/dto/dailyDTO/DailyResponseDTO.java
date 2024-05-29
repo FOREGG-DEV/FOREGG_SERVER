@@ -18,5 +18,6 @@ public class DailyResponseDTO {
     private String content;
     private String date;
     private EmotionType emotionType;
+    private String createAt;
 
 }

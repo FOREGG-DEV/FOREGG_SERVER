@@ -32,6 +32,7 @@ public class DailyConverter {
                 .content(daily.getContent())
                 .date(daily.getDate())
                 .emotionType(daily.getEmotionType())
+                .createAt(DateUtil.formatCreatedAt(daily.getCreatedAt()))
                 .build();
     }
 
