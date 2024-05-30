@@ -16,6 +16,7 @@ import foregg.foreggserver.repository.RecordRepository;
 import foregg.foreggserver.repository.RepeatTimeRepository;
 import foregg.foreggserver.repository.UserRepository;
 import foregg.foreggserver.service.fcmService.FcmService;
+import foregg.foreggserver.service.notificationService.NotificationService;
 import foregg.foreggserver.service.userService.UserQueryService;
 import foregg.foreggserver.util.DateUtil;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +25,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
+import java.util.stream.Collectors;
 
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
 
@@ -40,6 +43,9 @@ public class RecordService {
     private final UserRepository userRepository;
     private final UserQueryService userQueryService;
     private final FcmService fcmService;
+    private final NotificationService notificationService;
+
+    private final Map<Long, List<ScheduledFuture<?>>> scheduledTasks = new ConcurrentHashMap<>();
 
     //일정 추가하기
     public RecordResponseDTO addRecord(RecordRequestDTO dto) {
@@ -51,6 +57,9 @@ public class RecordService {
             repeatTimeRepository.save(repeatTime);
         }
 
+        if (dto.getRecordType() == RecordType.INJECTION) {
+            notificationService.scheduleNotifications(user, record, repeatTimes);
+        }
         User spouse = userQueryService.returnSpouse();
         if (spouse != null) {
             try {
@@ -65,12 +74,14 @@ public class RecordService {
     //일정 삭제하기
     public void deleteRecord(Long id) {
         Record record = recordRepository.findById(id).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
+        notificationService.cancelScheduledTasks(id);
         recordRepository.delete(record);
     }
 
     //일정 변경하기
     public void modifyRecord(Long id, RecordRequestDTO dto) {
         Record record = recordRepository.findById(id).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
+        notificationService.cancelScheduledTasks(id);
         record.updateRecord(dto);
         Optional<List<RepeatTime>> repeatTimes = repeatTimeRepository.findByRecord(record);
         if(repeatTimes.isPresent()){
@@ -83,6 +94,10 @@ public class RecordService {
         for (RepeatTime time : updateTimes) {
             RepeatTime saveTime = RepeatTimeConverter.toRepeatTime(time, record);
             repeatTimeRepository.save(saveTime);
+        }
+
+        if (dto.getRecordType() == RecordType.INJECTION) {
+            notificationService.scheduleNotifications(getUser(SecurityUtil.getCurrentUser()), record, updateTimes);
         }
     }
 
@@ -126,6 +141,6 @@ public class RecordService {
         return user;
     }
 
-    //
+
 
 }
