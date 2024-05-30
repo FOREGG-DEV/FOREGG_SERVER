@@ -25,7 +25,7 @@ public class FcmService{
      *
      * @return 성공(1), 실패(0)
      */
-    public int sendMessageTo(String fcmToken, String title, String body, String type, Long targetId) throws IOException {
+    public int sendMessageTo(String fcmToken, String title, String body, String type, String targetId) throws IOException {
 
         String message = makeMessage(fcmToken, title, body, type, targetId);
         RestTemplate restTemplate = new RestTemplate();
@@ -65,7 +65,7 @@ public class FcmService{
      *
      * @return String
      */
-    private String makeMessage(String fcmToken, String title, String body, String type, Long targetId) throws JsonProcessingException {
+    private String makeMessage(String fcmToken, String title, String body, String type, String targetId) throws JsonProcessingException {
 
         ObjectMapper om = new ObjectMapper();
         FcmMessageDTO fcmMessageDto = FcmMessageDTO.builder()
