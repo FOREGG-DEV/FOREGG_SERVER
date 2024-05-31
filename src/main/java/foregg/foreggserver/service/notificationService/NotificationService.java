@@ -51,6 +51,7 @@ public class NotificationService {
                         "22시 하루기록 푸시 알림",
                         String.format("%s님 오늘 하루는 어땠나요?", wife.getNickname()),
                         "today record female",
+                        null,
                         null);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -69,7 +70,7 @@ public class NotificationService {
             for (RepeatTime repeatTime : repeatTimes) {
                 LocalTime time = LocalTime.parse(repeatTime.getTime(), timeFormatter);
                 LocalDateTime notificationDateTime = LocalDateTime.of(singleDate, time);
-                scheduleNotification(user, notificationDateTime, record.getId());
+                scheduleNotification(user, notificationDateTime, record.getId(), repeatTime.getTime());
             }
         } else if (record.getStart_date() != null && record.getEnd_date() != null) {
             // 반복 날짜의 경우
@@ -82,7 +83,7 @@ public class NotificationService {
                     for (RepeatTime repeatTime : repeatTimes) {
                         LocalTime time = LocalTime.parse(repeatTime.getTime(), timeFormatter);
                         LocalDateTime notificationDateTime = LocalDateTime.of(date, time);
-                        scheduleNotification(user, notificationDateTime, record.getId());
+                        scheduleNotification(user, notificationDateTime, record.getId(), repeatTime.getTime());
                     }
                 }
             }
@@ -124,11 +125,12 @@ public class NotificationService {
         return repeatDays;
     }
 
-    public void scheduleNotification(User user, LocalDateTime notificationDateTime, Long recordId) {
+    public void scheduleNotification(User user, LocalDateTime notificationDateTime, Long recordId, String time) {
         Date date = Date.from(notificationDateTime.atZone(ZoneId.systemDefault()).toInstant());
         ScheduledFuture<?> scheduledFuture = taskScheduler.schedule(() -> {
             try {
-                fcmService.sendMessageTo(user.getFcmToken(), "주사 일정 알림", "주사 맞을 시간입니다 ", "injection female", recordId.toString());
+                fcmService.sendMessageTo(user.getFcmToken(), "주사 일정 알림", "주사 맞을 시간입니다 ", "injection female", recordId.toString(), time);
+                log.info(String.format("recordId는 %s이고 time은 %s입니다", recordId, time));
             } catch (IOException e) {
                 e.printStackTrace();
             }
