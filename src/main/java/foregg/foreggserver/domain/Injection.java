@@ -24,10 +24,6 @@ public class Injection extends BaseEntity {
     @Column(nullable = false)
     private String description;
 
-    @Column(nullable = false)
-    private String sideEffect;
-
-    @Column(nullable = false)
-    private String caution;
+    private String image;
 
 }

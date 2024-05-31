@@ -32,7 +32,7 @@ public class LedgerService {
         User spouse = userQueryService.returnSpouse();
         if (spouse != null) {
             try {
-                fcmService.sendMessageTo(spouse.getFcmToken(), "새로운 가계부가 등록되었습니다", String.format("%s님이 가계부를 추가했습니다.", user.getNickname()), "ledger", null);
+                fcmService.sendMessageTo(spouse.getFcmToken(), "새로운 가계부가 등록되었습니다", String.format("%s님이 가계부를 추가했습니다.", user.getNickname()), "ledger", null, null);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

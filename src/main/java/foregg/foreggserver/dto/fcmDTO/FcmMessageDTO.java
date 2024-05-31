@@ -27,5 +27,6 @@ public class FcmMessageDTO {
         private String body;
         private String type;
         private String targetId;
+        private String time;
     }
 }
