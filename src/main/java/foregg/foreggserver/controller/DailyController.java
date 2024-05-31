@@ -2,8 +2,10 @@ package foregg.foreggserver.controller;
 
 import foregg.foreggserver.apiPayload.ApiResponse;
 import foregg.foreggserver.dto.dailyDTO.*;
+import foregg.foreggserver.dto.injectionDTO.InjectionResponseDTO;
 import foregg.foreggserver.service.dailyService.DailyQueryService;
 import foregg.foreggserver.service.dailyService.DailyService;
+import foregg.foreggserver.service.injectionService.InjectionQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,6 +23,7 @@ public class DailyController {
 
     private final DailyService dailyService;
     private final DailyQueryService dailyQueryService;
+    private final InjectionQueryService injectionQueryService;
 
     @Operation(summary = "하루기록 보기 API")
     @GetMapping()
@@ -78,10 +81,19 @@ public class DailyController {
 
     @Operation(summary = "주사 투여 완료 공유하기 API")
     @PreAuthorize("hasRole('ROLE_WIFE')")
-    @PostMapping("/shareInjection")
-    public ApiResponse<String> sendNotificationInjection() {
-        dailyService.shareInjection();
+    @PostMapping("/shareInjection/{id}")
+    public ApiResponse<String> sendNotificationInjection(@PathVariable(name = "id") Long id,
+                                                         @RequestParam(name = "time") String time) {
+        injectionQueryService.shareInjection(id, time);
         return ApiResponse.onSuccess();
     }
 
+    @Operation(summary = "주사 정보 페이지 API")
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/injectionInfo/{id}")
+    public ApiResponse<InjectionResponseDTO> getInjectionInfo(@PathVariable(name = "id") Long id,
+                                                              @RequestParam(name = "time")String time) {
+        InjectionResponseDTO dto = injectionQueryService.getInjectionInfo(id, time);
+        return ApiResponse.onSuccess(dto);
+    }
 }
