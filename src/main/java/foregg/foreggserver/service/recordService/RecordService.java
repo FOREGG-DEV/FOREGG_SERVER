@@ -63,7 +63,7 @@ public class RecordService {
         User spouse = userQueryService.returnSpouse();
         if (spouse != null) {
             try {
-                fcmService.sendMessageTo(spouse.getFcmToken(), "새로운 일정이 등록되었습니다", String.format("%s님이 일정을 추가했습니다.", user.getNickname()),"calendar",null);
+                fcmService.sendMessageTo(spouse.getFcmToken(), "새로운 일정이 등록되었습니다", String.format("%s님이 일정을 추가했습니다.", user.getNickname()),"calendar",null,null);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
