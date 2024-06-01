@@ -34,13 +34,22 @@ public class HomeConverter {
                                                     String ssn,
                                                     List<HomeRecordResponseDTO> homeRecordResponseDTOS,
                                                     Daily daily,
-                                                    String medicalRecord) {
+                                                    Record hospitalRecord) {
 
         String dailyContent = null;
         DailyConditionType type = null;
+
+        String medicalRecord = null;
+        Long medicalRecordId = null;
+
         if (daily != null) {
             dailyContent = daily.getContent();
             type = daily.getDailyConditionType();
+        }
+
+        if (hospitalRecord != null) {
+            medicalRecord = hospitalRecord.getMedical_record();
+            medicalRecordId = hospitalRecord.getId();
         }
 
         return HomeResponseDTO.builder()
@@ -52,6 +61,7 @@ public class HomeConverter {
                 .dailyConditionType(type)
                 .dailyContent(dailyContent)
                 .latestMedicalRecord(medicalRecord)
+                .medicalRecordId(medicalRecordId)
                 .build();
     }
 
