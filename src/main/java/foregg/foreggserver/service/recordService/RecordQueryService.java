@@ -127,7 +127,8 @@ public class RecordQueryService {
         }
 
         if (SecurityUtil.ifCurrentUserIsHusband()) {
-            return HomeConverter.toHomeResponseDTO(me.getNickname(), spouseName, todayDate, me.getSsn() ,resultList, dailyQueryService.getTodayDaily(spouse), null);
+            Record latestHospitalRecord = getLatestHospitalRecord(spouse);
+            return HomeConverter.toHomeResponseDTO(me.getNickname(), spouseName, todayDate, me.getSsn() ,resultList, dailyQueryService.getTodayDaily(spouse), latestHospitalRecord);
         }
         return HomeConverter.toHomeResponseDTO(me.getNickname(),spouseName, todayDate, me.getSsn(),resultList, null, null);
     }
@@ -159,5 +160,24 @@ public class RecordQueryService {
         return null;
     }
 
+    public Record getLatestHospitalRecord(User user) {
+        List<Record> foundRecords = recordRepository.findByUserAndType(user, RecordType.HOSPITAL)
+                .orElseThrow(() -> new RecordHandler(NOT_RESERVED_HOSPITAL_RECORD));
+        List<String> dates = new ArrayList<>();
 
+        for (Record record : foundRecords) {
+            dates.add(record.getDate());
+        }
+
+        List<String> sortedDates = DateUtil.sortDates(dates);
+        Collections.reverse(sortedDates);
+
+        for (String date : sortedDates) {
+            Record record = recordRepository.findByDateAndTypeAndUser(date, RecordType.HOSPITAL, user);
+            if (record.getMedical_record() != null) {
+                return record;
+            }
+        }
+        return null;
+    }
 }
