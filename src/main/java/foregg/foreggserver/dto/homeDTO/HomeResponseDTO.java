@@ -23,5 +23,6 @@ public class HomeResponseDTO {
     private DailyConditionType dailyConditionType;
     private String dailyContent;
     private String latestMedicalRecord;
+    private Long medicalRecordId;
 
 }
