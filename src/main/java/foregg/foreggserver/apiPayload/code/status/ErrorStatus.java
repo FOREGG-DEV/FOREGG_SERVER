@@ -45,6 +45,7 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_FOUND_REPEATTIME(BAD_REQUEST, "RECORD4006", "해당 시간에 기록이 없습니다"),
     NOT_INJECTION_RECORD(BAD_REQUEST, "RECORD4007", "주사 일정이 아닙니다"),
     NOT_FOUND_LATEST_MEDICAL_RECORD(BAD_REQUEST, "RECORD4008", "최근의 진료 기록이 없습니다"),
+    NOT_FOUND_MY_INJECTION_RECORD(BAD_REQUEST, "RECORD4009","나의 주사 일정을 찾을 수 없습니다"),
 
     //챌린지 관련 에러
     CHALLENGE_NOT_FOUND(BAD_REQUEST, "CHALLENGE4001", "존재하지 않는 챌린지입니다"),
