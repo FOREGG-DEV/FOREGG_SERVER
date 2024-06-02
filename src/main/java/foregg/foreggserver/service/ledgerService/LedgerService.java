@@ -25,6 +25,7 @@ public class LedgerService {
 
     private final LedgerRepository ledgerRepository;
     private final UserQueryService userQueryService;
+    private final LedgerQueryService ledgerQueryService;
     private final FcmService fcmService;
 
     public void add(LedgerRequestDTO dto) {
@@ -37,16 +38,22 @@ public class LedgerService {
                 throw new RuntimeException(e);
             }
         }
-        ledgerRepository.save(LedgerConverter.toLedger(dto, user));
+        if (SecurityUtil.ifCurrentUserIsHusband()) {
+            ledgerRepository.save(LedgerConverter.toLedger(dto, spouse));
+        }else{
+            ledgerRepository.save(LedgerConverter.toLedger(dto, user));
+        }
     }
 
     public void modify(Long id, LedgerRequestDTO dto) {
         Ledger ledger = ledgerRepository.findById(id).orElseThrow(() -> new LedgerHandler(LEDGER_NOT_FOUND));
+        ledgerQueryService.isMyLedger(ledger);
         ledger.updateLedger(dto);
     }
 
     public void delete(Long id) {
         Ledger ledger = ledgerRepository.findById(id).orElseThrow(() -> new LedgerHandler(LEDGER_NOT_FOUND));
+        ledgerQueryService.isMyLedger(ledger);
         ledgerRepository.delete(ledger);
     }
 
