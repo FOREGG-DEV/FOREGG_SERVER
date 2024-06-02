@@ -11,5 +11,7 @@ public interface DailyRepository extends JpaRepository<Daily, Long> {
 
     Optional<Daily> findByUserAndDate(User user, String date);
 
+    Optional<Daily> findByIdAndUser(Long id, User user);
+
     Optional<List<Daily>> findByUser(User user);
 }

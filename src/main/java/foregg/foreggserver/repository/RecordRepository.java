@@ -20,5 +20,7 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 
     Record findByDateAndTypeAndUser(String date, RecordType type, User user);
 
+    Optional<Record> findByIdAndUser(Long id, User user);
+
 
 }
