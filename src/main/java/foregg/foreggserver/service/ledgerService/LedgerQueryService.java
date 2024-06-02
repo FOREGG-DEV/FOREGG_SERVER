@@ -1,6 +1,7 @@
 package foregg.foreggserver.service.ledgerService;
 
 import foregg.foreggserver.apiPayload.exception.handler.LedgerHandler;
+import foregg.foreggserver.apiPayload.exception.handler.UserHandler;
 import foregg.foreggserver.converter.LedgerConverter;
 import foregg.foreggserver.domain.Ledger;
 import foregg.foreggserver.domain.User;
@@ -21,8 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.LEDGER_NOT_FOUND;
-import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.NOT_FOUND_MY_LEDGER;
+import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
 
 @Transactional(readOnly = true)
 @Service
@@ -35,9 +35,8 @@ public class LedgerQueryService {
     public LedgerTotalResponseDTO all() {
         List<LedgerResponseDTO> resultList = new ArrayList<>();
         List<Ledger> ls = new ArrayList<>();
-        User infoUser = userQueryService.returnWifeOrHusband();
+        List<Ledger> ledgers = findLedgerByWife();
 
-        List<Ledger> ledgers = findLedgerByUser(infoUser);
         List<String> pastDays = DateUtil.getPast30Days(DateUtil.formatLocalDateTime(LocalDate.now()));
 
         for (Ledger ledger : ledgers) {
@@ -50,9 +49,8 @@ public class LedgerQueryService {
     }
 
     public LedgerTotalResponseDTO byCount(int count) {
-        User infoUser = userQueryService.returnWifeOrHusband();
 
-        List<Ledger> ledgers = findLedgerByUser(infoUser);
+        List<Ledger> ledgers = findLedgerByWife();
         List<LedgerResponseDTO> resultList = new ArrayList<>();
         List<Ledger> ls = new ArrayList<>();
 
@@ -66,9 +64,8 @@ public class LedgerQueryService {
     }
 
     public LedgerTotalResponseDTO byMonth(String yearmonth) {
-        User infoUser = userQueryService.returnWifeOrHusband();
 
-        List<Ledger> ledgers = findLedgerByUser(infoUser);
+        List<Ledger> ledgers = findLedgerByWife();
         List<LedgerResponseDTO> resultList = new ArrayList<>();
         List<Ledger> ls = new ArrayList<>();
 
@@ -82,9 +79,8 @@ public class LedgerQueryService {
     }
 
     public LedgerTotalResponseDTO byCondition(String from, String to) {
-        User infoUser = userQueryService.returnWifeOrHusband();
 
-        List<Ledger> ledgers = findLedgerByUser(infoUser);
+        List<Ledger> ledgers = findLedgerByWife();
         List<String> dates = DateUtil.getIntervalDates(from, to);
         List<LedgerResponseDTO> resultList = new ArrayList<>();
         List<Ledger> ls = new ArrayList<>();
@@ -100,6 +96,7 @@ public class LedgerQueryService {
 
     public LedgerResponseDTO detail(Long id) {
         Ledger ledger = ledgerRepository.findById(id).orElseThrow(() -> new LedgerHandler(LEDGER_NOT_FOUND));
+        isMyLedger(ledger);
         return LedgerConverter.toLedgerResponseDTO(ledger);
     }
 
@@ -116,8 +113,31 @@ public class LedgerQueryService {
         return LedgerConverter.toLedgerSummaryDTO(totalExpense, subsidy, personal);
     }
 
-    private List<Ledger> findLedgerByUser(User user) {
-        return ledgerRepository.findByUser(user).orElseThrow(() -> new LedgerHandler(NOT_FOUND_MY_LEDGER));
+    private List<Ledger> findLedgerByWife() {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        if (SecurityUtil.ifCurrentUserIsHusband()) {
+            return ledgerRepository.findByUser(userQueryService.returnSpouse()).orElseThrow(() -> new UserHandler(SPOUSE_NOT_FOUND));
+        }
+        Optional<List<Ledger>> ledgers = ledgerRepository.findByUser(user);
+        if (ledgers.isEmpty()) {
+            return null;
+        }
+        return ledgers.get();
+    }
+
+    public void isMyLedger(Ledger ledger) {
+        User ledgerOwner = ledger.getUser();
+        if (SecurityUtil.ifCurrentUserIsHusband()) {
+            if (!ledgerOwner.equals(userQueryService.returnSpouse())) {
+                throw new LedgerHandler(NOT_MY_LEDGER);
+            }
+        }else{
+            User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+            if (!ledgerOwner.equals(user)) {
+                throw new LedgerHandler(NOT_MY_LEDGER);
+            }
+        }
+
     }
 
 }
