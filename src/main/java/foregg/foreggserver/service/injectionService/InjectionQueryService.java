@@ -2,10 +2,8 @@ package foregg.foreggserver.service.injectionService;
 
 import foregg.foreggserver.apiPayload.exception.handler.RecordHandler;
 import foregg.foreggserver.apiPayload.exception.handler.UserHandler;
-import foregg.foreggserver.domain.Injection;
+import foregg.foreggserver.domain.*;
 import foregg.foreggserver.domain.Record;
-import foregg.foreggserver.domain.RepeatTime;
-import foregg.foreggserver.domain.User;
 import foregg.foreggserver.domain.enums.RecordType;
 import foregg.foreggserver.dto.injectionDTO.InjectionResponseDTO;
 import foregg.foreggserver.jwt.SecurityUtil;
@@ -36,6 +34,11 @@ public class InjectionQueryService {
 
     public void shareInjection(Long id, String time) {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        Optional<Record> foundRecord = recordRepository.findByIdAndUser(id, user);
+        if (foundRecord.isEmpty()) {
+            throw new RecordHandler(NOT_FOUND_MY_INJECTION_RECORD);
+        }
+
         User spouse = userQueryService.returnSpouse();
         if (spouse != null) {
             try {
@@ -50,6 +53,7 @@ public class InjectionQueryService {
 
     public InjectionResponseDTO getInjectionInfo(Long id, String time) {
         Record record = recordRepository.findById(id).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
+        isMyInjectionRecord(record);
         if (record.getType() != RecordType.INJECTION) {
             throw new RecordHandler(NOT_INJECTION_RECORD);
         }
@@ -65,5 +69,20 @@ public class InjectionQueryService {
                 .description(injection.getDescription())
                 .image(injection.getImage())
                 .time(time).build();
+    }
+
+    public void isMyInjectionRecord(Record record) {
+        User recordUser = record.getUser();
+        if (SecurityUtil.ifCurrentUserIsHusband()) {
+            if (!recordUser.equals(userQueryService.returnSpouse())) {
+                throw new RecordHandler(NOT_FOUND_MY_INJECTION_RECORD);
+            }
+        }else{
+            User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+            if (!recordUser.equals(user)) {
+                throw new RecordHandler(NOT_FOUND_MY_INJECTION_RECORD);
+            }
+        }
+
     }
 }
