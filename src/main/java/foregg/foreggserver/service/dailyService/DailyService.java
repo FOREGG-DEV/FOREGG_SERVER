@@ -44,7 +44,7 @@ public class DailyService {
     private final FcmService fcmService;
 
     public void putEmotion(Long id, EmotionRequestDTO dto) {
-        Daily daily = dailyRepository.findById(id).orElseThrow(() -> new RecordHandler(NOT_FOUND_DAILY));
+        Daily daily = dailyRepository.findByIdAndUser(id,userQueryService.returnSpouse()).orElseThrow(() -> new RecordHandler(NOT_FOUND_DAILY));
         daily.setEmotionType(dto.getEmotionType());
     }
 
