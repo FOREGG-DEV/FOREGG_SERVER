@@ -26,6 +26,7 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_SPOUSE_CODE(BAD_REQUEST, "USER4004", "유효하지 않은 배우자코드입니다"),
     SPOUSE_NOT_FOUND(BAD_REQUEST, "USER4005", "배우자가 존재하지 않습니다"),
     LOGOUT_USER(FORBIDDEN, "USER4006", "로그아웃 된 사용자입니다"),
+    ALREADY_JOIN(BAD_REQUEST,"USER4007", "이미 회원가입 된 아이디입니다"),
 
     //jwt
     JWT_FORBIDDEN(FORBIDDEN, "JWT4001", "권한이 존재하지 않습니다."),
@@ -55,6 +56,7 @@ public enum ErrorStatus implements BaseErrorCode {
     //가계부 관련 에러
     LEDGER_NOT_FOUND(BAD_REQUEST, "LEDGER4001", "존재하지 않는 가계부입니다"),
     NOT_FOUND_MY_LEDGER(BAD_REQUEST, "LEDGER4002", "나의 가계부가 존재하지 않습니다"),
+    NOT_MY_LEDGER(BAD_REQUEST, "LEDGER4003", "나의 가계부가 아닙니다"),
 
     //시술 관련 에러
     NOT_FOUND_MY_SURGERY(BAD_REQUEST, "SURGERY4001", "나의 시술이 존재하지 않습니다"),
