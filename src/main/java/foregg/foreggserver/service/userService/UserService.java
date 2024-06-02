@@ -28,6 +28,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
 
 @Service
@@ -63,6 +65,10 @@ public class UserService {
     public UserResponseDTO join(String token, UserJoinRequestDTO dto) {
         KakaoUserInfoResponse userInfo = kakaoRequestService.getUserInfo(token);
         Long userId = userInfo.getId();
+        Optional<User> foundUser = userRepository.findByKeyCode(userId.toString());
+        if (foundUser.isPresent()) {
+            throw new UserHandler(ALREADY_JOIN);
+        }
 
         String accessToken = jwtTokenProvider.createToken(userId.toString());
         String refreshToken = jwtTokenProvider.createRefresh(userId.toString());
@@ -76,13 +82,20 @@ public class UserService {
     }
 
     public UserResponseDTO husbandJoin(String token, UserHusbandJoinRequestDTO dto) {
+        KakaoUserInfoResponse userInfo = kakaoRequestService.getUserInfo(token);
+        Long userId = userInfo.getId();
+
+        Optional<User> foundUser = userRepository.findByKeyCode(userId.toString());
+        if (foundUser.isPresent()) {
+            throw new UserHandler(ALREADY_JOIN);
+        }
+
         // 배우자 코드가 존재하지 않거나, 해당 배우자 코드를 가지고 있는 유저가 이미 남편을 등록해놓은 경우 예외처리
         User wife = userRepository.findBySpouseCode(dto.getSpouseCode()).orElseThrow(() -> new UserHandler(INVALID_SPOUSE_CODE));
         if (wife.getSpouseId() != null) {
             throw new UserHandler(INVALID_SPOUSE_CODE);
         }
-        KakaoUserInfoResponse userInfo = kakaoRequestService.getUserInfo(token);
-        Long userId = userInfo.getId();
+
         String accessToken = jwtTokenProvider.createToken(userId.toString());
         String refreshToken = jwtTokenProvider.createRefresh(userId.toString());
         //String keyCode = jwtTokenProvider.getUserPk(jwt);
