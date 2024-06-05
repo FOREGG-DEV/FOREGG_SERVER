@@ -49,7 +49,7 @@ public class NotificationService {
             try {
                 fcmService.sendMessageTo(wife.getFcmToken(),
                         "22시 하루기록 푸시 알림",
-                        String.format("%s님 오늘 하루는 어땠나요?", wife.getNickname()),
+                        String.format("%s님 오늘 하루는 어떠셨나요?", wife.getNickname()),
                         "today record female",
                         null,
                         null);
@@ -129,7 +129,7 @@ public class NotificationService {
         Date date = Date.from(notificationDateTime.atZone(ZoneId.systemDefault()).toInstant());
         ScheduledFuture<?> scheduledFuture = taskScheduler.schedule(() -> {
             try {
-                fcmService.sendMessageTo(user.getFcmToken(), "주사 일정 알림", "주사 맞을 시간입니다 ", "injection female", recordId.toString(), time);
+                fcmService.sendMessageTo(user.getFcmToken(), "주사 일정 알림", "주사 맞을 시간이에요", "injection female", recordId.toString(), time);
                 log.info(String.format("recordId는 %s이고 time은 %s입니다", recordId, time));
             } catch (IOException e) {
                 e.printStackTrace();
