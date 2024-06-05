@@ -82,4 +82,16 @@ public class DailyService {
         return DailyConverter.toSideEffectResponseDTO(sideEffects);
     }
 
+    public void deleteDaily(Long id) {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        Daily daily = dailyRepository.findByIdAndUser(id, user).orElseThrow(() -> new RecordHandler(NOT_FOUND_DAILY));
+        dailyRepository.delete(daily);
+    }
+
+    public void modifyDaily(Long id, DailyRequestDTO dto) {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        Daily daily = dailyRepository.findByIdAndUser(id, user).orElseThrow(() -> new RecordHandler(NOT_FOUND_DAILY));
+        daily.updateDaily(dto);
+    }
+
 }
