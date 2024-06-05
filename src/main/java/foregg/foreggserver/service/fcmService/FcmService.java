@@ -27,7 +27,7 @@ public class FcmService{
      */
     public int sendMessageTo(String fcmToken, String title, String body, String type, String targetId, String time) throws IOException {
 
-        String message = makeMessage(fcmToken, title, body, type, targetId, time);
+        String message = makeMessage(fcmToken, "Hugg", body, type, targetId, time);
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
