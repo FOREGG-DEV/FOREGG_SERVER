@@ -47,6 +47,32 @@ public class DailyController {
         return ApiResponse.onSuccess();
     }
 
+    @Operation(summary = "하루기록 삭제 API")
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_WIFE')")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DAILY4002", description = "하루기록이 존재하지 않습니다"),
+    })
+    public ApiResponse<String> delete(@PathVariable(name = "id") Long id) {
+        dailyService.deleteDaily(id);
+        return ApiResponse.onSuccess();
+    }
+
+
+    @Operation(summary = "하루기록 수정 API")
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_WIFE')")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DAILY4002", description = "하루기록이 존재하지 않습니다"),
+    })
+    public ApiResponse<String> modify(@PathVariable(name = "id") Long id, @RequestBody DailyRequestDTO dto) {
+        dailyService.modifyDaily(id, dto);
+        return ApiResponse.onSuccess();
+    }
+
+
     @Operation(summary = "하루기록 이모지 API")
     @PutMapping("/{id}/emotion")
     @ApiResponses({
