@@ -73,14 +73,16 @@ public class RecordService {
 
     //일정 삭제하기
     public void deleteRecord(Long id) {
-        Record record = recordRepository.findById(id).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        Record record = recordRepository.findByIdAndUser(id,user).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
         notificationService.cancelScheduledTasks(id);
         recordRepository.delete(record);
     }
 
     //일정 변경하기
     public void modifyRecord(Long id, RecordRequestDTO dto) {
-        Record record = recordRepository.findById(id).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        Record record = recordRepository.findByIdAndUser(id,user).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
         notificationService.cancelScheduledTasks(id);
         record.updateRecord(dto);
         Optional<List<RepeatTime>> repeatTimes = repeatTimeRepository.findByRecord(record);
@@ -103,13 +105,20 @@ public class RecordService {
 
     //일정 상세 보기
     public RecordResponseDTO recordDetail(Long id) {
-        Record record = recordRepository.findById(id).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
+        User user;
+        if (SecurityUtil.ifCurrentUserIsHusband()) {
+            user = userQueryService.returnSpouse();
+        }else{
+            user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        }
+        Record record = recordRepository.findByIdAndUser(id, user).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
         return getRepeatTimes(record);
     }
 
     //진료기록 추가하기
     public void addMedicalRecord(Long id, MedicalRecordRequestDTO dto) {
-        Record record = recordRepository.findById(id).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        Record record = recordRepository.findByIdAndUser(id,user).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
         if (record.getType() != RecordType.HOSPITAL) {
             throw new RecordHandler(NOT_HOSPITAL_RECORD);
         }
@@ -119,7 +128,8 @@ public class RecordService {
 
     //진료기록 및 부작용 확인하기
     public MedicalRecordResponseDTO medicalRecordAndSideEffect(Long id) {
-        Record record = recordRepository.findById(id).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        Record record = recordRepository.findByIdAndUser(id,user).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
         if (record.getType() != RecordType.HOSPITAL) {
             throw new RecordHandler(NOT_HOSPITAL_RECORD);
         }
@@ -140,7 +150,5 @@ public class RecordService {
         User user = userRepository.findByKeyCode(keycode).orElseThrow(() -> new UserHandler(USER_NOT_FOUND));
         return user;
     }
-
-
 
 }
