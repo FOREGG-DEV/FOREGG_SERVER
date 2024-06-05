@@ -57,7 +57,7 @@ public class DailyService {
         User spouse = userQueryService.returnSpouse();
         if (spouse != null) {
             try {
-                fcmService.sendMessageTo(spouse.getFcmToken(), "새로운 하루기록이 등록되었습니다", String.format("%s님의 하루기록이 등록되었어요", user.getNickname()), "today record male", null, null);
+                fcmService.sendMessageTo(spouse.getFcmToken(), "새로운 하루기록이 등록되었습니다", String.format("%s님의 하루 기록이 도착했어요.", user.getNickname()), "today record male", null, null);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
