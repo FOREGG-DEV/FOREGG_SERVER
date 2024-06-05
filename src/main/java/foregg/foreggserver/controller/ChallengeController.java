@@ -82,7 +82,14 @@ public class ChallengeController {
         return ApiResponse.onSuccess();
     }
 
+    @Operation(summary = "해당 챌린지 수행 완료 취소 API")
     @DeleteMapping("/deleteTodayComplete/{id}")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4001", description = "존재하지 않는 챌린지입니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4003", description = "참여하고 있는 챌린지가 아닙니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4006", description = "성공한 날짜가 없습니다"),
+    })
     public ApiResponse<String> deleteTodayComplete(@PathVariable(name = "id") Long challengeId) {
         challengeService.deleteTodaySuccess(challengeId);
         return ApiResponse.onSuccess();
