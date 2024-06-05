@@ -129,7 +129,7 @@ public class NotificationService {
         Date date = Date.from(notificationDateTime.atZone(ZoneId.systemDefault()).toInstant());
         ScheduledFuture<?> scheduledFuture = taskScheduler.schedule(() -> {
             try {
-                fcmService.sendMessageTo(user.getFcmToken(), "주사 일정 알림", "주사 맞을 시간이에요", "injection female", recordId.toString(), time);
+                fcmService.sendMessageTo(user.getFcmToken(), "주사 일정 알림", String.format("%s님 %s 주사 맞을 시간이에요.",user.getNickname(),time), "injection female", recordId.toString(), time);
                 log.info(String.format("recordId는 %s이고 time은 %s입니다", recordId, time));
             } catch (IOException e) {
                 e.printStackTrace();
