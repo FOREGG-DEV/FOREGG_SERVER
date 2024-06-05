@@ -73,4 +73,18 @@ public class ChallengeService {
         challengeParticipation.setSuccessDays(successDays);
     }
 
+    public void deleteTodaySuccess(Long id) {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
+        ChallengeParticipation challengeParticipation = challengeParticipationRespository.findByUserAndChallenge(user, challenge).
+                orElseThrow(() -> new ChallengeHandler(NO_PARTICIPATING_CHALLENGE));
+        List<String> successDays = challengeParticipation.getSuccessDays();
+        if (successDays == null) {
+            throw new ChallengeHandler(NO_SUCCESS_DAY);
+        }
+        successDays.remove(DateUtil.formatLocalDateTime(LocalDate.now()));
+    }
+
+
+
 }
