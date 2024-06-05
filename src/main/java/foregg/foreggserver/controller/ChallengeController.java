@@ -82,4 +82,10 @@ public class ChallengeController {
         return ApiResponse.onSuccess();
     }
 
+    @DeleteMapping("/deleteTodayComplete/{id}")
+    public ApiResponse<String> deleteTodayComplete(@PathVariable(name = "id") Long challengeId) {
+        challengeService.deleteTodaySuccess(challengeId);
+        return ApiResponse.onSuccess();
+    }
+
 }
