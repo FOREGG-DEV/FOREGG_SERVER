@@ -63,11 +63,19 @@ public class InjectionQueryService {
             throw new RecordHandler(NOT_FOUND_REPEATTIME);
         }
 
-        Injection injection = injectionRepository.findByName(record.getName()).orElseThrow(() -> new RecordHandler(NO_SUCH_INJECTION));
+        Optional<Injection> injection = injectionRepository.findByName(record.getName());
+        if (injection.isPresent()) {
+            return InjectionResponseDTO.builder()
+                    .name(injection.get().getName())
+                    .description(injection.get().getDescription())
+                    .image(injection.get().getImage())
+                    .time(time).build();
+        }
+
         return InjectionResponseDTO.builder()
-                .name(injection.getName())
-                .description(injection.getDescription())
-                .image(injection.getImage())
+                .name(record.getName())
+                .description(null)
+                .image(null)
                 .time(time).build();
     }
 
