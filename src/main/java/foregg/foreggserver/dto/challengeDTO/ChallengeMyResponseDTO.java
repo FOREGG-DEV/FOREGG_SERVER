@@ -20,5 +20,6 @@ public class ChallengeMyResponseDTO {
     private int participants;
     private List<String> successDays;
     private String weekOfMonth;
+    private boolean lastSaturday;
 
 }
