@@ -61,14 +61,17 @@ public class ChallengeQueryService {
         List<ChallengeParticipation> foundChallengeParticipation = challengeParticipationRespository.findByUser(user).orElseThrow(() -> new ChallengeHandler(NOT_FOUND_MY_CHALLENGE));
 
         for (ChallengeParticipation result : foundChallengeParticipation) {
+            boolean lastSaturday = false;
             Challenge challenge = result.getChallenge();
             List<String> successDays = result.getSuccessDays();
-            Optional<List<ChallengeParticipation>> byChallenge = challengeParticipationRespository.findByChallenge(challenge);
 
+            if (successDays.contains(DateUtil.getLastSaturday())) {
+                lastSaturday = true;
+            }
+            Optional<List<ChallengeParticipation>> byChallenge = challengeParticipationRespository.findByChallenge(challenge);
             List<String> successDates = extractSuccessDays(weekDates, successDays);
             List<String> successDaysResult = DateUtil.convertDatesToDayOfWeek(successDates);
-
-            ChallengeMyResponseDTO resultDTO = ChallengeConverter.toChallengeMyResponseDTO(challenge, getChallengeParticipants(byChallenge),successDaysResult, DateUtil.getWeekOfMonth(DateUtil.formatLocalDateTime(LocalDate.now())));
+            ChallengeMyResponseDTO resultDTO = ChallengeConverter.toChallengeMyResponseDTO(challenge, getChallengeParticipants(byChallenge),successDaysResult, DateUtil.getWeekOfMonth(DateUtil.formatLocalDateTime(LocalDate.now())), lastSaturday);
             resultList.add(resultDTO);
         }
         return resultList;

@@ -95,6 +95,11 @@ public class DateUtil {
         return weekDates;
     }
 
+    public static String getLastSaturday() {
+        LocalDate today = LocalDate.now().with(DayOfWeek.MONDAY).minusDays(2);
+        return today.toString();
+    }
+
     public static List<String> getPast30Days(String endDateStr) {
         // 끝 날짜를 LocalDate 객체로 변환
         LocalDate endDate = LocalDate.parse(endDateStr, DateTimeFormatter.ISO_DATE);
