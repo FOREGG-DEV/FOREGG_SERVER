@@ -21,7 +21,7 @@ public class ChallengeConverter {
                 .build();
     }
 
-    public static ChallengeMyResponseDTO toChallengeMyResponseDTO(Challenge challenge, int participants, List<String> successDays, String weekOfMonth) {
+    public static ChallengeMyResponseDTO toChallengeMyResponseDTO(Challenge challenge, int participants, List<String> successDays, String weekOfMonth, boolean lastSaturday) {
         return ChallengeMyResponseDTO.builder()
                 .id(challenge.getId())
                 .name(challenge.getName())
@@ -30,6 +30,7 @@ public class ChallengeConverter {
                 .participants(participants)
                 .successDays(successDays)
                 .weekOfMonth(weekOfMonth)
+                .lastSaturday(lastSaturday)
                 .build();
     }
 
