@@ -65,7 +65,7 @@ public class ChallengeQueryService {
             Challenge challenge = result.getChallenge();
             List<String> successDays = result.getSuccessDays();
 
-            if (successDays.contains(DateUtil.getLastSaturday())) {
+            if (successDays!= null && successDays.contains(DateUtil.getLastSaturday())) {
                 lastSaturday = true;
             }
             Optional<List<ChallengeParticipation>> byChallenge = challengeParticipationRespository.findByChallenge(challenge);
