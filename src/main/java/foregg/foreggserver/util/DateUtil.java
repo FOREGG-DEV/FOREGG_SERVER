@@ -85,6 +85,16 @@ public class DateUtil {
         LocalDate startOfWeek = today.with(DayOfWeek.MONDAY);
         LocalDate endOfWeek = today.with(DayOfWeek.SUNDAY);
 
+        if (today.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            weekDates.add(today.toString());
+            String date;
+            for (int i = 0; i < 6; i++) {
+                date = String.valueOf(today.plusDays(1));
+                weekDates.add(date);
+            }
+            return weekDates;
+        }
+
         weekDates.add(String.valueOf(startOfWeek.minusDays(1)));
 
         while (!startOfWeek.isAfter(endOfWeek)) {
