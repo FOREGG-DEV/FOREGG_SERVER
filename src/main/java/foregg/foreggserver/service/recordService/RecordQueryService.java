@@ -24,8 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Security;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
@@ -35,6 +36,9 @@ import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
 @RequiredArgsConstructor
 @Slf4j
 public class RecordQueryService {
+
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private final UserRepository userRepository;
     private final RecordRepository recordRepository;
@@ -127,7 +131,7 @@ public class RecordQueryService {
         }
 
         if (SecurityUtil.ifCurrentUserIsHusband()) {
-            Record latestHospitalRecord = getLatestHospitalRecord(spouse);
+            Record latestHospitalRecord = getTodayHospitalRecord(spouse);
             return HomeConverter.toHomeResponseDTO(me.getNickname(), spouseName, todayDate, me.getSsn() ,resultList, dailyQueryService.getTodayDaily(spouse), latestHospitalRecord);
         }
         return HomeConverter.toHomeResponseDTO(me.getNickname(),spouseName, todayDate, me.getSsn(),resultList, null, null);
@@ -135,49 +139,52 @@ public class RecordQueryService {
 
     public Record getNearestHospitalRecord() {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+
         List<Record> foundRecords = recordRepository.findByUserAndType(user, RecordType.HOSPITAL)
                 .orElseThrow(() -> new RecordHandler(NOT_RESERVED_HOSPITAL_RECORD));
-        List<String> dates = new ArrayList<>();
-
-        for (Record record : foundRecords) {
-            if (dates != null) {
-                dates.add(record.getDate());
-            }
-        }
-
         LocalDate today = LocalDate.now();
 
-        List<String> sortedDates = DateUtil.sortDates(dates);
-        String resultDate;
-
-        for (String date : sortedDates) {
-            if (date.contains(DateUtil.formatLocalDateTime(today))) {
-                resultDate = DateUtil.formatLocalDateTime(today);
-                return recordRepository.findByDateAndTypeAndUser(resultDate, RecordType.HOSPITAL, user);
-            }
-            today = today.plusDays(1);
-        }
-        return null;
+        // 오늘 날짜 이후의 기록을 필터링하고 날짜로 정렬합니다.
+        List<Record> upcomingRecords = foundRecords.stream()
+                .filter(record -> LocalDate.parse(record.getDate(), DATE_FORMATTER).isAfter(today))
+                .sorted(Comparator.comparing(record -> LocalDate.parse(record.getDate(), DATE_FORMATTER)))
+                .toList();
+        return upcomingRecords.stream()
+                .min(Comparator.comparing(record -> record.getRepeatTimes().stream()
+                        .map(repeatTime -> LocalTime.parse(repeatTime.getTime(), TIME_FORMATTER))
+                        .min(Comparator.naturalOrder())
+                        .orElse(LocalTime.MAX)))
+                .orElse(null);
     }
 
-    public Record getLatestHospitalRecord(User user) {
-        List<Record> foundRecords = recordRepository.findByUserAndType(user, RecordType.HOSPITAL)
-                .orElseThrow(() -> new RecordHandler(NOT_RESERVED_HOSPITAL_RECORD));
-        List<String> dates = new ArrayList<>();
+    public Record getTodayHospitalRecord(User user) {
+        String today = DateUtil.formatLocalDateTime(LocalDate.now());
 
-        for (Record record : foundRecords) {
-            dates.add(record.getDate());
+        Optional<List<Record>> recordList = recordRepository.findByDateAndTypeAndUser(today, RecordType.HOSPITAL, user);
+        if (recordList.isEmpty()) {
+            return null;
         }
+        List<Record> foundRecord = recordList.get();
 
-        List<String> sortedDates = DateUtil.sortDates(dates);
-        Collections.reverse(sortedDates);
+        // 가장 최근의 Record를 찾
+        Optional<Record> latestRecord = foundRecord.stream()
+                .filter(record -> !record.getRepeatTimes().isEmpty())
+                .max(Comparator.comparing(record -> record.getRepeatTimes().stream()
+                        .map(repeatTime -> LocalTime.parse(repeatTime.getTime(), TIME_FORMATTER))
+                        .max(Comparator.naturalOrder())
+                        .orElse(LocalTime.MIN)));
 
-        for (String date : sortedDates) {
-            Record record = recordRepository.findByDateAndTypeAndUser(date, RecordType.HOSPITAL, user);
-            if (record.getMedical_record() != null) {
-                return record;
-            }
+        // 최신 Record가 medical_record를 가지고 있지 않다면, 다음으로 최근의 Record 중 medical_record를 가지고 있는 Record를 찾
+        if (latestRecord.isPresent() && (latestRecord.get().getMedical_record() == null || latestRecord.get().getMedical_record().isEmpty())) {
+            return foundRecord.stream()
+                    .filter(record -> !record.getRepeatTimes().isEmpty() && record.getMedical_record() != null && !record.getMedical_record().isEmpty())
+                    .max(Comparator.comparing(record -> record.getRepeatTimes().stream()
+                            .map(repeatTime -> LocalTime.parse(repeatTime.getTime(), TIME_FORMATTER))
+                            .max(Comparator.naturalOrder())
+                            .orElse(LocalTime.MIN)))
+                    .orElse(null);
         }
-        return null;
+        return latestRecord.orElse(null);
     }
+
 }
