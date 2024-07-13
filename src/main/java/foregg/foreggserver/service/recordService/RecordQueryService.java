@@ -24,10 +24,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
 
@@ -81,12 +83,6 @@ public class RecordQueryService {
         return ScheduleResponseDTO.builder().records(resultList).build();
     }
 
-
-    private User getUser(String keycode) {
-        User user = userRepository.findByKeyCode(keycode).orElseThrow(() -> new UserHandler(USER_NOT_FOUND));
-        return user;
-    }
-
     private RecordResponseDTO includeRepeatTimes(Record record) {
         Optional<List<RepeatTime>> repeatTimes = repeatTimeRepository.findByRecord(record);
         if (repeatTimes.isPresent()) {
@@ -137,26 +133,6 @@ public class RecordQueryService {
         return HomeConverter.toHomeResponseDTO(me.getNickname(),spouseName, todayDate, me.getSsn(),resultList, null, null);
     }
 
-    public Record getNearestHospitalRecord() {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
-
-        List<Record> foundRecords = recordRepository.findByUserAndType(user, RecordType.HOSPITAL)
-                .orElseThrow(() -> new RecordHandler(NOT_RESERVED_HOSPITAL_RECORD));
-        LocalDate today = LocalDate.now();
-
-        // 오늘 날짜 이후의 기록을 필터링하고 날짜로 정렬합니다.
-        List<Record> upcomingRecords = foundRecords.stream()
-                .filter(record -> LocalDate.parse(record.getDate(), DATE_FORMATTER).isAfter(today))
-                .sorted(Comparator.comparing(record -> LocalDate.parse(record.getDate(), DATE_FORMATTER)))
-                .toList();
-        return upcomingRecords.stream()
-                .min(Comparator.comparing(record -> record.getRepeatTimes().stream()
-                        .map(repeatTime -> LocalTime.parse(repeatTime.getTime(), TIME_FORMATTER))
-                        .min(Comparator.naturalOrder())
-                        .orElse(LocalTime.MAX)))
-                .orElse(null);
-    }
-
     public Record getTodayHospitalRecord(User user) {
         String today = DateUtil.formatLocalDateTime(LocalDate.now());
 
@@ -185,6 +161,92 @@ public class RecordQueryService {
                     .orElse(null);
         }
         return latestRecord.orElse(null);
+    }
+
+    public Record getNearestHospitalRecord() {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+
+        List<Record> foundRecords = recordRepository.findByUserAndType(user, RecordType.HOSPITAL)
+                .orElseThrow(() -> new RecordHandler(NOT_RESERVED_HOSPITAL_RECORD));
+        LocalDate today = LocalDate.now();
+
+        // 오늘 날짜 이후의 단순 날짜 기록을 필터링하고 날짜로 정렬합니다.
+        List<Record> upcomingDateRecords = foundRecords.stream()
+                .filter(record -> record.getDate() != null)
+                .filter(record -> LocalDate.parse(record.getDate(), DATE_FORMATTER).isAfter(today))
+                .sorted(Comparator.comparing(record -> LocalDate.parse(record.getDate(), DATE_FORMATTER)))
+                .toList();
+
+        // 반복 기록을 처리하여 Record와 날짜의 쌍으로 반환합니다.
+        List<Record> upcomingRepeatRecords = foundRecords.stream()
+                .filter(record -> record.getDate() == null)
+                .filter(record -> record.getStart_date() != null && record.getEnd_date() != null)
+                .flatMap(record -> getNextOccurrences(record.getStart_date(), record.getEnd_date(), record.getRepeat_date())
+                        .map(date -> new AbstractMap.SimpleEntry<>(record, date)))
+                .filter(entry -> entry.getValue().isAfter(today))
+                .sorted(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .toList();
+
+        // 단순 날짜 기록과 반복 기록을 합쳐서 가장 가까운 기록을 찾습니다.
+        List<Record> allUpcomingRecords = Stream.concat(upcomingDateRecords.stream(), upcomingRepeatRecords.stream())
+                .sorted(Comparator.comparing(record -> {
+                    LocalDate date = record.getDate() != null
+                            ? LocalDate.parse(record.getDate(), DATE_FORMATTER)
+                            : getNextOccurrences(record.getStart_date(), record.getEnd_date(), record.getRepeat_date())
+                            .filter(d -> d.isAfter(today))
+                            .findFirst()
+                            .orElse(LocalDate.MAX);
+                    return date.atTime(record.getRepeatTimes().stream()
+                            .map(repeatTime -> LocalTime.parse(repeatTime.getTime(), TIME_FORMATTER))
+                            .min(Comparator.naturalOrder())
+                            .orElse(LocalTime.MAX));
+                }))
+                .toList();
+
+        return allUpcomingRecords.stream().findFirst().orElse(null);
+    }
+
+    // 다음 발생일들을 계산하는 헬퍼 메서드
+    private Stream<LocalDate> getNextOccurrences(String startDate, String endDate, String repeatDate) {
+        LocalDate start = LocalDate.parse(startDate, DATE_FORMATTER);
+        LocalDate end = LocalDate.parse(endDate, DATE_FORMATTER);
+        List<DayOfWeek> repeatDays;
+
+        if ("매일".equals(repeatDate)) {
+            repeatDays = Arrays.asList(DayOfWeek.values());
+        } else {
+            repeatDays = Arrays.stream(repeatDate.split(","))
+                    .map(String::trim)
+                    .map(this::parseDayOfWeek)
+                    .toList();
+        }
+
+        LocalDate nextOccurrence = start;
+        List<LocalDate> occurrences = new ArrayList<>();
+
+        while (nextOccurrence.isBefore(end) || nextOccurrence.equals(end)) {
+            if (repeatDays.contains(nextOccurrence.getDayOfWeek())) {
+                occurrences.add(nextOccurrence);
+            }
+            nextOccurrence = nextOccurrence.plusDays(1);
+        }
+
+        return occurrences.stream();
+    }
+
+    // 요일 문자열을 DayOfWeek로 변환하는 헬퍼 메서드
+    private DayOfWeek parseDayOfWeek(String day) {
+        switch (day) {
+            case "월": return DayOfWeek.MONDAY;
+            case "화": return DayOfWeek.TUESDAY;
+            case "수": return DayOfWeek.WEDNESDAY;
+            case "목": return DayOfWeek.THURSDAY;
+            case "금": return DayOfWeek.FRIDAY;
+            case "토": return DayOfWeek.SATURDAY;
+            case "일": return DayOfWeek.SUNDAY;
+            default: throw new IllegalArgumentException("Invalid day: " + day);
+        }
     }
 
 }
