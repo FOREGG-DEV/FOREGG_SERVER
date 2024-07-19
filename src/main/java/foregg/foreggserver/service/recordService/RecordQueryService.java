@@ -26,9 +26,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
@@ -41,6 +43,7 @@ public class RecordQueryService {
 
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
 
     private final UserRepository userRepository;
     private final RecordRepository recordRepository;
@@ -163,12 +166,11 @@ public class RecordQueryService {
         return latestRecord.orElse(null);
     }
 
-    public Record getNearestHospitalRecord() {
+    public Record getNearestHospitalRecord(LocalDate today) {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
 
         List<Record> foundRecords = recordRepository.findByUserAndType(user, RecordType.HOSPITAL)
                 .orElseThrow(() -> new RecordHandler(NOT_RESERVED_HOSPITAL_RECORD));
-        LocalDate today = LocalDate.now();
 
         // 오늘 날짜 이후의 단순 날짜 기록을 필터링하고 날짜로 정렬합니다.
         List<Record> upcomingDateRecords = foundRecords.stream()
@@ -197,10 +199,12 @@ public class RecordQueryService {
                             .filter(d -> d.isAfter(today))
                             .findFirst()
                             .orElse(LocalDate.MAX);
-                    return date.atTime(record.getRepeatTimes().stream()
+                    return date.atTime(record.getRepeatTimes() != null
+                            ? record.getRepeatTimes().stream()
                             .map(repeatTime -> LocalTime.parse(repeatTime.getTime(), TIME_FORMATTER))
                             .min(Comparator.naturalOrder())
-                            .orElse(LocalTime.MAX));
+                            .orElse(LocalTime.MAX)
+                            : LocalTime.MAX);
                 }))
                 .toList();
 
@@ -247,6 +251,42 @@ public class RecordQueryService {
             case "일": return DayOfWeek.SUNDAY;
             default: throw new IllegalArgumentException("Invalid day: " + day);
         }
+    }
+
+    public Record getNearestDateTime(Record record1, Record record2) {
+        LocalDateTime dateTime1 = getNearestRecordDateTime(record1, LocalDate.now());
+        LocalDateTime dateTime2 = getNearestRecordDateTime(record2, LocalDate.now());
+
+        return dateTime1.isBefore(dateTime2) ? record1 : record2;
+    }
+
+    private LocalDateTime getNearestRecordDateTime(Record record, LocalDate today) {
+        if (record.getDate() != null) {
+            // 단순 기록의 날짜와 시간을 반환
+            LocalDate date = LocalDate.parse(record.getDate(), DATE_FORMATTER);
+            if (date.isAfter(today)) {
+                LocalTime time = getEarliestRepeatTime(record);
+                return date.atTime(time != null ? time : LocalTime.MIN);
+            }
+        } else if (record.getStart_date() != null && record.getEnd_date() != null && record.getRepeat_date() != null) {
+            // 반복 기록의 가장 가까운 날짜와 시간을 반환
+            return getNextOccurrences(record.getStart_date(), record.getEnd_date(), record.getRepeat_date())
+                    .filter(d -> d.isAfter(today))
+                    .map(d -> d.atTime(Optional.ofNullable(getEarliestRepeatTime(record)).orElse(LocalTime.MIN)))
+                    .findFirst()
+                    .orElse(LocalDateTime.MAX);
+        }
+        return LocalDateTime.MAX;
+    }
+
+    private LocalTime getEarliestRepeatTime(Record record) {
+        if (record.getRepeatTimes() != null && !record.getRepeatTimes().isEmpty()) {
+            return record.getRepeatTimes().stream()
+                    .map(repeatTime -> LocalTime.parse(repeatTime.getTime(), TIME_FORMATTER))
+                    .min(Comparator.naturalOrder())
+                    .orElse(LocalTime.MAX);
+        }
+        return null;
     }
 
 }
