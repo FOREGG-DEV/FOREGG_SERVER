@@ -67,7 +67,7 @@ public class DailyService {
 
     public void writeSideEffect(SideEffectRequestDTO dto) {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
-        Record hospitalRecord = recordQueryService.getNearestHospitalRecord();
+        Record hospitalRecord = recordQueryService.getNearestHospitalRecord(LocalDate.now());
         SideEffect sideEffect = DailyConverter.toSideEffect(dto, hospitalRecord, user);
         sideEffectRepository.save(sideEffect);
     }
@@ -80,6 +80,18 @@ public class DailyService {
         }
         List<SideEffect> sideEffects = foundSideEffect.get();
         return DailyConverter.toSideEffectResponseDTO(sideEffects);
+    }
+
+    public void modifySideEffect(Long id, SideEffectRequestDTO dto) {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        SideEffect sideEffect = sideEffectRepository.findByUserAndId(user, id).orElseThrow(() -> new RecordHandler(NOT_FOUND_SIDEEFFECT));
+        sideEffect.setContent(dto.getContent());
+    }
+
+    public void deleteSideEffect(Long id) {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        SideEffect sideEffect = sideEffectRepository.findByUserAndId(user, id).orElseThrow(() -> new RecordHandler(NOT_FOUND_SIDEEFFECT));
+        sideEffectRepository.delete(sideEffect);
     }
 
     public void deleteDaily(Long id) {

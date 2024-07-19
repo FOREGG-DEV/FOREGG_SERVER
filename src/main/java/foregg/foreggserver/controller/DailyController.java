@@ -105,11 +105,37 @@ public class DailyController {
         return ApiResponse.onSuccess(sideEffectList);
     }
 
+    @Operation(summary = "부작용 수정 API")
+    @PutMapping("/sideEffect/{id}")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SIDEEFFECT4001", description = "부작용이 존재하지 않습니다"),
+    })
+    @PreAuthorize("hasRole('ROLE_WIFE')")
+    public ApiResponse<String> modifySideEffect(@PathVariable(name = "id") Long id, @RequestBody SideEffectRequestDTO dto) {
+        dailyService.modifySideEffect(id, dto);
+        return ApiResponse.onSuccess();
+    }
+
+    @Operation(summary = "부작용 삭제 API")
+    @DeleteMapping("/sideEffect/{id}")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SIDEEFFECT4001", description = "부작용이 존재하지 않습니다"),
+    })
+    @PreAuthorize("hasRole('ROLE_WIFE')")
+    public ApiResponse<String> deleteSideEffect(@PathVariable(name = "id") Long id) {
+        dailyService.deleteSideEffect(id);
+        return ApiResponse.onSuccess();
+    }
+
     @Operation(summary = "주사 투여 완료 공유하기 API")
     @PreAuthorize("hasRole('ROLE_WIFE')")
     @PostMapping("/shareInjection/{id}")
+
     public ApiResponse<String> sendNotificationInjection(@PathVariable(name = "id") Long id,
                                                          @RequestParam(name = "time") String time) {
+
         injectionQueryService.shareInjection(id, time);
         return ApiResponse.onSuccess();
     }
@@ -118,7 +144,7 @@ public class DailyController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/injectionInfo/{id}")
     public ApiResponse<InjectionResponseDTO> getInjectionInfo(@PathVariable(name = "id") Long id,
-                                                              @RequestParam(name = "time")String time) {
+                                                              @RequestParam(name = "time") String time) {
         InjectionResponseDTO dto = injectionQueryService.getInjectionInfo(id, time);
         return ApiResponse.onSuccess(dto);
     }

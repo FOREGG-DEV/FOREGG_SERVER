@@ -59,7 +59,7 @@ public class Record extends BaseEntity {
     @JoinColumn(name = "Schedule_id")
     private Schedule schedule;
 
-    @OneToMany(mappedBy = "record",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "record")
     private List<SideEffect> sideEffect;
 
     public void updateRecord(RecordRequestDTO dto) {
