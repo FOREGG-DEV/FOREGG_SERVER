@@ -17,9 +17,9 @@ spring:
         default_batch_fetch_size: 1000
   jwt:
     header: Authorization
-    secret: ${jwt.secret}
+    secret: ${jwt_secret}
     token-validity-in-seconds : 3600
-    refresh-secret: ${jwt.secret.refresh}
+    refresh-secret: ${jwt_secret_refresh}
 
   data:
     redis:
