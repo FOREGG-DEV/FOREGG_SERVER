@@ -15,7 +15,6 @@ public class FcmMessageDTO {
     @AllArgsConstructor
     @Getter
     public static class Message {
-        private FcmMessageDTO.Notification notification;
         private FcmMessageDTO.Data data;
         private String token;
         private FcmMessageDTO.Android android;
@@ -24,15 +23,9 @@ public class FcmMessageDTO {
     @Builder
     @AllArgsConstructor
     @Getter
-    public static class Notification {
+    public static class Data {
         private String title;
         private String body;
-    }
-
-    @Builder
-    @AllArgsConstructor
-    @Getter
-    public static class Data {
         private String type;
         private String targetId;
         private String time;
