@@ -63,6 +63,7 @@ public class NotificationService {
     public void scheduleNotifications(User user, Record record, List<RepeatTime> repeatTimes) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        LocalDateTime now = LocalDateTime.now(); // 현재 시간
 
         if (record.getDate() != null) {
             // 단일 날짜의 경우
@@ -70,7 +71,10 @@ public class NotificationService {
             for (RepeatTime repeatTime : repeatTimes) {
                 LocalTime time = LocalTime.parse(repeatTime.getTime(), timeFormatter);
                 LocalDateTime notificationDateTime = LocalDateTime.of(singleDate, time);
-                scheduleNotification(user, notificationDateTime, record.getId(), repeatTime.getTime());
+                // 현재 시간보다 이전인지 확인
+                if (!notificationDateTime.isBefore(now)) {
+                    scheduleNotification(user, notificationDateTime, record.getId(), repeatTime.getTime());
+                }
             }
         } else if (record.getStart_date() != null && record.getEnd_date() != null) {
             // 반복 날짜의 경우
@@ -83,12 +87,16 @@ public class NotificationService {
                     for (RepeatTime repeatTime : repeatTimes) {
                         LocalTime time = LocalTime.parse(repeatTime.getTime(), timeFormatter);
                         LocalDateTime notificationDateTime = LocalDateTime.of(date, time);
-                        scheduleNotification(user, notificationDateTime, record.getId(), repeatTime.getTime());
+                        // 현재 시간보다 이전인지 확인
+                        if (!notificationDateTime.isBefore(now)) {
+                            scheduleNotification(user, notificationDateTime, record.getId(), repeatTime.getTime());
+                        }
                     }
                 }
             }
         }
     }
+
 
     private Set<DayOfWeek> parseRepeatDays(String repeatDaysStr) {
         Set<DayOfWeek> repeatDays = new HashSet<>();
