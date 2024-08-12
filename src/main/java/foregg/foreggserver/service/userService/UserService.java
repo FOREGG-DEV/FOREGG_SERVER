@@ -139,7 +139,7 @@ public class UserService {
 
         redisService.deleteData(SecurityUtil.getCurrentUser());
         Long expiration = jwtTokenProvider.getExpiration(jwt);
-        redisService.setBlackList(jwt, "logout", expiration);
+        redisService.setBlackList(jwt, "accessToken", expiration);
         return LogoutWithdrawalResponseDTO.builder().content("로그아웃 처리 되었습니다").build();
 
     }
