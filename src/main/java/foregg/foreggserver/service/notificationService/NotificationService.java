@@ -31,7 +31,7 @@ public class NotificationService {
     private final ThreadPoolTaskScheduler taskScheduler;
     private final Map<Long, List<ScheduledFuture<?>>> scheduledTasks = new ConcurrentHashMap<>();
 
-    @Scheduled(cron = "0 55 15 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 22 * * *", zone = "Asia/Seoul")
     public void sendDailyPush() {
         log.info("10시 하루기록 알림이 실행되었습니다.");
 
