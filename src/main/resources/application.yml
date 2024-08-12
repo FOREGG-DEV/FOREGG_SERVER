@@ -27,6 +27,20 @@ spring:
       host: ${REDIS_HOST}
       password: ${REDIS_PASSWORD}
 
+logging:
+  file:
+    name: /home/ubuntu/logs/foregg.log
+  logback:
+    rollingpolicy:
+      file-name-pattern: /home/ubuntu/logs/foregg.%d{yyyy-MM-dd}-%i.log
+      max-file-size: 8MB
+      max-history: 14
+  pattern:
+    dateformat: yyyy-MM-dd'T'HH:mm:ss.SSSZ
+  level:
+    root: INFO
+
+
 fcm:
   key:
     path: foregg-56830-firebase-adminsdk-tgmbx-739218a1a0.json

@@ -81,8 +81,7 @@ public class JwtAuthFilter extends GenericFilterBean {
     }
 
     private boolean doNotLogoutOrWithdrawal(String accessToken) {
-        String isLogout = redisService.getData(accessToken);
-        if (isLogout == null) {
+        if (!redisService.hasKeyBlackList(accessToken)) {
             return true;
         }
         return false;
