@@ -53,6 +53,8 @@ dependencies {
 	implementation 'com.fasterxml.jackson.core:jackson-core:2.16.1'
 	implementation 'com.squareup.okhttp3:okhttp:4.10.0'
 
+	implementation 'org.springframework.boot:spring-boot-starter-logback'
+
 }
 
 tasks.named('test') {
