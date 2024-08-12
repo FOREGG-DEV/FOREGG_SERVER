@@ -31,32 +31,47 @@ public class NotificationService {
     private final ThreadPoolTaskScheduler taskScheduler;
     private final Map<Long, List<ScheduledFuture<?>>> scheduledTasks = new ConcurrentHashMap<>();
 
-    @Scheduled(cron = "0 0 22 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 55 15 * * *", zone = "Asia/Seoul")
     public void sendDailyPush() {
+        log.info("10시 하루기록 알림이 실행되었습니다.");
+
         List<User> users = userRepository.findAll();
+        log.info("총 {}명의 사용자가 조회되었습니다.", users.size());
+
         List<User> wives = new ArrayList<>();
         for (User user : users) {
             Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
             for (GrantedAuthority authority : authorities) {
-                // ROLE_HUSBAND와 같은 역할을 찾으면 true 반환
                 if (authority.getAuthority().equals("ROLE_WIFE")) {
                     wives.add(user);
                 }
             }
         }
 
+        log.info("총 {}명의 ROLE_WIFE 사용자가 발견되었습니다.", wives.size());
+
+
         for (User wife : wives) {
             try {
-                fcmService.sendMessageTo(wife.getFcmToken(),
+                log.info("FCM 푸시 알림을 {}에게 보내고 있습니다.", wife.getNickname());
+
+                fcmService.sendMessageTo(
+                        wife.getFcmToken(),
                         "22시 하루기록 푸시 알림",
                         String.format("%s님 오늘 하루는 어떠셨나요?", wife.getNickname()),
                         "today record female",
                         null,
-                        null);
+                        null
+                );
+
+                log.info("FCM 푸시 알림이 성공적으로 {}에게 전송되었습니다.", wife.getNickname());
+
             } catch (IOException e) {
+                log.error("FCM 푸시 알림을 보내는 도중 오류 발생: {}", e.getMessage());
                 throw new RuntimeException(e);
             }
         }
+        log.info("10시 하루기록 푸시알림이 완료되었습니다.");
     }
 
 
@@ -138,8 +153,9 @@ public class NotificationService {
         ScheduledFuture<?> scheduledFuture = taskScheduler.schedule(() -> {
             try {
                 fcmService.sendMessageTo(user.getFcmToken(), "주사 일정 알림", String.format("%s님 %s 주사 맞을 시간이에요.",user.getNickname(),time), "injection female", recordId.toString(), time);
-                log.info(String.format("recordId는 %s이고 time은 %s입니다", recordId, time));
+                log.info("FCM 푸시 알림이 성공적으로 {}에게 전송되었습니다.", user.getNickname());
             } catch (IOException e) {
+                log.error("FCM 푸시 알림을 보내는 도중 오류 발생: {}", e.getMessage());
                 e.printStackTrace();
             }
         }, date);
