@@ -10,7 +10,8 @@ public class SchedulerConfig {
     @Bean
     public ThreadPoolTaskScheduler taskScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-        scheduler.setPoolSize(10);
+        int n = Runtime.getRuntime().availableProcessors();
+        scheduler.setPoolSize(n+1);
         scheduler.setThreadNamePrefix("taskScheduler-");
         scheduler.initialize();
         return scheduler;
