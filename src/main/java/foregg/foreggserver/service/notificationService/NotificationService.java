@@ -7,11 +7,13 @@ import foregg.foreggserver.repository.UserRepository;
 import foregg.foreggserver.service.fcmService.FcmService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.IOException;
 import java.time.*;
@@ -48,13 +50,10 @@ public class NotificationService {
             }
         }
 
-        log.info("총 {}명의 ROLE_WIFE 사용자가 발견되었습니다.", wives.size());
-
+        log.info("총 {}명의 WIFE가 발견되었습니다.", wives.size());
 
         for (User wife : wives) {
             try {
-                log.info("FCM 푸시 알림을 {}에게 보내고 있습니다.", wife.getNickname());
-
                 fcmService.sendMessageTo(
                         wife.getFcmToken(),
                         "22시 하루기록 푸시 알림",
@@ -66,9 +65,17 @@ public class NotificationService {
 
                 log.info("FCM 푸시 알림이 성공적으로 {}에게 전송되었습니다.", wife.getNickname());
 
+            } catch (HttpClientErrorException e) {
+                if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                    log.error("FCM 푸시 알림 실패: {} - 사용자의 FCM 토큰이 유효하지 않습니다. (UNREGISTERED)", wife.getNickname());
+                    // 이 사용자의 FCM 토큰을 삭제하거나, 데이터베이스에서 비활성화하도록 추가 로직을 여기에 작성할 수 있습니다.
+                } else {
+                    log.error("FCM 푸시 알림 실패: {} - 예상치 못한 오류 발생: {}", wife.getNickname(), e.getMessage());
+                }
             } catch (IOException e) {
-                log.error("FCM 푸시 알림을 보내는 도중 오류 발생: {}", e.getMessage());
-                throw new RuntimeException(e);
+                log.error("FCM 푸시 알림을 보내는 도중 오류 발생: {} - 사용자: {}", e.getMessage(), wife.getNickname());
+            } catch (Exception e) {
+                log.error("예기치 않은 오류 발생: {} - 사용자: {}", e.getMessage(), wife.getNickname());
             }
         }
         log.info("10시 하루기록 푸시알림이 완료되었습니다.");
