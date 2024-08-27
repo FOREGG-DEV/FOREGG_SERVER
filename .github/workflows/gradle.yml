@@ -34,6 +34,8 @@ jobs:
               git pull origin main ||
               { echo "Failed to update code"; exit 1; }
 
+              
+
               # Build the Spring application using Gradle
               ./gradlew clean build ||
               { echo "Gradle build failed"; exit 1; }
@@ -49,9 +51,9 @@ jobs:
               { echo "Failed to stop old process"; exit 1; }
 
               # Replace the old JAR with the new one
-              sudo cp build/libs/*.jar /cicd ||
+              sudo cp build/libs/*.jar ~/cicd ||
               { echo "Failed to copy JAR file"; exit 1; }
 
               # Start the application again
-              nohup java -jar /cicd/*.jar > /dev/null 2>&1 &
+              nohup java -jar ~/cicd/*.jar > /dev/null 2>&1 &
               EOF
