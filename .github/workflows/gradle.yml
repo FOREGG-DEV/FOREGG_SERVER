@@ -1,5 +1,5 @@
 name: Java Deploy
- 
+
 on:
   push:
     branches: [ "main" ]
@@ -12,26 +12,41 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - uses: actions/checkout@v2 
+      - uses: actions/checkout@v2
       - name: Build & Deploy
         env:
             PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-            HOSTNAME: ${{secrets.SERVER_IP}}
-            USER_NAME: ${{secrets.SSH_USERNAME}}
+            HOSTNAME: ${{ secrets.SERVER_IP }}
+            USER_NAME: ${{ secrets.SSH_USERNAME }}
       
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
 
-              # Now we have got the access of EC2 and we will start the deploy .
+              # Navigate to the application directory
               cd /home/ubuntu/FOREGG_SERVER &&
+              
+              # Fetch the latest code
               git checkout main &&
               git fetch --all &&
               git reset --hard origin/main &&
               git pull origin main &&
-              sudo npm i &&
-              sudo npm run build &&
-              sudo pm2 stop ./dist/index.js &&
-              sudo pm2 start ./dist/index.js
+              
+              # Build the Spring application using Gradle
+              ./gradlew clean build &&
+              
+              # Find the process ID (PID) using port 8080 and kill it
+              PID=$(sudo netstat -tnlp | grep ":8080" | awk \'{print $7}\' | cut -d/ -f1) &&
+              if [ -n "$PID" ]; then
+                echo "Stopping process with PID $PID" &&
+                sudo kill -9 $PID
+              else
+                echo "No process found on port 8080"
+              fi &&
+              
+              # Replace the old JAR with the new one
+              sudo cp build/libs/*.jar /cicd &&
+              
+              # Start the application again
+              nohup java -jar /cicd/*.jar > /dev/null 2>&1 &
               '
- 
