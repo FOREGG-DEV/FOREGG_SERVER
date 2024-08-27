@@ -34,7 +34,9 @@ jobs:
               git pull origin main ||
               { echo "Failed to update code"; exit 1; }
 
-              
+              mkdir -p src/main/resources
+              echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml
+              find src
 
               # Build the Spring application using Gradle
               ./gradlew clean build ||
