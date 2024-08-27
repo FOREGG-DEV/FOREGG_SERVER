@@ -1,4 +1,4 @@
-name: Java Deploy
+name: Java CI with Gradle
 
 on:
   push:
@@ -7,56 +7,48 @@ on:
     branches: [ "main" ]
 
 jobs:
-  Deploy:
-    name: Deploy to EC2
+  build:
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: read
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Build & Deploy
-        env:
-            PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-            HOSTNAME: ${{ secrets.SERVER_IP }}
-            USER_NAME: ${{ secrets.SSH_USERNAME }}
-        run: |
-          echo "$PRIVATE_KEY" > private_key
-          chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} << 'EOF'
-              
-              # Navigate to the application directory
-              cd /home/ubuntu/FOREGG_SERVER ||
-              { echo "Failed to navigate to directory"; exit 1; }
+    - uses: actions/checkout@v4
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    - name: Set YML
+      run: |
+        mkdir -p src/main/resources
+        echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml
+        find src
+    - name: Build with Gradle
+      uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+      with:
+        arguments: build
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: foreggcicd
+        path: build/libs/*.jar
 
-              # Fetch the latest code
-              git checkout main &&
-              git fetch --all &&
-              git reset --hard origin/main &&
-              git pull origin main ||
-              { echo "Failed to update code"; exit 1; }
-
-              mkdir -p src/main/resources
-              echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml
-              find src
-
-              # Build the Spring application using Gradle
-              ./gradlew clean build ||
-              { echo "Gradle build failed"; exit 1; }
-
-              # Find the process ID (PID) using port 8080 and kill it
-              PID=$(sudo netstat -tnlp | grep ":8080" | awk '{print $7}' | cut -d/ -f1) &&
-              if [ -n "$PID" ]; then
-                echo "Stopping process with PID $PID" &&
-                sudo kill -9 $PID
-              else
-                echo "No process found on port 8080"
-              fi ||
-              { echo "Failed to stop old process"; exit 1; }
-
-              # Replace the old JAR with the new one
-              sudo cp *.jar ~/cicd ||
-              { echo "Failed to copy JAR file"; exit 1; }
-
-              # Start the application again
-              #nohup java -jar ~/cicd/*.jar > /dev/null 2>&1 &
-              sudo java -jar ~/cicd/*.jar &
-              EOF
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: foreggcicd
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.5.4
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+    - name: CP transfer
+      run: cp build/libs/*.jar ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }}:~/cicd
+    - name: Execute remote commands
+      run: |
+        ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "sudo fuser -k 8080/tcp"
+        ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "sudo nohup java -jar ~/cicd/*.jar &"
