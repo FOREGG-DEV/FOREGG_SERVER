@@ -1,29 +1,24 @@
 name: Java CI with Gradle
-
+ 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
+ 
+permissions:
+  contents: read
+ 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Set YML
-        run: |
-          mkdir -p src/main/resources
-          echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml
-          find src
       - name: Build with Gradle
         uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
         with:
@@ -31,24 +26,9 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: foreggcicd
+          name: cicdsample
           path: build/libs/*.jar
-
-  dependency-submission:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-      - name: Generate and submit dependency graph
-        uses: gradle/actions/dependency-submission@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
-
+ 
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -56,16 +36,18 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
-          name: foreggcicd
-      - name: List files in current directory
-        run: ls -la
+          name: cicdsample
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Add remote server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
       - name: SCP transfer
-        run: scp *.jar ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }}:~/cicd
+        run: scp *.jar ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/cicd
       - name: Execute remote commands
         run: |
-          ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "sudo fuser -k 8080/tcp"
-          ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "sudo nohup java -jar ~/cicd/foreggserver-0.0.1-SNAPSHOT.jar &"
+          ssh -v ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "sudo fuser -k 8080/tcp || true"
+          ssh -v ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "sudo nohup /home/shane/.sdkman/candidates/java/current/bin/java -jar ~/cicd/*.jar  > ~/cicd/nohup.log 2>&1 &"
