@@ -55,5 +55,6 @@ jobs:
               { echo "Failed to copy JAR file"; exit 1; }
 
               # Start the application again
-              nohup java -jar ~/cicd/*.jar > /dev/null 2>&1 &
+              #nohup java -jar ~/cicd/*.jar > /dev/null 2>&1 &
+              sudo java -jar ~/cicd/*.jar &
               EOF
