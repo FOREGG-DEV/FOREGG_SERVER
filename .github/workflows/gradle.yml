@@ -32,7 +32,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: foreggcicd
-          path: build/libs/*.jar
+          path: /home/ubuntu/FOREGG_SERVER/build/libs/*.jar  # 경로 수정
 
   dependency-submission:
     runs-on: ubuntu-latest
@@ -57,14 +57,14 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: foreggcicd
-      - name: List files in build/libs
-        run: ls -la build/libs
+      - name: List files in download directory
+        run: ls -la
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: SCP transfer
-        run: scp build/libs/*.jar ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }}:~/cicd
+        run: scp *.jar ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }}:~/cicd
       - name: Execute remote commands
         run: |
           ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "sudo fuser -k 8080/tcp"
