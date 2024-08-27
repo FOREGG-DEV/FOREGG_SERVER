@@ -51,7 +51,7 @@ jobs:
               { echo "Failed to stop old process"; exit 1; }
 
               # Replace the old JAR with the new one
-              sudo cp build/libs/*.jar ~/cicd ||
+              sudo cp *.jar ~/cicd ||
               { echo "Failed to copy JAR file"; exit 1; }
 
               # Start the application again
