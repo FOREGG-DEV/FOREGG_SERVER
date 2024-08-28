@@ -32,7 +32,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: foreggcicd
-        path: build/libs/*.jar
+        path: /build/libs/*.jar
 
   deploy:
     needs: build
@@ -47,8 +47,8 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
     - name: SCP transfer
-      run: scp build/libs/*.jar ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }}:~/cicd
+      run: scp /build/libs/*.jar ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }}:/home/ubuntu/cicd
     - name: Execute remote commands
       run: |
         ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "sudo fuser -k 8080/tcp"
-        ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "sudo nohup java -jar ~/cicd/*.jar &"
+        ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "sudo nohup java -jar /home/ubuntu/cicd/*.jar &"
