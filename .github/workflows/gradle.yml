@@ -46,7 +46,7 @@ jobs:
     - name: Test SSH connection
       run: ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }}
     - name: Create remote directory if not exists
-      run: ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "mkdir -p ~/cicd"
+      run: ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "mkdir -p /home/ubuntu/cicd"
     - name: SCP transfer
       run: scp build/libs/*.jar ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }}:~/cicd
     - name: Execute remote commands
