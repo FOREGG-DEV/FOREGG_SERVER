@@ -66,16 +66,4 @@ jobs:
       - name: Execute remote commands
         run: |
           ssh -v ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "sudo fuser -k 8080/tcp || true"
-          ssh -v ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "mv ~/cicd/previous.jar ~/cicd/backup.jar || true"
-          ssh -v ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "mv ~/cicd/current.jar ~/cicd/previous.jar || true"
-          ssh -v ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "mv ~/cicd/*.jar ~/cicd/current.jar"
-          ssh -v ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "sudo nohup /usr/bin/java -jar ~/cicd/current.jar > ~/cicd/nohup.log 2>&1 &"
-
-      - name: Health check
-        run: |
-          sleep 10
-          if ! curl -s http://${{ secrets.SERVER_IP }}:8080/health; then
-            ssh -v ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "sudo fuser -k 8080/tcp || true"
-            ssh -v ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "sudo nohup /usr/bin/java -jar ~/cicd/previous.jar > ~/cicd/nohup.log 2>&1 &"
-            exit 1
-          fi
+          ssh -v ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "sudo nohup /usr/bin/java -jar ~/cicd/*.jar  > ~/cicd/nohup.log 2>&1 &"
