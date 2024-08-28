@@ -46,7 +46,7 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
       - name: SCP transfer
-        run: scp *.jar ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }}:~/cicd
+        run: scp *.jar ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }}:/home/ubuntu/cicd
       - name: Execute remote commands
         run: |
           ssh -v ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "sudo fuser -k 8080/tcp || true"
