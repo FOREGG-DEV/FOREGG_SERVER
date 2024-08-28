@@ -9,9 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 17
@@ -42,12 +39,12 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: foreggcicd
-    - name: Setup SSH
-      uses: webfactory/ssh-agent@v0.5.4
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+    - name: Test SSH connection
+      run: ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "echo 'SSH connection successful!'"
+    - name: Create remote directory if not exists
+      run: ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "mkdir -p ~/cicd"
     - name: SCP transfer
-      run: scp *.jar ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }}:~/cicd
+      run: scp build/libs/*.jar ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }}:~/cicd
     - name: Execute remote commands
       run: |
         ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "sudo fuser -k 8080/tcp"
