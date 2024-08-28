@@ -39,6 +39,10 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: foreggcicd
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.5.4
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
     - name: Test SSH connection
       run: ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} "echo 'SSH connection successful!'"
     - name: Create remote directory if not exists
