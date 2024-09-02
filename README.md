@@ -12,7 +12,7 @@ Foregg Server (Spring Boot)
     <td align="center"><a href="https://github.com/DongJun1110"><img src="https://avatars.githubusercontent.com/DongJun1110" width="140px;" alt=""></a></td>
   </tr>
   <tr>
-    <td align="center"><a href="https://github.com/DongJun1110"><b>준/김동준</b></a></td>
+    <td align="center"><a href="https://github.com/DongJun1110"><b>김동준</b></a></td>
   </tr>
 </table>
 
