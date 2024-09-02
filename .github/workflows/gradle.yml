@@ -19,6 +19,14 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+      - name: Set YML and FCM Key
+        run: |
+          mkdir -p src/main/resources
+          # Decode application.yml from base64
+          echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml
+          
+          # Decode FCM key content and save it as the specific JSON file
+          echo "${{ secrets.FCM_KEY_PATH_CONTENT }}" | base64 --decode > src/main/resources/foregg-56830-firebase-adminsdk-tgmbx-739218a1a0.json
       - name: Build with Gradle
         uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
         with:
