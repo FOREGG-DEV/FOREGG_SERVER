@@ -67,6 +67,12 @@ public class MyPageQueryService {
         }
     }
 
+    public int getSurgeryCount() {
+        User wife = userQueryService.returnWifeOrHusband();
+        Surgery surgery = surgeryRepository.findByUser(wife).orElseThrow(() -> new SurgeryHandler(NOT_FOUND_MY_SURGERY));
+        return surgery.getCount();
+    }
+
     public List<MyPageBoardResponseDTO> getBoards() {
         List<MyPageBoardResponseDTO> resultList = new ArrayList<>();
         List<Board> boards = boardRepository.findAll();
