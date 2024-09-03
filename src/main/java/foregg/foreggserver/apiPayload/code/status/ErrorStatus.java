@@ -77,7 +77,11 @@ public enum ErrorStatus implements BaseErrorCode {
     //주사 관련 에러
     NO_SUCH_INJECTION(BAD_REQUEST, "INJECTION4001", "해당 이름의 주사가 존재하지 않습니다"),
 
-    ALREADY_ISSUED(BAD_REQUEST, "SPOUSECODE4001", "배우자 코드를 이미 발급받으셨습니다");
+    ALREADY_ISSUED(BAD_REQUEST, "SPOUSECODE4001", "배우자 코드를 이미 발급받으셨습니다"),
+
+    //지원금 관련 에러
+    NOT_FOUND_MY_SUBSIDY(BAD_REQUEST, "SUBSIDY4001", "나의 지원금이 존재하지 않습니다");
+
 
 
 
