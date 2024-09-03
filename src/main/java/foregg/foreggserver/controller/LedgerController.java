@@ -34,6 +34,16 @@ public class LedgerController {
         return ApiResponse.onSuccess(totalResponse);
     }
 
+    @Operation(summary = "회차별 가계부 INIT API")
+    @GetMapping("/byCountInit")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4002", description = "나의 가계부가 존재하지 않습니다"),
+    })
+    public ApiResponse<LedgerTotalResponseDTO> byCount() {
+        return ApiResponse.onSuccess(ledgerQueryService.byCountInit());
+    }
+
     @Operation(summary = "회차별 가계부 API")
     @GetMapping("/byCount")
     @ApiResponses({
@@ -43,6 +53,18 @@ public class LedgerController {
     public ApiResponse<LedgerTotalResponseDTO> byCount(@RequestParam(name = "count") int count) {
         return ApiResponse.onSuccess(ledgerQueryService.byCount(count));
     }
+
+    @Operation(summary = "새 회차 추가 API")
+    @PostMapping("/createCount")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4002", description = "나의 가계부가 존재하지 않습니다"),
+    })
+    public ApiResponse<String> createCount() {
+        ledgerService.createCount();
+        return ApiResponse.onSuccess();
+    }
+
 
     @Operation(summary = "월별 가계부 API")
     @GetMapping("/byMonth")
