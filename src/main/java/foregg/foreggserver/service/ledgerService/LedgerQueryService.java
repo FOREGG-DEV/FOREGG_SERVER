@@ -11,6 +11,7 @@ import foregg.foreggserver.dto.ledgerDTO.LedgerSummaryDTO;
 import foregg.foreggserver.dto.ledgerDTO.LedgerTotalResponseDTO;
 import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.LedgerRepository;
+import foregg.foreggserver.service.myPageService.MyPageQueryService;
 import foregg.foreggserver.service.userService.UserQueryService;
 import foregg.foreggserver.util.DateUtil;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class LedgerQueryService {
 
     private final LedgerRepository ledgerRepository;
     private final UserQueryService userQueryService;
+    private final MyPageQueryService myPageQueryService;
 
     public LedgerTotalResponseDTO all() {
         List<LedgerResponseDTO> resultList = new ArrayList<>();
@@ -46,6 +48,10 @@ public class LedgerQueryService {
             }
         }
         return LedgerConverter.toLedgerTotalResponseDTO(calculateSummary(ls), resultList);
+    }
+
+    public LedgerTotalResponseDTO byCountInit() {
+        return this.byCount(myPageQueryService.getSurgeryCount());
     }
 
     public LedgerTotalResponseDTO byCount(int count) {
