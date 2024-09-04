@@ -1,5 +1,6 @@
 package foregg.foreggserver.dto.subsidyDTO;
 
+import foregg.foreggserver.domain.enums.SubsidyColorType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,6 +24,7 @@ public class SubsidyResponseDTO {
     public static class SubsidyDetailResponseDTO {
         private Long id;
         private String nickname;
+        private SubsidyColorType color;
         private int amount;
         private int expenditure;
         private int available;
