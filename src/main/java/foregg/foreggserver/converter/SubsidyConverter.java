@@ -29,6 +29,7 @@ public class SubsidyConverter {
             SubsidyResponseDTO.SubsidyDetailResponseDTO result = SubsidyResponseDTO.SubsidyDetailResponseDTO.builder()
                     .id(ss.getId())
                     .nickname(ss.getNickname())
+                    .color(ss.getColor())
                     .amount(ss.getAmount())
                     .expenditure(ss.getExpenditure())
                     .available(ss.getAvailable())
