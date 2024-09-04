@@ -7,6 +7,7 @@ import foregg.foreggserver.service.subsidyService.SubsidyQueryService;
 import foregg.foreggserver.service.subsidyService.SubsidyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/subsidy")
+@Tag(name = "지원금 API")
 public class SubsidyController {
 
     private final SubsidyService subsidyService;
