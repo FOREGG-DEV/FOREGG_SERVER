@@ -1,6 +1,7 @@
 package foregg.foreggserver.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.Local;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -111,9 +112,9 @@ public class DateUtil {
         return today.toString();
     }
 
-    public static List<String> getPast30Days(String endDateStr) {
+    public static List<String> getPast30Days() {
         // 끝 날짜를 LocalDate 객체로 변환
-        LocalDate endDate = LocalDate.parse(endDateStr, DateTimeFormatter.ISO_DATE);
+        LocalDate endDate = LocalDate.now();
 
         // 시작 날짜 계산 (끝 날짜에서 30일 전)
         LocalDate startDate = endDate.minusDays(30);
