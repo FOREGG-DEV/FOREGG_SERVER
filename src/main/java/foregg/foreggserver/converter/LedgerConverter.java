@@ -4,9 +4,11 @@ import foregg.foreggserver.domain.Expenditure;
 import foregg.foreggserver.domain.Ledger;
 import foregg.foreggserver.domain.User;
 import foregg.foreggserver.domain.enums.SubsidyColorType;
+import foregg.foreggserver.dto.expenditureDTO.ExpenditureRequestDTO;
 import foregg.foreggserver.dto.ledgerDTO.LedgerRequestDTO;
 import foregg.foreggserver.dto.ledgerDTO.LedgerResponseDTO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LedgerConverter {
@@ -52,6 +54,23 @@ public class LedgerConverter {
                 .amount(expenditure.getAmount())
                 .build();
     }
+
+    public static LedgerRequestDTO toLedgerRequestDTO(Ledger ledger) {
+        List<Expenditure> expenditureList = ledger.getExpenditureList();
+        List<ExpenditureRequestDTO> expenditureRequestDTOList = new ArrayList<>();
+        for (Expenditure expenditure : expenditureList) {
+            expenditureRequestDTOList.add(ExpenditureRequestDTO.builder().amount(expenditure.getAmount()).name(expenditure.getName()).build());
+        }
+
+        return LedgerRequestDTO.builder()
+                .date(ledger.getDate())
+                .count(ledger.getCount())
+                .content(ledger.getContent())
+                .expenditureRequestDTOList(expenditureRequestDTOList)
+                .memo(ledger.getMemo())
+                .build();
+    }
+
 
 
 
