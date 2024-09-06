@@ -79,6 +79,15 @@ public class SubsidyQueryService {
         if (subsidy != null) {
             throw new SubsidyHandler(SUBSIDY_ALREADY_EXIST);
         }
+    }
+
+    public void restoreSubsidy(List<Expenditure> expenditureList, int count) {
+        expenditureList.removeIf(expenditure -> "개인".equals(expenditure.getName()));
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        for (Expenditure expenditure : expenditureList) {
+            Subsidy subsidy = subsidyRepository.findByUserAndCountAndNickname(user, count, expenditure.getName());
+            subsidy.restoreSubsidy(expenditure.getAmount());
+        }
 
     }
 
