@@ -23,7 +23,7 @@ public class SubsidyConverter {
                 .user(user).build();
     }
 
-    public static SubsidyResponseDTO toDetailResponseDTO(String period, List<Subsidy> subsidies) {
+    public static SubsidyResponseDTO toDetailResponseDTO(List<Subsidy> subsidies) {
         List<SubsidyResponseDTO.SubsidyDetailResponseDTO> detailResponseDTOS = new ArrayList<>();
         for (Subsidy ss : subsidies) {
             SubsidyResponseDTO.SubsidyDetailResponseDTO result = SubsidyResponseDTO.SubsidyDetailResponseDTO.builder()
@@ -38,7 +38,6 @@ public class SubsidyConverter {
             detailResponseDTOS.add(result);
         }
         return SubsidyResponseDTO.builder()
-                .period(period)
                 .subsidyDetailResponseDTOS(detailResponseDTOS)
                 .build();
     }
