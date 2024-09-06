@@ -80,7 +80,11 @@ public enum ErrorStatus implements BaseErrorCode {
     ALREADY_ISSUED(BAD_REQUEST, "SPOUSECODE4001", "배우자 코드를 이미 발급받으셨습니다"),
 
     //지원금 관련 에러
-    NOT_FOUND_MY_SUBSIDY(BAD_REQUEST, "SUBSIDY4001", "나의 지원금이 존재하지 않습니다");
+    NOT_FOUND_MY_SUBSIDY(BAD_REQUEST, "SUBSIDY4001", "나의 지원금이 존재하지 않습니다"),
+    BUDGET_OVER(BAD_REQUEST, "SUBSIDY4002", "지원금의 한도가 초과되었습니다"),
+    SUBSIDY_ALREADY_EXIST(BAD_REQUEST, "SUBSIDY4003", "해당 회차의 같은 이름의 지원금이 존재합니다");
+
+
 
 
 
