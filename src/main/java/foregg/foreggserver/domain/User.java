@@ -65,6 +65,9 @@ public class User extends BaseEntity implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Ledger> ledgers;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Expenditure> expenditures;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Daily> dailyList;
 
