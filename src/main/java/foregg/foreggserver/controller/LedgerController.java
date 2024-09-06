@@ -9,11 +9,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/ledger")
+@PreAuthorize("isAuthenticated()")
 @Tag(name = "가계부 API")
 public class LedgerController {
 
@@ -32,7 +34,7 @@ public class LedgerController {
     }
 
     @Operation(summary = "가계부 삭제 API")
-    @PostMapping("/{id}/delete")
+    @DeleteMapping("/{id}/delete")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4002", description = "나의 가계부가 존재하지 않습니다"),
@@ -40,6 +42,28 @@ public class LedgerController {
     public ApiResponse<String> deleteLedger(@PathVariable(name = "id") Long id) {
         ledgerService.deleteLedger(id);
         return ApiResponse.onSuccess();
+    }
+
+    @Operation(summary = "가계부 수정 API")
+    @PutMapping("/{id}/modify")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4002", description = "나의 가계부가 존재하지 않습니다"),
+    })
+    public ApiResponse<String> modifyLedger(@PathVariable(name = "id") Long id, @RequestBody LedgerRequestDTO dto) {
+        ledgerService.modifyLedger(dto, id);
+        return ApiResponse.onSuccess();
+    }
+
+    @Operation(summary = "가계부 상세 API")
+    @GetMapping("/{id}/detail")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4001", description = "존재하지 않는 가계부입니다"),
+    })
+    public ApiResponse<LedgerRequestDTO> detail(@PathVariable(name = "id") Long id) {
+        LedgerRequestDTO result = ledgerQueryService.ledgerDetail(id);
+        return ApiResponse.onSuccess(result);
     }
 
     @Operation(summary = "전체(30일) 가계부 보기 API")
@@ -97,48 +121,16 @@ public class LedgerController {
         return ApiResponse.onSuccess();
     }
 
-    //    @Operation(summary = "날짜 조건 검색 가계부 API")
-//    @GetMapping("/byCondition")
-//    @ApiResponses({
-//            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-//            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4002", description = "나의 가계부가 존재하지 않습니다"),
-//    })
-//    public ApiResponse<LedgerTotalResponseDTO> byCondition(@RequestParam(name = "from") String from,
-//                                                           @RequestParam(name = "to") String to) {
-//        return ApiResponse.onSuccess(ledgerQueryService.byCondition(from, to));
-//    }
-
-    //    @Operation(summary = "가계부 삭제 API")
-//    @DeleteMapping("/{id}/delete")
-//    @ApiResponses({
-//            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-//            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4001", description = "존재하지 않는 가계부입니다"),
-//    })
-//    public ApiResponse<String> delete(@PathVariable(name = "id") Long id) {
-//        ledgerService.delete(id);
-//        return ApiResponse.onSuccess();
-//    }
-//
-//    @Operation(summary = "가계부 상세 API")
-//    @GetMapping("/{id}/detail")
-//    @ApiResponses({
-//            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-//            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4001", description = "존재하지 않는 가계부입니다"),
-//    })
-//    public ApiResponse<LedgerResponseDTO> detail(@PathVariable(name = "id") Long id) {
-//        LedgerResponseDTO detail = ledgerQueryService.detail(id);
-//        return ApiResponse.onSuccess(detail);
-//    }
-//
-//    @Operation(summary = "가계부 수정 API")
-//    @PutMapping("/{id}/modify")
-//    @ApiResponses({
-//            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-//            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4001", description = "존재하지 않는 가계부입니다"),
-//    })
-//    public ApiResponse<String> modify(@PathVariable(name = "id") Long id, @RequestBody LedgerRequestDTO dto) {
-//        ledgerService.modify(id, dto);
-//        return ApiResponse.onSuccess();
-//    }
+    @Operation(summary = "날짜 조건 검색 가계부 API")
+    @GetMapping("/byCondition")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4002", description = "나의 가계부가 존재하지 않습니다"),
+    })
+    public ApiResponse<LedgerResponseDTO> byCondition(@RequestParam(name = "from") String from,
+                                                           @RequestParam(name = "to") String to) {
+        LedgerResponseDTO result = ledgerQueryService.byCondition(from, to);
+        return ApiResponse.onSuccess(result);
+    }
 
 }
