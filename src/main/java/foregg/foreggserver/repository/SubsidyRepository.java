@@ -12,4 +12,8 @@ public interface SubsidyRepository extends JpaRepository<Subsidy, Long> {
 
     List<Subsidy> findByUserAndCount(User user, int count);
 
+    Subsidy findByUserAndCountAndNickname(User user, int count, String nickname);
+
+    List<Subsidy> findByUser(User user);
+
 }

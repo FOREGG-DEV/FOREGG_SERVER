@@ -2,8 +2,10 @@ package foregg.foreggserver.service.ledgerService;
 
 import foregg.foreggserver.apiPayload.exception.handler.LedgerHandler;
 import foregg.foreggserver.apiPayload.exception.handler.SurgeryHandler;
+import foregg.foreggserver.converter.ExpenditureConverter;
 import foregg.foreggserver.converter.LedgerConverter;
 import foregg.foreggserver.converter.SurgeryConverter;
+import foregg.foreggserver.domain.Expenditure;
 import foregg.foreggserver.domain.Ledger;
 import foregg.foreggserver.domain.Surgery;
 import foregg.foreggserver.domain.User;
@@ -11,56 +13,53 @@ import foregg.foreggserver.dto.ledgerDTO.LedgerRequestDTO;
 import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.LedgerRepository;
 import foregg.foreggserver.repository.SurgeryRepository;
-import foregg.foreggserver.service.fcmService.FcmService;
+import foregg.foreggserver.service.expenditureService.ExpenditureService;
 import foregg.foreggserver.service.myPageService.MyPageService;
+import foregg.foreggserver.service.subsidyService.SubsidyQueryService;
+import foregg.foreggserver.service.subsidyService.SubsidyService;
 import foregg.foreggserver.service.userService.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
+import java.util.List;
 
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.LEDGER_NOT_FOUND;
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.NOT_FOUND_MY_SURGERY;
 
-@Transactional
+
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class LedgerService {
 
     private final LedgerRepository ledgerRepository;
     private final UserQueryService userQueryService;
-    private final LedgerQueryService ledgerQueryService;
-    private final FcmService fcmService;
-    private final MyPageService myPageService;
+    private final ExpenditureService expenditureService;
+    private final SubsidyService subsidyService;
     private final SurgeryRepository surgeryRepository;
+    private final MyPageService myPageService;
 
-    public void add(LedgerRequestDTO dto) {
+    public void writeLedger(LedgerRequestDTO dto) {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
-        User spouse = userQueryService.returnSpouse();
-        if (spouse != null) {
-            try {
-                fcmService.sendMessageTo(spouse.getFcmToken(), "새로운 가계부가 등록되었습니다", String.format("%s님이 가계부를 추가했어요", user.getNickname()), "ledger", null, null);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        if (SecurityUtil.ifCurrentUserIsHusband()) {
-            ledgerRepository.save(LedgerConverter.toLedger(dto, spouse));
-        }else{
-            ledgerRepository.save(LedgerConverter.toLedger(dto, user));
-        }
+
+        //가계부 저장
+        Ledger ledger = LedgerConverter.toLedger(dto, user);
+        ledgerRepository.save(ledger);
+
+        //지출 저장
+        List<Expenditure> expenditures = ExpenditureConverter.toExpenditure(dto, ledger);
+
+        //지원금 깎기
+        subsidyService.deductSubsidy(expenditures);
+
+        //각 지출들에 대해서 지원금을 찾아서 넣어 주고 저장
+        expenditureService.saveExpenditures(expenditures);
     }
 
-    public void modify(Long id, LedgerRequestDTO dto) {
-        Ledger ledger = ledgerRepository.findById(id).orElseThrow(() -> new LedgerHandler(LEDGER_NOT_FOUND));
-        ledgerQueryService.isMyLedger(ledger);
-        ledger.updateLedger(dto);
-    }
-
-    public void delete(Long id) {
-        Ledger ledger = ledgerRepository.findById(id).orElseThrow(() -> new LedgerHandler(LEDGER_NOT_FOUND));
-        ledgerQueryService.isMyLedger(ledger);
+    public void deleteLedger(Long id) {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        Ledger ledger = ledgerRepository.findByIdAndUser(id, user).orElseThrow(() -> new LedgerHandler(LEDGER_NOT_FOUND));
         ledgerRepository.delete(ledger);
     }
 

@@ -1,11 +1,11 @@
 package foregg.foreggserver.converter;
 
+import foregg.foreggserver.domain.Expenditure;
 import foregg.foreggserver.domain.Ledger;
 import foregg.foreggserver.domain.User;
+import foregg.foreggserver.domain.enums.SubsidyColorType;
 import foregg.foreggserver.dto.ledgerDTO.LedgerRequestDTO;
 import foregg.foreggserver.dto.ledgerDTO.LedgerResponseDTO;
-import foregg.foreggserver.dto.ledgerDTO.LedgerSummaryDTO;
-import foregg.foreggserver.dto.ledgerDTO.LedgerTotalResponseDTO;
 
 import java.util.List;
 
@@ -13,37 +13,46 @@ public class LedgerConverter {
 
     public static Ledger toLedger(LedgerRequestDTO dto, User user) {
         return Ledger.builder()
-                .ledgerType(dto.getLedgerType())
                 .date(dto.getDate())
-                .content(dto.getContent())
                 .count(dto.getCount())
-                .amount(dto.getAmount())
+                .content(dto.getContent())
                 .memo(dto.getMemo())
-                .user(user).build();
+                .user(user)
+                .build();
     }
 
-    public static LedgerResponseDTO toLedgerResponseDTO(Ledger ledger) {
+    public static LedgerResponseDTO toLedgerResponseDTO(int personalSum,
+                                                        Integer subsidySum,
+                                                        List<LedgerResponseDTO.SubsidyAvailable> subsidyAvailable,
+                                                        int total,
+                                                        List<LedgerResponseDTO.LedgerDetailResponseDTO> detailResponseDTOS) {
         return LedgerResponseDTO.builder()
-                .id(ledger.getId())
-                .ledgerType(ledger.getLedgerType())
-                .date(ledger.getDate())
-                .amount(ledger.getAmount())
-                .content(ledger.getContent())
-                .count(ledger.getCount())
-                .memo(ledger.getMemo()).build();
+                .personalSum(personalSum)
+                .subsidySum(subsidySum)
+                .subsidyAvailable(subsidyAvailable)
+                .total(total)
+                .ledgerDetailResponseDTOS(detailResponseDTOS)
+                .build();
     }
 
-    public static LedgerSummaryDTO toLedgerSummaryDTO(int totalExpense, int subsidy, int personal) {
-        return LedgerSummaryDTO.builder()
-                .totalExpense(totalExpense)
-                .subsidy(subsidy)
-                .personal(personal).build();
+
+    public static LedgerResponseDTO.LedgerDetailResponseDTO toLedgerDetailDTO(Expenditure expenditure) {
+        SubsidyColorType color = SubsidyColorType.RED;
+        if (!expenditure.getName().equals("개인")) {
+            color = expenditure.getSubsidy().getColor();
+        }
+
+        return LedgerResponseDTO.LedgerDetailResponseDTO.builder()
+                .id(expenditure.getId())
+                .date(expenditure.getLedger().getDate())
+                .count(expenditure.getLedger().getCount())
+                .color(color)
+                .name(expenditure.getName())
+                .content(expenditure.getLedger().getContent())
+                .amount(expenditure.getAmount())
+                .build();
     }
 
-    public static LedgerTotalResponseDTO toLedgerTotalResponseDTO(LedgerSummaryDTO ledgerSummaryDTO,
-                                                                  List<LedgerResponseDTO> ledgerResponseDTOS) {
-        return LedgerTotalResponseDTO.builder()
-                .ledgerSummaryDTO(ledgerSummaryDTO)
-                .ledgerResponseDTOS(ledgerResponseDTOS).build();
-    }
+
+
 }

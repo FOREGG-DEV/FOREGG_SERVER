@@ -14,7 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 public class SubsidyResponseDTO {
 
-    private String period;
     private List<SubsidyDetailResponseDTO> subsidyDetailResponseDTOS;
 
     @Builder

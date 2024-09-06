@@ -1,149 +1,99 @@
 package foregg.foreggserver.service.ledgerService;
 
-import foregg.foreggserver.apiPayload.exception.handler.LedgerHandler;
-import foregg.foreggserver.apiPayload.exception.handler.UserHandler;
 import foregg.foreggserver.converter.LedgerConverter;
+import foregg.foreggserver.domain.Expenditure;
 import foregg.foreggserver.domain.Ledger;
 import foregg.foreggserver.domain.User;
-import foregg.foreggserver.domain.enums.LedgerType;
 import foregg.foreggserver.dto.ledgerDTO.LedgerResponseDTO;
-import foregg.foreggserver.dto.ledgerDTO.LedgerSummaryDTO;
-import foregg.foreggserver.dto.ledgerDTO.LedgerTotalResponseDTO;
 import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.LedgerRepository;
+import foregg.foreggserver.service.expenditureService.ExpenditureQueryService;
 import foregg.foreggserver.service.myPageService.MyPageQueryService;
+import foregg.foreggserver.service.subsidyService.SubsidyQueryService;
 import foregg.foreggserver.service.userService.UserQueryService;
 import foregg.foreggserver.util.DateUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
 
 @Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class LedgerQueryService {
 
-    private final LedgerRepository ledgerRepository;
     private final UserQueryService userQueryService;
+    private final LedgerRepository ledgerRepository;
+    private final ExpenditureQueryService expenditureQueryService;
     private final MyPageQueryService myPageQueryService;
+    private final SubsidyQueryService subsidyQueryService;
 
-    public LedgerTotalResponseDTO all() {
-        List<LedgerResponseDTO> resultList = new ArrayList<>();
-        List<Ledger> ls = new ArrayList<>();
-        List<Ledger> ledgers = findLedgerByWife();
+    public LedgerResponseDTO all() {
+        List<Ledger> foundLedgers = ledgerRepository.findByUser(userQueryService.getUser(SecurityUtil.getCurrentUser()));
+        List<Ledger> ledgers = new ArrayList<>();
+        List<String> pastDays = DateUtil.getPast30Days();
 
-        List<String> pastDays = DateUtil.getPast30Days(DateUtil.formatLocalDateTime(LocalDate.now()));
-
-        for (Ledger ledger : ledgers) {
+        for (Ledger ledger : foundLedgers) {
             if (pastDays.contains(ledger.getDate())) {
-                resultList.add(LedgerConverter.toLedgerResponseDTO(ledger));
-                ls.add(ledger);
+                ledgers.add(ledger);
             }
         }
-        return LedgerConverter.toLedgerTotalResponseDTO(calculateSummary(ls), resultList);
+        int personalSum = expenditureQueryService.getPersonalExpenditure(ledgers);
+        int subsidySum = expenditureQueryService.getSubsidyExpenditure(ledgers);
+        int total = personalSum + subsidySum;
+        return LedgerConverter.toLedgerResponseDTO(personalSum, subsidySum, null, total, toLedgerDetailDTO(ledgers));
     }
 
-    public LedgerTotalResponseDTO byCountInit() {
-        return this.byCount(myPageQueryService.getSurgeryCount());
-    }
-
-    public LedgerTotalResponseDTO byCount(int count) {
-
-        List<Ledger> ledgers = findLedgerByWife();
-        List<LedgerResponseDTO> resultList = new ArrayList<>();
-        List<Ledger> ls = new ArrayList<>();
-
-        for (Ledger ledger : ledgers) {
-            if (ledger.getCount() == count) {
-                resultList.add(LedgerConverter.toLedgerResponseDTO(ledger));
-                ls.add(ledger);
-            }
-        }
-        return LedgerConverter.toLedgerTotalResponseDTO(calculateSummary(ls), resultList);
-    }
-
-    public LedgerTotalResponseDTO byMonth(String yearmonth) {
-
-        List<Ledger> ledgers = findLedgerByWife();
-        List<LedgerResponseDTO> resultList = new ArrayList<>();
-        List<Ledger> ls = new ArrayList<>();
-
-        for (Ledger ledger : ledgers) {
-            if (DateUtil.extractSameYearmonth(yearmonth, ledger.getDate())) {
-                resultList.add(LedgerConverter.toLedgerResponseDTO(ledger));
-                ls.add(ledger);
-            }
-        }
-        return LedgerConverter.toLedgerTotalResponseDTO(calculateSummary(ls), resultList);
-    }
-
-    public LedgerTotalResponseDTO byCondition(String from, String to) {
-
-        List<Ledger> ledgers = findLedgerByWife();
-        List<String> dates = DateUtil.getIntervalDates(from, to);
-        List<LedgerResponseDTO> resultList = new ArrayList<>();
-        List<Ledger> ls = new ArrayList<>();
-
-        for (Ledger ledger : ledgers) {
-            if (dates.contains(ledger.getDate())) {
-                resultList.add(LedgerConverter.toLedgerResponseDTO(ledger));
-                ls.add(ledger);
-            }
-        }
-        return LedgerConverter.toLedgerTotalResponseDTO(calculateSummary(ls), resultList);
-    }
-
-    public LedgerResponseDTO detail(Long id) {
-        Ledger ledger = ledgerRepository.findById(id).orElseThrow(() -> new LedgerHandler(LEDGER_NOT_FOUND));
-        isMyLedger(ledger);
-        return LedgerConverter.toLedgerResponseDTO(ledger);
-    }
-
-    private LedgerSummaryDTO calculateSummary(List<Ledger> ledgers) {
-        int totalExpense = 0, subsidy = 0, personal = 0;
-        for (Ledger ledger : ledgers) {
-            if (ledger.getLedgerType() == LedgerType.SUBSIDY) {
-                subsidy += ledger.getAmount();
-            }else{
-                personal += ledger.getAmount();
-            }
-            totalExpense += ledger.getAmount();
-        }
-        return LedgerConverter.toLedgerSummaryDTO(totalExpense, subsidy, personal);
-    }
-
-    private List<Ledger> findLedgerByWife() {
+    public LedgerResponseDTO byMonth(String yearmonth) {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
-        if (SecurityUtil.ifCurrentUserIsHusband()) {
-            return ledgerRepository.findByUser(userQueryService.returnSpouse()).orElseThrow(() -> new UserHandler(SPOUSE_NOT_FOUND));
+        List<Ledger> foundLedgers = ledgerRepository.findByUser(user);
+        List<Ledger> ledgers = new ArrayList<>();
+        for(Ledger ledger : foundLedgers) {
+            String yearAndMonth = DateUtil.getYearAndMonth(ledger.getDate());
+            if (yearAndMonth.equals(yearmonth)) {
+                ledgers.add(ledger);
+            }
         }
-        Optional<List<Ledger>> ledgers = ledgerRepository.findByUser(user);
-        if (ledgers.isEmpty()) {
-            return null;
-        }
-        return ledgers.get();
+        //필요한게 personalSum, subsidySum, subsidyAvaliable = null, total, ledgerDetailResponseDTOS
+        int personalSum = expenditureQueryService.getPersonalExpenditure(ledgers);
+        int subsidySum = expenditureQueryService.getSubsidyExpenditure(ledgers);
+        int total = personalSum + subsidySum;
+        return LedgerConverter.toLedgerResponseDTO(personalSum, subsidySum, null, total, toLedgerDetailDTO(ledgers));
     }
 
-    public void isMyLedger(Ledger ledger) {
-        User ledgerOwner = ledger.getUser();
-        if (SecurityUtil.ifCurrentUserIsHusband()) {
-            if (!ledgerOwner.equals(userQueryService.returnSpouse())) {
-                throw new LedgerHandler(NOT_MY_LEDGER);
-            }
-        }else{
-            User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
-            if (!ledgerOwner.equals(user)) {
-                throw new LedgerHandler(NOT_MY_LEDGER);
+    public LedgerResponseDTO byCountInit() {
+        int count = myPageQueryService.getInformation().getCount();
+        return byCount(count);
+    }
+
+    public LedgerResponseDTO byCount(int count) {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        List<Ledger> ledgers = ledgerRepository.findByUserAndCount(user, count);
+
+        //필요한게 personalSum, subsidySum = null, subsidyAvaliable, total, ledgerDetailResponseDTOS
+        int personalSum = expenditureQueryService.getPersonalExpenditure(ledgers);
+        int subsidySum = expenditureQueryService.getSubsidyExpenditure(ledgers);
+        int total = personalSum + subsidySum;
+        List<LedgerResponseDTO.SubsidyAvailable> subsidyAvailable = subsidyQueryService.toSubsidyAvailable(ledgers, count);
+        return LedgerConverter.toLedgerResponseDTO(personalSum, null, subsidyAvailable, total, toLedgerDetailDTO(ledgers));
+    }
+
+
+    public List<LedgerResponseDTO.LedgerDetailResponseDTO>  toLedgerDetailDTO(List<Ledger> ledgers) {
+        List<LedgerResponseDTO.LedgerDetailResponseDTO> result = new ArrayList<>();
+        for (Ledger ledger : ledgers) {
+            List<Expenditure> expenditureList = ledger.getExpenditureList();
+            for (Expenditure expenditure : expenditureList) {
+                LedgerResponseDTO.LedgerDetailResponseDTO dto = LedgerConverter.toLedgerDetailDTO(expenditure);
+                result.add(dto);
             }
         }
-
+        return result;
     }
 
 }

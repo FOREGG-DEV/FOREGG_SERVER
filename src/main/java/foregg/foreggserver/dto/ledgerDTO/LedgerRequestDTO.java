@@ -1,10 +1,12 @@
 package foregg.foreggserver.dto.ledgerDTO;
 
-import foregg.foreggserver.domain.enums.LedgerType;
+import foregg.foreggserver.dto.expenditureDTO.ExpenditureRequestDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Getter
 @Builder
@@ -12,11 +14,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LedgerRequestDTO {
 
-    private LedgerType ledgerType;
     private String date;
-    private String content;
-    private int amount;
     private int count;
+    private String content;
     private String memo;
+    private List<ExpenditureRequestDTO> expenditureRequestDTOList;
 
 }

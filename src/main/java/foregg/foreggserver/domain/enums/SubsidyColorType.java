@@ -1,5 +1,5 @@
 package foregg.foreggserver.domain.enums;
 
 public enum SubsidyColorType {
-    BLUE, GREEN, YELLOW
+    BLUE, GREEN, YELLOW, RED //red는 개인
 }

@@ -46,8 +46,8 @@ public class Subsidy extends BaseEntity {
     private SubsidyColorType color;
 
     public void updateExpenditure(int expenditure) {
-        this.expenditure = expenditure;
-        available = this.amount - expenditure;
+        this.expenditure += expenditure;
+        available = this.amount - this.expenditure;
     }
 
     public void updateSubsidy(SubsidyRequestDTO dto) {
