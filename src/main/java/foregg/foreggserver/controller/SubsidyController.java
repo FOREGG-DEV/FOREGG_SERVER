@@ -25,6 +25,7 @@ public class SubsidyController {
     @Operation(description = "지원금 생성 API")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SUBSIDY4003", description = "해당 회차의 같은 이름의 지원금이 존재합니다"),
     })
     @PostMapping("")
     public ApiResponse<String> createSubsidy(@RequestBody SubsidyRequestDTO dto) {

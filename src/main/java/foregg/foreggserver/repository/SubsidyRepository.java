@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface SubsidyRepository extends JpaRepository<Subsidy, Long> {
 
-    int countByUser(User user);
+    int countByUserAndCount(User user, int count);
 
     List<Subsidy> findByUserAndCount(User user, int count);
 
