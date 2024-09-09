@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 @Entity
 @Getter
@@ -25,10 +27,14 @@ public class Expenditure extends BaseEntity {
     private int amount;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @Cascade(CascadeType.ALL)
     private Ledger ledger;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Subsidy subsidy;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
 
     public void setSubsidy(Subsidy subsidy) {
         this.subsidy = subsidy;

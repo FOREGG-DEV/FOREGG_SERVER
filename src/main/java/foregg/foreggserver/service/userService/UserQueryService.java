@@ -1,12 +1,9 @@
 package foregg.foreggserver.service.userService;
 
 import foregg.foreggserver.apiPayload.exception.handler.UserHandler;
-import foregg.foreggserver.converter.UserConverter;
 import foregg.foreggserver.domain.User;
 import foregg.foreggserver.dto.kakaoDTO.KakaoUserInfoResponse;
-import foregg.foreggserver.dto.userDTO.UserResponseDTO;
 import foregg.foreggserver.dto.userDTO.UserSpouseCodeResponseDTO;
-import foregg.foreggserver.jwt.JwtTokenProvider;
 import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.UserRepository;
 import foregg.foreggserver.util.SpouseCodeGenerator;
@@ -15,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Security;
 import java.util.Optional;
 
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
@@ -54,6 +50,7 @@ public class UserQueryService {
         return user;
     }
 
+    //현재 유저가 남편이면 와이프 반환, 남편이 아니라면 그냥 현재 유저 반환 -> 그냥 와이프 반환하는 메서드
     public User returnWifeOrHusband() {
         if (SecurityUtil.ifCurrentUserIsHusband()) {
             Long spouseId = getUser(SecurityUtil.getCurrentUser()).getSpouseId();
@@ -63,6 +60,7 @@ public class UserQueryService {
         }
     }
 
+    //배우자 반환
     public User returnSpouse() {
         User user = getUser(SecurityUtil.getCurrentUser());
         Long spouseId = user.getSpouseId();

@@ -41,12 +41,12 @@ public class SubsidyService {
     }
 
     public void updateSubsidy(Long id,SubsidyRequestDTO dto) {
-        Subsidy subsidy = subsidyQueryService.getSubsidyById(id);
+        Subsidy subsidy = subsidyQueryService.getSubsidyByIdAndUser(id);
         subsidy.updateSubsidy(dto);
     }
 
     public void deleteSubsidy(Long id) {
-        subsidyQueryService.getSubsidyById(id);
+        subsidyQueryService.getSubsidyByIdAndUser(id);
         subsidyRepository.deleteById(id);
     }
 

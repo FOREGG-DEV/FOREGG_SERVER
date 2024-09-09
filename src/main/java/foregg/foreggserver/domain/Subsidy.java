@@ -56,4 +56,8 @@ public class Subsidy extends BaseEntity {
         this.content = dto.getContent();
     }
 
+    public void restoreSubsidy(int expenditure) {
+        this.available += expenditure;
+        this.expenditure -= expenditure;
+    }
 }

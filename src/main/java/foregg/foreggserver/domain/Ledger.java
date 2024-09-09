@@ -36,6 +36,6 @@ public class Ledger extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    @OneToMany(mappedBy = "ledger")
+    @OneToMany(mappedBy = "ledger", orphanRemoval = true)
     private List<Expenditure> expenditureList = new ArrayList<>();
 }

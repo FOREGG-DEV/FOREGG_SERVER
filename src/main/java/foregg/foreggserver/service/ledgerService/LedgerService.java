@@ -39,6 +39,7 @@ public class LedgerService {
     private final SubsidyService subsidyService;
     private final SurgeryRepository surgeryRepository;
     private final MyPageService myPageService;
+    private final SubsidyQueryService subsidyQueryService;
 
     public void writeLedger(LedgerRequestDTO dto) {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
@@ -48,7 +49,7 @@ public class LedgerService {
         ledgerRepository.save(ledger);
 
         //지출 저장
-        List<Expenditure> expenditures = ExpenditureConverter.toExpenditure(dto, ledger);
+        List<Expenditure> expenditures = ExpenditureConverter.toExpenditure(dto, ledger, user);
 
         //지원금 깎기
         subsidyService.deductSubsidy(expenditures);
@@ -58,9 +59,17 @@ public class LedgerService {
     }
 
     public void deleteLedger(Long id) {
+        //단순히 삭제하는게 아니라 지원금을 원상복구 해야됨
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
         Ledger ledger = ledgerRepository.findByIdAndUser(id, user).orElseThrow(() -> new LedgerHandler(LEDGER_NOT_FOUND));
+        List<Expenditure> expenditureList = ledger.getExpenditureList();
+        subsidyQueryService.restoreSubsidy(expenditureList, ledger.getCount());
         ledgerRepository.delete(ledger);
+    }
+
+    public void modifyLedger(LedgerRequestDTO dto, Long id) {
+        deleteLedger(id);
+        writeLedger(dto);
     }
 
     public void createCount() {
