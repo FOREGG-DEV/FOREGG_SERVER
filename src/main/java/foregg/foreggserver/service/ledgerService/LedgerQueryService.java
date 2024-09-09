@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.LEDGER_NOT_FOUND;
 
@@ -38,11 +39,12 @@ public class LedgerQueryService {
     private final SubsidyQueryService subsidyQueryService;
 
     public LedgerResponseDTO all() {
-        List<Ledger> foundLedgers = ledgerRepository.findByUser(userQueryService.getUser(SecurityUtil.getCurrentUser()));
+        List<Ledger> myLedgers = getHusbandAndWifeLedgers();
         List<Ledger> ledgers = new ArrayList<>();
         List<String> pastDays = DateUtil.getPast30Days();
 
-        for (Ledger ledger : foundLedgers) {
+        for (Ledger ledger : myLedgers) {
+            log.info("가계부 "+ ledger.getId());
             if (pastDays.contains(ledger.getDate())) {
                 ledgers.add(ledger);
             }
@@ -56,15 +58,18 @@ public class LedgerQueryService {
     //가계부 수정할 때 나오는 Detail
     public LedgerRequestDTO ledgerDetail(Long id) {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
-        Ledger ledger = ledgerRepository.findByIdAndUser(id, user).orElseThrow(() -> new LedgerHandler(LEDGER_NOT_FOUND));
+        User spouse = userQueryService.returnSpouse();
+        Ledger ledger = ledgerRepository.findById(id).orElseThrow(() -> new LedgerHandler(LEDGER_NOT_FOUND));
+        if (ledger.getUser() != user || ledger.getUser() != spouse) {
+            throw new LedgerHandler(LEDGER_NOT_FOUND);
+        }
         return LedgerConverter.toLedgerRequestDTO(ledger);
     }
 
     public LedgerResponseDTO byMonth(String yearmonth) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
-        List<Ledger> foundLedgers = ledgerRepository.findByUser(user);
+        List<Ledger> myLedgers = getHusbandAndWifeLedgers();
         List<Ledger> ledgers = new ArrayList<>();
-        for(Ledger ledger : foundLedgers) {
+        for(Ledger ledger : myLedgers) {
             String yearAndMonth = DateUtil.getYearAndMonth(ledger.getDate());
             if (yearAndMonth.equals(yearmonth)) {
                 ledgers.add(ledger);
@@ -83,8 +88,10 @@ public class LedgerQueryService {
     }
 
     public LedgerResponseDTO byCount(int count) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
-        List<Ledger> ledgers = ledgerRepository.findByUserAndCount(user, count);
+        List<Ledger> ledgers = getHusbandAndWifeLedgers();
+        ledgers.stream()
+                .filter(ledger -> ledger.getCount()==count)
+                .collect(Collectors.toList());
 
         //필요한게 personalSum, subsidySum = null, subsidyAvaliable, total, ledgerDetailResponseDTOS
         int personalSum = expenditureQueryService.getPersonalExpenditure(ledgers);
@@ -95,8 +102,7 @@ public class LedgerQueryService {
     }
 
     public LedgerResponseDTO byCondition(String from, String to) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
-        List<Ledger> ledgers = ledgerRepository.findByUser(user);
+        List<Ledger> ledgers = getHusbandAndWifeLedgers();
         List<String> intervalDates = DateUtil.getIntervalDates(from, to);
 
         // 사이값에 없는 가계부는 삭제
@@ -108,14 +114,10 @@ public class LedgerQueryService {
         int personalSum = expenditureQueryService.getPersonalExpenditure(ledgers);
         int subsidySum = expenditureQueryService.getSubsidyExpenditure(ledgers);
         int total = personalSum + subsidySum;
-        log.info("personalSum" + personalSum);
-        log.info("subsidySum" + subsidySum);
-        log.info("total" + total);
-
         return LedgerConverter.toLedgerResponseDTO(personalSum, subsidySum, null, total, toLedgerDetailDTO(ledgers));
     }
 
-    public List<LedgerResponseDTO.LedgerDetailResponseDTO>  toLedgerDetailDTO(List<Ledger> ledgers) {
+    public List<LedgerResponseDTO.LedgerDetailResponseDTO> toLedgerDetailDTO(List<Ledger> ledgers) {
         List<LedgerResponseDTO.LedgerDetailResponseDTO> result = new ArrayList<>();
         for (Ledger ledger : ledgers) {
             List<Expenditure> expenditureList = ledger.getExpenditureList();
@@ -123,6 +125,17 @@ public class LedgerQueryService {
                 LedgerResponseDTO.LedgerDetailResponseDTO dto = LedgerConverter.toLedgerDetailDTO(expenditure);
                 result.add(dto);
             }
+        }
+        return result;
+    }
+
+    //현재 유저의 가계부와 배우자의 가계부를 합쳐서 반환하는 메서드
+    public List<Ledger> getHusbandAndWifeLedgers() {
+        List<Ledger> result = ledgerRepository.findByUser(userQueryService.getUser(SecurityUtil.getCurrentUser()));
+        User spouse = userQueryService.returnSpouse();
+        if(spouse != null) {
+            List<Ledger> spouseLedgers = ledgerRepository.findByUser(spouse);
+            result.addAll(spouseLedgers);
         }
         return result;
     }
