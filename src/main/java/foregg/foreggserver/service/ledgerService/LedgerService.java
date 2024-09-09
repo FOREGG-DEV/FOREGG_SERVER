@@ -24,8 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.LEDGER_NOT_FOUND;
-import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.NOT_FOUND_MY_SURGERY;
+import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
 
 
 @Service
@@ -61,7 +60,7 @@ public class LedgerService {
     public void deleteLedger(Long id) {
         //단순히 삭제하는게 아니라 지원금을 원상복구 해야됨
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
-        Ledger ledger = ledgerRepository.findByIdAndUser(id, user).orElseThrow(() -> new LedgerHandler(LEDGER_NOT_FOUND));
+        Ledger ledger = ledgerRepository.findByIdAndUser(id, user).orElseThrow(() -> new LedgerHandler(NOT_FOUND_MY_LEDGER));
         List<Expenditure> expenditureList = ledger.getExpenditureList();
         subsidyQueryService.restoreSubsidy(expenditureList, ledger.getCount());
         ledgerRepository.delete(ledger);
