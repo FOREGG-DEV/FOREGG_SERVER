@@ -42,4 +42,14 @@ public class SubsidyConverter {
                 .build();
     }
 
+    public static SubsidyRequestDTO toSubsidyRequestDTO(Subsidy subsidy) {
+        return SubsidyRequestDTO
+                .builder()
+                .nickname(subsidy.getNickname())
+                .content(subsidy.getContent())
+                .amount(subsidy.getAmount())
+                .count(subsidy.getCount())
+                .build();
+    }
+
 }
