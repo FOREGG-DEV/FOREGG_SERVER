@@ -112,6 +112,7 @@ public class LedgerController {
 
     @Operation(summary = "새 회차 추가 API")
     @PostMapping("/createCount")
+    @PreAuthorize("hasRole('ROLE_WIFE')")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4002", description = "나의 가계부가 존재하지 않습니다"),
