@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.LEDGER_NOT_FOUND;
+import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.NOT_FOUND_MY_LEDGER;
 
 
 @Transactional(readOnly = true)
@@ -44,7 +44,6 @@ public class LedgerQueryService {
         List<String> pastDays = DateUtil.getPast30Days();
 
         for (Ledger ledger : myLedgers) {
-            log.info("가계부 "+ ledger.getId());
             if (pastDays.contains(ledger.getDate())) {
                 ledgers.add(ledger);
             }
@@ -59,9 +58,9 @@ public class LedgerQueryService {
     public LedgerRequestDTO ledgerDetail(Long id) {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
         User spouse = userQueryService.returnSpouse();
-        Ledger ledger = ledgerRepository.findById(id).orElseThrow(() -> new LedgerHandler(LEDGER_NOT_FOUND));
+        Ledger ledger = ledgerRepository.findById(id).orElseThrow(() -> new LedgerHandler(NOT_FOUND_MY_LEDGER));
         if (ledger.getUser() != user || ledger.getUser() != spouse) {
-            throw new LedgerHandler(LEDGER_NOT_FOUND);
+            throw new LedgerHandler(NOT_FOUND_MY_LEDGER);
         }
         return LedgerConverter.toLedgerRequestDTO(ledger);
     }
