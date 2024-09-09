@@ -26,7 +26,8 @@ public class LedgerController {
     @PostMapping("/add")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4002", description = "나의 가계부가 존재하지 않습니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SUBSIDY4001", description = "나의 지원금이 존재하지 않습니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SUBSIDY4002", description = "지원금의 한도가 초과되었습니다"),
     })
     public ApiResponse<String> writeLedger(@RequestBody LedgerRequestDTO dto) {
         ledgerService.writeLedger(dto);
@@ -59,7 +60,7 @@ public class LedgerController {
     @GetMapping("/{id}/detail")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4001", description = "존재하지 않는 가계부입니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4002", description = "나의 가계부가 존재하지 않습니다"),
     })
     public ApiResponse<LedgerRequestDTO> detail(@PathVariable(name = "id") Long id) {
         LedgerRequestDTO result = ledgerQueryService.ledgerDetail(id);
@@ -70,7 +71,6 @@ public class LedgerController {
     @GetMapping("/all")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4002", description = "나의 가계부가 존재하지 않습니다"),
     })
     public ApiResponse<LedgerResponseDTO> all() {
         LedgerResponseDTO totalResponse = ledgerQueryService.all();
@@ -81,7 +81,6 @@ public class LedgerController {
     @GetMapping("/byMonth")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4002", description = "나의 가계부가 존재하지 않습니다"),
     })
     public ApiResponse<LedgerResponseDTO> byCount(@RequestParam(name = "yearmonth") String yearmonth) {
         LedgerResponseDTO result = ledgerQueryService.byMonth(yearmonth);
@@ -92,7 +91,7 @@ public class LedgerController {
     @GetMapping("/byCountInit")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4002", description = "나의 가계부가 존재하지 않습니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SURGERY4001", description = "나의 시술이 존재하지 않습니다"),
     })
     public ApiResponse<LedgerResponseDTO> byCount() {
         LedgerResponseDTO result = ledgerQueryService.byCountInit();
@@ -103,7 +102,6 @@ public class LedgerController {
     @GetMapping("/byCount")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4002", description = "나의 가계부가 존재하지 않습니다"),
     })
     public ApiResponse<LedgerResponseDTO> byCount(@RequestParam(name = "count") int count) {
         LedgerResponseDTO result = ledgerQueryService.byCount(count);
@@ -115,7 +113,7 @@ public class LedgerController {
     @PreAuthorize("hasRole('ROLE_WIFE')")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4002", description = "나의 가계부가 존재하지 않습니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "SURGERY4001", description = "나의 시술이 존재하지 않습니다"),
     })
     public ApiResponse<String> createCount() {
         ledgerService.createCount();
@@ -126,7 +124,6 @@ public class LedgerController {
     @GetMapping("/byCondition")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4002", description = "나의 가계부가 존재하지 않습니다"),
     })
     public ApiResponse<LedgerResponseDTO> byCondition(@RequestParam(name = "from") String from,
                                                            @RequestParam(name = "to") String to) {
