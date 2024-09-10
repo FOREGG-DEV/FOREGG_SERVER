@@ -59,7 +59,7 @@ public class LedgerQueryService {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
         User spouse = userQueryService.returnSpouse();
         Ledger ledger = ledgerRepository.findById(id).orElseThrow(() -> new LedgerHandler(NOT_FOUND_MY_LEDGER));
-        if (ledger.getUser() != user || ledger.getUser() != spouse) {
+        if (ledger.getUser() != user && ledger.getUser() != spouse) {
             throw new LedgerHandler(NOT_FOUND_MY_LEDGER);
         }
         return LedgerConverter.toLedgerRequestDTO(ledger);
@@ -87,17 +87,14 @@ public class LedgerQueryService {
     }
 
     public LedgerResponseDTO byCount(int count) {
-        List<Ledger> ledgers = getHusbandAndWifeLedgers();
-        ledgers.stream()
-                .filter(ledger -> ledger.getCount()==count)
-                .collect(Collectors.toList());
+        List<Ledger> ledgers = filterLedgerByCount(getHusbandAndWifeLedgers(), count);
 
         //필요한게 personalSum, subsidySum = null, subsidyAvaliable, total, ledgerDetailResponseDTOS
         int personalSum = expenditureQueryService.getPersonalExpenditure(ledgers);
         int subsidySum = expenditureQueryService.getSubsidyExpenditure(ledgers);
         int total = personalSum + subsidySum;
-        List<LedgerResponseDTO.SubsidyAvailable> subsidyAvailable = subsidyQueryService.toSubsidyAvailable(ledgers, count);
-        return LedgerConverter.toLedgerResponseDTO(personalSum, null, subsidyAvailable, total, toLedgerDetailDTO(ledgers));
+        List<LedgerResponseDTO.SubsidyAvailable> subsidyAvailable = subsidyQueryService.toSubsidyAvailable(count);
+        return LedgerConverter.toLedgerResponseDTO(personalSum, null, subsidyAvailable, total, toLedgerDetailDTO(filterLedgerByCount(ledgers, count)));
     }
 
     public LedgerResponseDTO byCondition(String from, String to) {
@@ -137,6 +134,12 @@ public class LedgerQueryService {
             result.addAll(spouseLedgers);
         }
         return result;
+    }
+
+    private List<Ledger> filterLedgerByCount(List<Ledger> ledgers, int count) {
+        return ledgers.stream()
+                .filter(ledger -> ledger.getCount() == count)  // count와 같은 경우만 필터링
+                .collect(Collectors.toList());
     }
 
 }
