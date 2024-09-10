@@ -43,6 +43,7 @@ public class LedgerResponseDTO {
     @NoArgsConstructor
     public static class SubsidyAvailable{
         private String nickname;
+        private SubsidyColorType color;
         private int amount;
     }
 

@@ -79,19 +79,17 @@ public class SubsidyQueryService {
         return subsidies;
     }
 
-    public List<LedgerResponseDTO.SubsidyAvailable> toSubsidyAvailable(List<Ledger> ledgers, int count) {
+    public List<LedgerResponseDTO.SubsidyAvailable> toSubsidyAvailable(int count) {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
         List<LedgerResponseDTO.SubsidyAvailable> result = new ArrayList<>();
-        List<String> subsidies = ledgers.stream()
-                .flatMap(ledger -> ledger.getExpenditureList().stream()) // 각 Ledger의 Expenditure를 스트림으로 평탄화
-                .map(Expenditure::getName) // Expenditure의 name 추출
-                .distinct() // 중복 제거
-                .collect(Collectors.toList());
+        List<Subsidy> subsidies = subsidyRepository.findByUserAndCount(user, count);
 
-        subsidies.remove("개인");
-        for (String subsidy : subsidies) {
-            Subsidy sub = subsidyRepository.findByUserAndCountAndNickname(user, count, subsidy);
-            LedgerResponseDTO.SubsidyAvailable dto = LedgerResponseDTO.SubsidyAvailable.builder().nickname(subsidy).amount(sub.getAvailable()).build();
+        for (Subsidy subsidy : subsidies) {
+            LedgerResponseDTO.SubsidyAvailable dto = LedgerResponseDTO.SubsidyAvailable.builder()
+                    .nickname(subsidy.getNickname())
+                    .color(subsidy.getColor())
+                    .amount(subsidy.getAvailable())
+                    .build();
             result.add(dto);
         }
         return result;
