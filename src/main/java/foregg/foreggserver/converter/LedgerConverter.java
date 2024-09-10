@@ -59,7 +59,11 @@ public class LedgerConverter {
         List<Expenditure> expenditureList = ledger.getExpenditureList();
         List<ExpenditureRequestDTO> expenditureRequestDTOList = new ArrayList<>();
         for (Expenditure expenditure : expenditureList) {
-            expenditureRequestDTOList.add(ExpenditureRequestDTO.builder().amount(expenditure.getAmount()).name(expenditure.getName()).build());
+            expenditureRequestDTOList.add(ExpenditureRequestDTO.builder()
+                    .amount(expenditure.getAmount())
+                    .name(expenditure.getName())
+                    .color(expenditure.getSubsidy().getColor())
+                    .build());
         }
 
         return LedgerRequestDTO.builder()
