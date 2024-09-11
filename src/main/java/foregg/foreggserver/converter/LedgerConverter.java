@@ -59,10 +59,14 @@ public class LedgerConverter {
         List<Expenditure> expenditureList = ledger.getExpenditureList();
         List<ExpenditureRequestDTO> expenditureRequestDTOList = new ArrayList<>();
         for (Expenditure expenditure : expenditureList) {
+            SubsidyColorType color = SubsidyColorType.RED;
+            if (!expenditure.getName().equals("개인")) {
+                color = expenditure.getSubsidy().getColor();
+            }
             expenditureRequestDTOList.add(ExpenditureRequestDTO.builder()
                     .amount(expenditure.getAmount())
                     .name(expenditure.getName())
-                    .color(expenditure.getSubsidy().getColor())
+                    .color(color)
                     .build());
         }
 
