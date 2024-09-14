@@ -28,7 +28,6 @@ public class LedgerResponseDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class LedgerDetailResponseDTO {
-        private Long id;
         private Long ledgerId;
         private String date;
         private int count;

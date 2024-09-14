@@ -45,7 +45,6 @@ public class LedgerConverter {
         }
 
         return LedgerResponseDTO.LedgerDetailResponseDTO.builder()
-                .id(expenditure.getId())
                 .ledgerId(expenditure.getLedger().getId())
                 .date(expenditure.getLedger().getDate())
                 .count(expenditure.getLedger().getCount())
