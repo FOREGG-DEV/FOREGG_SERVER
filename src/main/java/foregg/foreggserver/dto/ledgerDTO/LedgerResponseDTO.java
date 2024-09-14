@@ -29,6 +29,7 @@ public class LedgerResponseDTO {
     @NoArgsConstructor
     public static class LedgerDetailResponseDTO {
         private Long id;
+        private Long ledgerId;
         private String date;
         private int count;
         private SubsidyColorType color;
