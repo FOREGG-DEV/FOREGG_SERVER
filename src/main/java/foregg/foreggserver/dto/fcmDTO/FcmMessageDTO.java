@@ -9,15 +9,15 @@ import lombok.Getter;
 @Builder
 public class FcmMessageDTO {
     private boolean validateOnly;
-    private FcmMessageDTO.Message message;
+    private Message message;
 
     @Builder
     @AllArgsConstructor
     @Getter
     public static class Message {
-        private FcmMessageDTO.Data data;
+        private Data data;
         private String token;
-        private FcmMessageDTO.Android android;
+        private Android android;
     }
 
     @Builder
@@ -29,6 +29,7 @@ public class FcmMessageDTO {
         private String type;
         private String targetId;
         private String time;
+        private Boolean vibration;
     }
 
     @Builder

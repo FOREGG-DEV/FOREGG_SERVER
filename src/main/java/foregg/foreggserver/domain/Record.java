@@ -40,6 +40,8 @@ public class Record extends BaseEntity {
     @OneToMany(mappedBy = "record", cascade = CascadeType.ALL)
     private List<RepeatTime> repeatTimes;
 
+    private Boolean vibration;
+
     private String dose;
 
     private String memo;

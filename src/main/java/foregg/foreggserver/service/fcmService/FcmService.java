@@ -25,9 +25,9 @@ public class FcmService{
      *
      * @return 성공(1), 실패(0)
      */
-    public int sendMessageTo(String fcmToken, String title, String body, String type, String targetId, String time) throws IOException {
+    public int sendMessageTo(String fcmToken, String title, String body, String type, String targetId, String time, Boolean vibration) throws IOException {
 
-        String message = makeMessage(fcmToken, "Hugg", body, type, targetId, time);
+        String message = makeMessage(fcmToken, "Hugg", body, type, targetId, time, vibration);
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
@@ -65,26 +65,8 @@ public class FcmService{
      *
      * @return String
      */
-//    private String makeMessage(String fcmToken, String title, String body, String type, String targetId, String time) throws JsonProcessingException {
-//
-//        ObjectMapper om = new ObjectMapper();
-//        FcmMessageDTO fcmMessageDto = FcmMessageDTO.builder()
-//                .message(FcmMessageDTO.Message.builder()
-//                        .token(fcmToken)
-//                        .data(FcmMessageDTO.Notification.builder()
-//                                .title(title)
-//                                .body(body)
-//                                .type(type)
-//                                .targetId(targetId)
-//                                .time(time)
-//                                .build()
-//                        )
-//                        .build()).validateOnly(false).build();
-//
-//        return om.writeValueAsString(fcmMessageDto);
-//    }
 
-    private String makeMessage(String fcmToken, String title, String body, String type, String targetId, String time) throws JsonProcessingException {
+    private String makeMessage(String fcmToken, String title, String body, String type, String targetId, String time, Boolean vibration) throws JsonProcessingException {
         ObjectMapper om = new ObjectMapper();
         FcmMessageDTO fcmMessageDto = FcmMessageDTO.builder()
                 .message(FcmMessageDTO.Message.builder()
@@ -95,6 +77,7 @@ public class FcmService{
                                 .type(type)
                                 .targetId(targetId)
                                 .time(time)
+                                .vibration(vibration)
                                 .build()
                         )
                         .android(FcmMessageDTO.Android.builder()
