@@ -26,7 +26,8 @@ public class RecordConverter {
                     .repeat_date(dto.getRepeatDate())
                     .dose(dto.getDose())
                     .memo(dto.getMemo())
-                    .start_end_yearmonth(DateUtil.getMonthsBetween(dto.getStartDate(),dto.getEndDate()))
+                    .vibration(dto.getVibration())
+                    .start_end_yearmonth(DateUtil.getMonthsBetween(dto.getStartDate(), dto.getEndDate()))
                     .user(user).build();
         }
         return Record.builder()
@@ -36,6 +37,7 @@ public class RecordConverter {
                 .repeat_date(dto.getRepeatDate())
                 .dose(dto.getDose())
                 .memo(dto.getMemo())
+                .vibration(dto.getVibration())
                 .yearmonth(DateUtil.getYearAndMonth(dto.getDate()))
                 .user(user).build();
     }
