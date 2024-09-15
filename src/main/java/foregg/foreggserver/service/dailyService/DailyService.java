@@ -57,7 +57,7 @@ public class DailyService {
         User spouse = userQueryService.returnSpouse();
         if (spouse != null) {
             try {
-                fcmService.sendMessageTo(spouse.getFcmToken(), "새로운 하루기록이 등록되었습니다", String.format("%s님의 하루 기록이 도착했어요.", user.getNickname()), "today record male", null, null);
+                fcmService.sendMessageTo(spouse.getFcmToken(), "새로운 하루기록이 등록되었습니다", String.format("%s님의 하루 기록이 도착했어요.", user.getNickname()), "today record male", null, null, null);
                 log.info("FCM 푸시 알림이 성공적으로 {}에게 전송되었습니다.", spouse.getNickname());
             } catch (IOException e) {
                 log.error("FCM 푸시 알림을 보내는 도중 오류 발생: {}", e.getMessage());
