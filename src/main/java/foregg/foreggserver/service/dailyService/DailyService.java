@@ -1,5 +1,6 @@
 package foregg.foreggserver.service.dailyService;
 
+import foregg.foreggserver.apiPayload.exception.handler.DailyHandler;
 import foregg.foreggserver.apiPayload.exception.handler.RecordHandler;
 import foregg.foreggserver.apiPayload.exception.handler.UserHandler;
 import foregg.foreggserver.converter.DailyConverter;
@@ -15,13 +16,16 @@ import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.DailyRepository;
 import foregg.foreggserver.repository.SideEffectRepository;
 import foregg.foreggserver.service.fcmService.FcmService;
+import foregg.foreggserver.service.myPageService.MyPageQueryService;
 import foregg.foreggserver.service.recordService.RecordQueryService;
+import foregg.foreggserver.service.s3Service.S3Service;
 import foregg.foreggserver.service.userService.UserQueryService;
 import foregg.foreggserver.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Security;
@@ -42,16 +46,19 @@ public class DailyService {
     private final RecordQueryService recordQueryService;
     private final SideEffectRepository sideEffectRepository;
     private final FcmService fcmService;
+    private final MyPageQueryService myPageQueryService;
+    private final S3Service s3Service;
 
     public void putEmotion(Long id, EmotionRequestDTO dto) {
         Daily daily = dailyRepository.findByIdAndUser(id,userQueryService.returnSpouse()).orElseThrow(() -> new RecordHandler(NOT_FOUND_DAILY));
         daily.setEmotionType(dto.getEmotionType());
     }
 
-    public void writeDaily(DailyRequestDTO dto) {
+    public void writeDaily(DailyRequestDTO dto, String imageUrl) {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
-        Optional<Daily> daily = dailyRepository.findByUserAndDate(user,DateUtil.formatLocalDateTime(LocalDate.now()));
-        if (daily.isPresent()) {
+        Daily daily = dailyRepository.findByDateAndUser(DateUtil.formatLocalDateTime(LocalDate.now()),user);
+        int count = myPageQueryService.getSurgeryCount();
+        if (daily != null) {
             throw new RecordHandler(ALREADY_WRITTEN);
         }
         User spouse = userQueryService.returnSpouse();
@@ -64,7 +71,23 @@ public class DailyService {
                 throw new RuntimeException(e);
             }
         }
-        dailyRepository.save(DailyConverter.toDaily(dto, user));
+        dailyRepository.save(DailyConverter.toDaily(dto, user, imageUrl, count));
+    }
+
+    //회차 전체 삭제하기
+    public void deleteByCount(int count) {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        List<Daily> dailyList = dailyRepository.findByUserAndCount(user, count).orElseThrow(() -> new DailyHandler(NOT_FOUND_DAILY));
+        for (Daily daily : dailyList) {
+            s3Service.deleteFileByUrl(daily.getImage());
+        }
+        dailyRepository.deleteAll(dailyList);
+    }
+
+    public void reply(DailyRequestDTO.DailyReplyRequestDTO dto) {
+        User wife = userQueryService.returnSpouse();
+        Daily daily = dailyRepository.findByIdAndUser(dto.getId(), wife).orElseThrow(() -> new DailyHandler(NOT_FOUND_DAILY));
+        daily.setReply(dto.getReply());
     }
 
     public void writeSideEffect(SideEffectRequestDTO dto) {
@@ -97,15 +120,26 @@ public class DailyService {
     }
 
     public void deleteDaily(Long id) {
+        // 현재 사용자 가져오기
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+
+        // 사용자와 ID에 해당하는 Daily 가져오기
         Daily daily = dailyRepository.findByIdAndUser(id, user).orElseThrow(() -> new RecordHandler(NOT_FOUND_DAILY));
+
+        // S3에서 해당 이미지 파일 삭제 (URL인 경우 deleteFileByUrl 사용)
+        s3Service.deleteFileByUrl(daily.getImage());
+
+        // Daily 기록 삭제
         dailyRepository.delete(daily);
     }
 
-    public void modifyDaily(Long id, DailyRequestDTO dto) {
+
+    public void modifyDaily(Long id, DailyRequestDTO dto, MultipartFile image) throws IOException {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
         Daily daily = dailyRepository.findByIdAndUser(id, user).orElseThrow(() -> new RecordHandler(NOT_FOUND_DAILY));
-        daily.updateDaily(dto);
+        s3Service.deleteFileByUrl(daily.getImage());
+        dailyRepository.delete(daily);
+        writeDaily(dto, s3Service.upload(image));
     }
 
 }

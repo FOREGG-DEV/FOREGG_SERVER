@@ -2,17 +2,21 @@ package foregg.foreggserver.controller;
 
 import foregg.foreggserver.apiPayload.ApiResponse;
 import foregg.foreggserver.dto.dailyDTO.*;
+import foregg.foreggserver.dto.dailyDTO.DailyResponseDTO.DailyByCountResponseDTO;
 import foregg.foreggserver.dto.injectionDTO.InjectionResponseDTO;
 import foregg.foreggserver.service.dailyService.DailyQueryService;
 import foregg.foreggserver.service.dailyService.DailyService;
 import foregg.foreggserver.service.injectionService.InjectionQueryService;
+import foregg.foreggserver.service.s3Service.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -24,15 +28,30 @@ public class DailyController {
     private final DailyService dailyService;
     private final DailyQueryService dailyQueryService;
     private final InjectionQueryService injectionQueryService;
+    private final S3Service s3Service;
 
     @Operation(summary = "하루기록 보기 API")
-    @GetMapping()
+    @GetMapping("/byDate/{date}")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
     })
     @PreAuthorize("isAuthenticated()")
-    public ApiResponse<DailyTotalResponseDTO> getDaily() {
-        return ApiResponse.onSuccess(dailyQueryService.getDaily());
+    public ApiResponse<DailyResponseDTO> getDaily(@PathVariable(name = "date") String date) {
+        return ApiResponse.onSuccess(dailyQueryService.getDaily(date));
+    }
+
+    @Operation(summary = "회차별 하루기록 API")
+    @GetMapping("/byCount/{count}")
+    public ApiResponse<List<DailyByCountResponseDTO>> dailyByCount(@PathVariable(name = "count") int count) {
+        List<DailyByCountResponseDTO> result = dailyQueryService.dailyByCount(count);
+        return ApiResponse.onSuccess(result);
+    }
+
+    @Operation(summary = "회차 전체 삭제 API")
+    @DeleteMapping("/byCount/{count}")
+    public ApiResponse<String> deleteByCount(@PathVariable(name = "count") int count) {
+        dailyService.deleteByCount(count);
+        return ApiResponse.onSuccess();
     }
 
     @Operation(summary = "하루기록 작성 API")
@@ -42,8 +61,23 @@ public class DailyController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DAILY4001", description = "오늘의 하루기록이 이미 존재합니다"),
     })
     @PreAuthorize("hasRole('ROLE_WIFE')")
-    public ApiResponse<String> write(@RequestBody DailyRequestDTO dto) {
-        dailyService.writeDaily(dto);
+
+    public ApiResponse<String> write(@RequestPart(name = "image") MultipartFile image,
+                                     @RequestPart(name = "dto") DailyRequestDTO dto) throws IOException {
+
+        dailyService.writeDaily(dto, s3Service.upload(image));
+        return ApiResponse.onSuccess();
+    }
+
+    @Operation(summary = "하루기록 댓글 작성")
+    @PostMapping("/reply")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DAILY4001", description = "오늘의 하루기록이 이미 존재합니다"),
+    })
+    @PreAuthorize("hasRole('ROLE_HUSBAND')")
+    public ApiResponse<String> reply(@RequestBody DailyRequestDTO.DailyReplyRequestDTO dto) {
+        dailyService.reply(dto);
         return ApiResponse.onSuccess();
     }
 
@@ -67,8 +101,10 @@ public class DailyController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DAILY4002", description = "하루기록이 존재하지 않습니다"),
     })
-    public ApiResponse<String> modify(@PathVariable(name = "id") Long id, @RequestBody DailyRequestDTO dto) {
-        dailyService.modifyDaily(id, dto);
+    public ApiResponse<String> modify(@PathVariable(name = "id") Long id,
+                                      @RequestPart(name = "image") MultipartFile image,
+                                      @RequestPart(name = "dto") DailyRequestDTO dto) throws IOException {
+        dailyService.modifyDaily(id, dto, image);
         return ApiResponse.onSuccess();
     }
 

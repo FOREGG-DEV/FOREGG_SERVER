@@ -27,6 +27,19 @@ spring:
       host: ${REDIS_HOST}
       password: ${REDIS_PASSWORD}
 
+cloud:
+  aws:
+    s3:
+      bucket: foregg-bucket
+    credentials:
+      accessKey: ${access_key}
+      secretKey: ${secret_key}
+    region:
+       static: ap-northeast-2
+    stack:
+       auto: false
+
+
 logging:
   file:
     name: /home/ubuntu/logs/foregg.log

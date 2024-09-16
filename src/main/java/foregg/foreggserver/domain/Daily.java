@@ -27,12 +27,21 @@ public class Daily extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private EmotionType emotionType;
 
+    @Column(length = 2048)
+    private String image;
+
     @Column(nullable = false)
     private String date;
+
+    @Column(nullable = false)
+    private int count;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Setter
+    private String reply;
 
     public void setEmotionType(EmotionType emotionType) {
         this.emotionType = emotionType;

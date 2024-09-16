@@ -1,8 +1,5 @@
 package foregg.foreggserver.util;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.cglib.core.Local;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -68,6 +65,12 @@ public class DateUtil {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return localDate.format(formatter);
     }
+
+    public static String formatLocalDateTime(LocalDateTime localDateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return localDateTime.format(formatter);
+    }
+
 
     public static List<String> getIntervalDates(String startDateStr, String endDateStr) {
         List<String> dates = new ArrayList<>();
@@ -250,4 +253,20 @@ public class DateUtil {
             return null; // 혹은 예외를 던지도록 할 수도 있습니다.
         }
     }
+
+    public static String getDayOfWeekFromString(String dateTimeString) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime localDateTime = LocalDateTime.parse(dateTimeString, formatter);
+        // 만약 날짜 부분만 필요하다면 localDateTime.toLocalDate()를 사용
+        return localDateTime.getDayOfWeek().toString();
+    }
+
+    public static String convertToMonthDay(String dateTimeStr) {
+        DateTimeFormatter originalFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter targetFormatter = DateTimeFormatter.ofPattern("MM-dd");
+
+        LocalDateTime localDateTime = LocalDateTime.parse(dateTimeStr, originalFormatter);
+        return localDateTime.format(targetFormatter);
+    }
+
 }
