@@ -14,4 +14,13 @@ public class DailyRequestDTO {
 
     private DailyConditionType dailyConditionType;
     private String content;
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class DailyReplyRequestDTO {
+        private Long id;
+        private String reply;
+    }
 }
