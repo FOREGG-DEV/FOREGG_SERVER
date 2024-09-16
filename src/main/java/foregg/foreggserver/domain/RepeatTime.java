@@ -1,5 +1,6 @@
 package foregg.foreggserver.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import foregg.foreggserver.domain.common.BaseEntity;
 import jakarta.persistence.*;
@@ -24,6 +25,7 @@ public class RepeatTime extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "record_id")
+    @JsonIgnore
     private Record record;
 
 }
