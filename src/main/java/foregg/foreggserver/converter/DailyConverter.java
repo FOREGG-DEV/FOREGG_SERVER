@@ -6,34 +6,56 @@ import foregg.foreggserver.domain.SideEffect;
 import foregg.foreggserver.domain.User;
 import foregg.foreggserver.dto.dailyDTO.DailyRequestDTO;
 import foregg.foreggserver.dto.dailyDTO.DailyResponseDTO;
+import foregg.foreggserver.dto.dailyDTO.DailyResponseDTO.DailyByCountResponseDTO;
 import foregg.foreggserver.dto.dailyDTO.SideEffectRequestDTO;
 import foregg.foreggserver.dto.dailyDTO.SideEffectResponseDTO;
 import foregg.foreggserver.util.DateUtil;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DailyConverter {
 
-    public static Daily toDaily(DailyRequestDTO dto, User user) {
+    public static Daily toDaily(DailyRequestDTO dto, User user, String imageUrl, int count) {
         return Daily.builder()
                 .dailyConditionType(dto.getDailyConditionType())
                 .content(dto.getContent())
-                .date(DateUtil.formatLocalDateTime(LocalDate.now()))
+                .count(count)
+                .date(DateUtil.formatLocalDateTime(LocalDateTime.now()))
                 .emotionType(null)
+                .image(imageUrl)
                 .user(user).build();
     }
 
     public static DailyResponseDTO toDailyResponseDTO(Daily daily) {
+        String reply = (daily.getReply() != null) ? daily.getReply() : null;
+
         return DailyResponseDTO.builder()
                 .id(daily.getId())
+                .count(daily.getCount())
+                .date(daily.getDate())
+                .day(DateUtil.getDayOfWeekFromString(daily.getDate()))
                 .dailyConditionType(daily.getDailyConditionType())
                 .content(daily.getContent())
-                .date(daily.getDate())
-                .emotionType(daily.getEmotionType())
-                .createAt(DateUtil.formatCreatedAt(daily.getCreatedAt()))
+                .imageUrl(daily.getImage())
+                .reply(reply)
                 .build();
+    }
+
+    public static List<DailyByCountResponseDTO> toDailyByCountResponseDTO(List<Daily> dailies) {
+        List<DailyByCountResponseDTO> result = new ArrayList<>();
+        for (Daily daily : dailies) {
+            DailyByCountResponseDTO dto = DailyByCountResponseDTO.builder()
+                    .id(daily.getId())
+                    .dailyConditionType(daily.getDailyConditionType())
+                    .content(daily.getContent())
+                    .date(DateUtil.convertToMonthDay(daily.getDate()))
+                    .build();
+            result.add(dto);
+        }
+        return result;
     }
 
     public static SideEffect toSideEffect(SideEffectRequestDTO dto, Record record, User user) {
