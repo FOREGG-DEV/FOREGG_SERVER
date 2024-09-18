@@ -24,5 +24,6 @@ public class RecordResponseDTO {
     private List<RepeatTimeResponseDTO> repeatTimes;
     private String dose;
     private String memo;
+    private Boolean vibration;
 
 }
