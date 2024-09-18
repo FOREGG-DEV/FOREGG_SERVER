@@ -69,6 +69,7 @@ public class RecordConverter {
                 .repeatTimes(result)
                 .dose(record.getDose())
                 .memo(record.getMemo())
+                .vibration(record.getVibration())
                 .build();
     }
 
