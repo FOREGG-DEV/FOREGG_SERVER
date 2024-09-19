@@ -73,6 +73,7 @@ public class Record extends BaseEntity {
         this.repeat_date = dto.getRepeatDate();
         this.dose = dto.getDose();
         this.memo = dto.getMemo();
+        this.vibration = dto.getVibration();
         if (dto.getDate() != null) {
             this.yearmonth = DateUtil.getYearAndMonth(dto.getDate());
             this.start_end_yearmonth = null;
