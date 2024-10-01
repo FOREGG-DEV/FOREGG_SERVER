@@ -9,6 +9,7 @@ import foregg.foreggserver.domain.*;
 import foregg.foreggserver.dto.ledgerDTO.LedgerRequestDTO;
 import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.ExpenditureRepository;
+import foregg.foreggserver.repository.LedgerMemoRepository;
 import foregg.foreggserver.repository.LedgerRepository;
 import foregg.foreggserver.repository.SurgeryRepository;
 import foregg.foreggserver.service.expenditureService.ExpenditureService;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
+import static foregg.foreggserver.dto.ledgerDTO.LedgerRequestDTO.*;
 
 
 @Service
@@ -38,6 +40,8 @@ public class LedgerService {
     private final MyPageService myPageService;
     private final SubsidyQueryService subsidyQueryService;
     private final ExpenditureRepository expenditureRepository;
+    private final LedgerMemoRepository ledgerMemoRepository;
+
 
     public void writeLedger(LedgerRequestDTO dto) {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
@@ -86,6 +90,24 @@ public class LedgerService {
         Subsidy subsidy = expenditure.getSubsidy();
         subsidy.restoreSubsidy(expenditure.getAmount());
         expenditureRepository.delete(expenditure);
+    }
+
+    public void memo(int count, LedgerMemoRequestDTO dto) {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        List<Ledger> ledgers = ledgerRepository.findByUserAndCount(user, count);
+        if (ledgers == null) {
+            throw new LedgerHandler(NOT_FOUND_MY_LEDGER);
+        }
+        LedgerMemo ledgerMemo = ledgerMemoRepository.findByUserAndCount(user, count);
+        if (ledgerMemo == null) {
+            ledgerMemoRepository.save(LedgerMemo.builder()
+                    .memo(dto.getMemo())
+                    .count(count)
+                    .user(user)
+                    .build());
+        }else{
+            ledgerMemo.setMemo(dto.getMemo());
+        }
     }
 
 }

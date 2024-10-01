@@ -4,10 +4,12 @@ import foregg.foreggserver.apiPayload.exception.handler.LedgerHandler;
 import foregg.foreggserver.converter.LedgerConverter;
 import foregg.foreggserver.domain.Expenditure;
 import foregg.foreggserver.domain.Ledger;
+import foregg.foreggserver.domain.LedgerMemo;
 import foregg.foreggserver.domain.User;
 import foregg.foreggserver.dto.ledgerDTO.LedgerRequestDTO;
 import foregg.foreggserver.dto.ledgerDTO.LedgerResponseDTO;
 import foregg.foreggserver.jwt.SecurityUtil;
+import foregg.foreggserver.repository.LedgerMemoRepository;
 import foregg.foreggserver.repository.LedgerRepository;
 import foregg.foreggserver.service.expenditureService.ExpenditureQueryService;
 import foregg.foreggserver.service.myPageService.MyPageQueryService;
@@ -37,6 +39,7 @@ public class LedgerQueryService {
     private final ExpenditureQueryService expenditureQueryService;
     private final MyPageQueryService myPageQueryService;
     private final SubsidyQueryService subsidyQueryService;
+    private final LedgerMemoRepository ledgerMemoRepository;
 
     public LedgerResponseDTO all() {
         List<Ledger> myLedgers = getHusbandAndWifeLedgers();
@@ -94,7 +97,9 @@ public class LedgerQueryService {
         int subsidySum = expenditureQueryService.getSubsidyExpenditure(ledgers);
         int total = personalSum + subsidySum;
         List<LedgerResponseDTO.SubsidyAvailable> subsidyAvailable = subsidyQueryService.toSubsidyAvailable(count);
-        return LedgerConverter.toLedgerResponseDTO(personalSum, null, subsidyAvailable, total, toLedgerDetailDTO(filterLedgerByCount(ledgers, count)));
+        LedgerResponseDTO dto = LedgerConverter.toLedgerResponseDTO(personalSum, null, subsidyAvailable, total, toLedgerDetailDTO(filterLedgerByCount(ledgers, count)));
+        dto.setMemo(getLedgerMemo(count));
+        return dto;
     }
 
     public LedgerResponseDTO byCondition(String from, String to) {
@@ -140,6 +145,14 @@ public class LedgerQueryService {
         return ledgers.stream()
                 .filter(ledger -> ledger.getCount() == count)  // count와 같은 경우만 필터링
                 .collect(Collectors.toList());
+    }
+
+    private String getLedgerMemo(int count) {
+        LedgerMemo ledgerMemo = ledgerMemoRepository.findByUserAndCount(userQueryService.getUser(SecurityUtil.getCurrentUser()), count);
+        if (ledgerMemo == null) {
+            return null;
+        }
+        return ledgerMemo.getMemo();
     }
 
 }

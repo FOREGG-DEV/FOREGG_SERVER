@@ -84,7 +84,7 @@ public enum ErrorStatus implements BaseErrorCode {
     BUDGET_OVER(BAD_REQUEST, "SUBSIDY4002", "지원금의 한도가 초과되었습니다"),
     SUBSIDY_ALREADY_EXIST(BAD_REQUEST, "SUBSIDY4003", "해당 회차의 같은 이름의 지원금이 존재합니다"),
 
-    //
+    //지출 관련 에러
     NOT_FOUND_EXPENDITURE(BAD_REQUEST, "EXPENDITURE4001", "해당 지출이 존재하지 않습니다");
 
 
