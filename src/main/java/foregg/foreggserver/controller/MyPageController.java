@@ -56,45 +56,4 @@ public class MyPageController {
         MyPageMedicalRecordResponseDTO result = myPageQueryService.getMedicalInformation(sort);
         return ApiResponse.onSuccess(result);
     }
-
-    @Operation(summary = "공지 API")
-    @GetMapping("/boards")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-    })
-    @PreAuthorize("hasRole('ROLE_WIFE')")
-    public ApiResponse<List<MyPageBoardResponseDTO>> getBoards() {
-        return ApiResponse.onSuccess(myPageQueryService.getBoards());
-    }
-
-    @Operation(summary = "공지 검색 API")
-    @GetMapping("/boardSearchBy")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-    })
-    @PreAuthorize("hasRole('ROLE_WIFE')")
-    public ApiResponse<List<MyPageBoardResponseDTO>> boardSearch(@RequestParam(name = "keyword") String keyword) {
-        return ApiResponse.onSuccess(myPageQueryService.boardSearch(keyword));
-    }
-
-    @Operation(summary = "FAQ API")
-    @GetMapping("/FAQs")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-    })
-    @PreAuthorize("hasRole('ROLE_WIFE')")
-    public ApiResponse<List<MyPageFAQResponseDTO>> getFAQ() {
-        return ApiResponse.onSuccess(myPageQueryService.getFAQs());
-    }
-
-    @Operation(summary = "FAQ 검색 API")
-    @GetMapping("/FAQSearchBy")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-    })
-    @PreAuthorize("hasRole('ROLE_WIFE')")
-    public ApiResponse<List<MyPageFAQResponseDTO>> faqSearch(@RequestParam(name = "keyword") String keyword) {
-        return ApiResponse.onSuccess(myPageQueryService.faqSearch(keyword));
-    }
-
 }

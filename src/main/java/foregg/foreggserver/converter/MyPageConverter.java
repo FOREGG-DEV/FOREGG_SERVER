@@ -56,23 +56,4 @@ public class MyPageConverter {
                 .dose(record.getDose())
                 .build();
     }
-
-    public static MyPageBoardResponseDTO toMyPageBoardResponseDTO(Board board) {
-        return MyPageBoardResponseDTO.builder()
-                .id(board.getId())
-                .boardType(board.getBoardType())
-                .title(board.getTitle())
-                .content(board.getContent())
-                .date(board.getDate())
-                .build();
-    }
-
-    public static MyPageFAQResponseDTO toMyPageFAQResponseDTO(FAQ faq) {
-        return MyPageFAQResponseDTO.builder()
-                .id(faq.getId())
-                .question(faq.getQuestion())
-                .answer(faq.getAnswer())
-                .build();
-    }
-
 }

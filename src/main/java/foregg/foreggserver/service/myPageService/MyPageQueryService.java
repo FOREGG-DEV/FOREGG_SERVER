@@ -31,8 +31,6 @@ public class MyPageQueryService {
     private final SurgeryRepository surgeryRepository;
     private final UserQueryService userQueryService;
     private final RecordRepository recordRepository;
-    private final BoardRepository boardRepository;
-    private final FAQRepository faqRepository;
 
     public MyPageResponseDTO getInformation() {
         User me = userQueryService.getUser(SecurityUtil.getCurrentUser());
@@ -70,46 +68,6 @@ public class MyPageQueryService {
         User wife = userQueryService.returnWifeOrHusband();
         Surgery surgery = surgeryRepository.findByUser(wife).orElseThrow(() -> new SurgeryHandler(NOT_FOUND_MY_SURGERY));
         return surgery.getCount();
-    }
-
-    public List<MyPageBoardResponseDTO> getBoards() {
-        List<MyPageBoardResponseDTO> resultList = new ArrayList<>();
-        List<Board> boards = boardRepository.findAll();
-
-        for (Board board : boards) {
-            resultList.add(MyPageConverter.toMyPageBoardResponseDTO(board));
-        }
-        return resultList;
-    }
-
-    public List<MyPageBoardResponseDTO> boardSearch(String keyword) {
-        List<MyPageBoardResponseDTO> resultList = new ArrayList<>();
-        List<Board> boards = boardRepository.findByTitleContaining(keyword);
-
-        for (Board board : boards) {
-            resultList.add(MyPageConverter.toMyPageBoardResponseDTO(board));
-        }
-        return resultList;
-    }
-
-    public List<MyPageFAQResponseDTO> getFAQs() {
-        List<MyPageFAQResponseDTO> resultList = new ArrayList<>();
-        List<FAQ> faqs = faqRepository.findAll();
-
-        for (FAQ faq : faqs) {
-            resultList.add(MyPageConverter.toMyPageFAQResponseDTO(faq));
-        }
-        return resultList;
-    }
-
-    public List<MyPageFAQResponseDTO> faqSearch(String keyword) {
-        List<MyPageFAQResponseDTO> resultList = new ArrayList<>();
-        List<FAQ> faqs = faqRepository.findByQuestionContaining(keyword);
-
-        for (FAQ faq : faqs) {
-            resultList.add(MyPageConverter.toMyPageFAQResponseDTO(faq));
-        }
-        return resultList;
     }
 
     private MyPageMedicalRecordResponseDTO getMedicineRecord(List<Record> records) {
