@@ -47,9 +47,10 @@ public class Daily extends BaseEntity {
         this.emotionType = emotionType;
     }
 
-    public void updateDaily(DailyRequestDTO dto) {
+    public void updateDaily(DailyRequestDTO dto, String imageUrl) {
         this.dailyConditionType = dto.getDailyConditionType();
         this.content = dto.getContent();
+        this.image = imageUrl;
     }
 
 }

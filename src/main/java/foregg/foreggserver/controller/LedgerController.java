@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import static foregg.foreggserver.dto.ledgerDTO.LedgerRequestDTO.*;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/ledger")
@@ -126,9 +128,32 @@ public class LedgerController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
     })
     public ApiResponse<LedgerResponseDTO> byCondition(@RequestParam(name = "from") String from,
-                                                           @RequestParam(name = "to") String to) {
+                                                      @RequestParam(name = "to") String to) {
         LedgerResponseDTO result = ledgerQueryService.byCondition(from, to);
         return ApiResponse.onSuccess(result);
     }
+
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "EXPENDITURE4001", description = "해당 지출이 존재하지 않습니다"),
+    })
+    @DeleteMapping("/expenditure/{id}")
+    @PreAuthorize("hasRole('ROLE_WIFE')")
+    public ApiResponse<String> deleteExpenditure(@PathVariable(name = "id") Long id) {
+        ledgerService.deleteExpenditure(id);
+        return ApiResponse.onSuccess();
+    }
+
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4002", description = "해당 회차의 가계부가 존재하지 않습니다"),
+    })
+    @PutMapping("/memo/{count}")
+    @PreAuthorize("hasRole('ROLE_WIFE')")
+    public ApiResponse<String> memo(@PathVariable(name = "count") int count, @RequestBody LedgerMemoRequestDTO dto) {
+        ledgerService.memo(count,dto);
+        return ApiResponse.onSuccess();
+    }
+
 
 }

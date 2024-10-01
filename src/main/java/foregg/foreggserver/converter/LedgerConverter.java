@@ -46,12 +46,14 @@ public class LedgerConverter {
 
         return LedgerResponseDTO.LedgerDetailResponseDTO.builder()
                 .ledgerId(expenditure.getLedger().getId())
+                .expenditureId(expenditure.getId())
                 .date(expenditure.getLedger().getDate())
                 .count(expenditure.getLedger().getCount())
                 .color(color)
                 .name(expenditure.getName())
                 .content(expenditure.getLedger().getContent())
                 .amount(expenditure.getAmount())
+                .memo(expenditure.getLedger().getMemo())
                 .build();
     }
 

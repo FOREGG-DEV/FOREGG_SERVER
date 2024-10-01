@@ -30,6 +30,10 @@ public class S3Service {
 
     public String upload(MultipartFile multipartFile) throws IOException {
 
+        if (multipartFile == null) {
+            return null;
+        }
+
         String dirName = SecurityUtil.getCurrentUser();
 
         // 파일 이름에서 공백을 제거한 새로운 파일 이름 생성

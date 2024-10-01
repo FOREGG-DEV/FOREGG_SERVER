@@ -148,7 +148,7 @@ public class UserService {
         String jwt = jwtTokenProvider.resolveToken2(request);
 
         // 아내 계정이면 남편 계정까지 삭제
-        if (!SecurityUtil.ifCurrentUserIsHusband()) {
+        if (!SecurityUtil.ifHusband()) {
             User husband = userQueryService.returnSpouse();
             if (husband != null) {
                 userRepository.delete(husband);

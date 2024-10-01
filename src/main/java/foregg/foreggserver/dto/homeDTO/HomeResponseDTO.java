@@ -19,6 +19,7 @@ public class HomeResponseDTO {
     private String todayDate;
     private List<HomeRecordResponseDTO> homeRecordResponseDTO;
     private String ssn;
+    private boolean todo;
     //남편에게만
     private DailyConditionType dailyConditionType;
     private String dailyContent;

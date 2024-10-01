@@ -25,6 +25,7 @@ public class Subsidy extends BaseEntity {
     private int count;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Column(nullable = false)

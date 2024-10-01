@@ -1,10 +1,7 @@
 package foregg.foreggserver.dto.ledgerDTO;
 
 import foregg.foreggserver.domain.enums.SubsidyColorType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -14,6 +11,8 @@ import java.util.List;
 @NoArgsConstructor
 public class LedgerResponseDTO {
 
+    @Setter
+    private String memo;
     private int personalSum;
     //월별,전체에 한함
     private Integer subsidySum;
@@ -29,12 +28,14 @@ public class LedgerResponseDTO {
     @NoArgsConstructor
     public static class LedgerDetailResponseDTO {
         private Long ledgerId;
+        private Long expenditureId;
         private String date;
         private int count;
         private SubsidyColorType color;
         private String name;
         private String content;
         private int amount;
+        private String memo;
     }
 
     @Getter

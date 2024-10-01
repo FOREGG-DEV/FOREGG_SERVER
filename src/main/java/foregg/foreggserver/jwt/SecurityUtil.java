@@ -38,4 +38,18 @@ public class SecurityUtil {
             throw new UserHandler(ErrorStatus.USER_NOT_FOUND);
         }
     }
+
+    public static boolean ifHusband() {
+        Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        // authorities 컬렉션 반복
+        for (GrantedAuthority authority : authorities) {
+            // ROLE_HUSBAND와 같은 역할을 찾으면 true 반환
+            if (authority.getAuthority().equals("ROLE_HUSBAND")) {
+                return true;
+            }
+        }
+        // ROLE_HUSBAND와 같은 역할을 찾지 못했을 때 false 반환
+        return false;
+    }
+
 }

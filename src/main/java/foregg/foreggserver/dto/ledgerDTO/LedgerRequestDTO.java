@@ -20,4 +20,15 @@ public class LedgerRequestDTO {
     private String memo;
     private List<ExpenditureRequestDTO> expenditureRequestDTOList;
 
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class LedgerMemoRequestDTO{
+
+        private String memo;
+
+    }
+
+
 }
