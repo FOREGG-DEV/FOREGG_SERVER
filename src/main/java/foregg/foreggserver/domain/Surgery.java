@@ -33,7 +33,7 @@ public class Surgery extends BaseEntity implements Serializable {
 
     private String startAt;
 
-    @OneToOne(mappedBy = "surgery")
+    @OneToOne(mappedBy = "surgery", cascade = CascadeType.REMOVE)
     private User user;
 
     public void update(MyPageRequestDTO dto) {
