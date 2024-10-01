@@ -42,6 +42,7 @@ public class MyPageConverter {
                     .endDate(null)
                     .repeatDays(null)
                     .name(record.getName())
+                    .dose(record.getDose())
                     .build();
         }
 
@@ -52,6 +53,7 @@ public class MyPageConverter {
                 .endDate(record.getEnd_date())
                 .repeatDays(record.getRepeat_date())
                 .name(record.getName())
+                .dose(record.getDose())
                 .build();
     }
 

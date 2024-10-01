@@ -17,5 +17,6 @@ public class MyPageRecordResponseDTO {
     private String endDate;
     private String repeatDays;
     private String name;
+    private String dose;
 
 }

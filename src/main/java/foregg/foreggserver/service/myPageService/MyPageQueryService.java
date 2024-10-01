@@ -55,7 +55,6 @@ public class MyPageQueryService {
 
     public MyPageMedicalRecordResponseDTO getMedicalInformation(String sort) {
         User infoUser = userQueryService.returnWifeOrHusband();
-        User me = userQueryService.getUser(SecurityUtil.getCurrentUser());
         List<Record> records = recordRepository.findByUser(infoUser).orElseThrow(() -> new RecordHandler(NOT_FOUND_MY_RECORD));
 
         if (sort.equals("medicine")) {
