@@ -29,12 +29,14 @@ public class LedgerResponseDTO {
     @NoArgsConstructor
     public static class LedgerDetailResponseDTO {
         private Long ledgerId;
+        private Long expenditureId;
         private String date;
         private int count;
         private SubsidyColorType color;
         private String name;
         private String content;
         private int amount;
+        private String memo;
     }
 
     @Getter
