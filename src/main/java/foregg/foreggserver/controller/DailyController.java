@@ -42,6 +42,7 @@ public class DailyController {
 
     @Operation(summary = "회차별 하루기록 API")
     @GetMapping("/byCount/{count}")
+    @PreAuthorize("hasRole('ROLE_WIFE')")
     public ApiResponse<List<DailyByCountResponseDTO>> dailyByCount(@PathVariable(name = "count") int count) {
         List<DailyByCountResponseDTO> result = dailyQueryService.dailyByCount(count);
         return ApiResponse.onSuccess(result);
@@ -49,6 +50,7 @@ public class DailyController {
 
     @Operation(summary = "회차 전체 삭제 API")
     @DeleteMapping("/byCount/{count}")
+    @PreAuthorize("hasRole('ROLE_WIFE')")
     public ApiResponse<String> deleteByCount(@PathVariable(name = "count") int count) {
         dailyService.deleteByCount(count);
         return ApiResponse.onSuccess();
@@ -61,8 +63,7 @@ public class DailyController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DAILY4001", description = "오늘의 하루기록이 이미 존재합니다"),
     })
     @PreAuthorize("hasRole('ROLE_WIFE')")
-
-    public ApiResponse<String> write(@RequestPart(name = "image") MultipartFile image,
+    public ApiResponse<String> write(@RequestPart(name = "image", required = false) MultipartFile image,
                                      @RequestPart(name = "dto") DailyRequestDTO dto) throws IOException {
 
         dailyService.writeDaily(dto, s3Service.upload(image));
@@ -102,7 +103,7 @@ public class DailyController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DAILY4002", description = "하루기록이 존재하지 않습니다"),
     })
     public ApiResponse<String> modify(@PathVariable(name = "id") Long id,
-                                      @RequestPart(name = "image") MultipartFile image,
+                                      @RequestPart(name = "image", required = false) MultipartFile image,
                                       @RequestPart(name = "dto") DailyRequestDTO dto) throws IOException {
         dailyService.modifyDaily(id, dto, image);
         return ApiResponse.onSuccess();

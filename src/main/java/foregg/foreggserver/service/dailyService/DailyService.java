@@ -137,9 +137,15 @@ public class DailyService {
     public void modifyDaily(Long id, DailyRequestDTO dto, MultipartFile image) throws IOException {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
         Daily daily = dailyRepository.findByIdAndUser(id, user).orElseThrow(() -> new RecordHandler(NOT_FOUND_DAILY));
-        s3Service.deleteFileByUrl(daily.getImage());
-        dailyRepository.delete(daily);
-        writeDaily(dto, s3Service.upload(image));
+        String date = daily.getDate();
+        String imageUrl = null;
+        if (image != null) {
+            if (daily.getImage() != null) {
+                s3Service.deleteFileByUrl(daily.getImage());
+            }
+            imageUrl = s3Service.upload(image);
+        }
+        daily.updateDaily(dto, imageUrl);
     }
 
 }
