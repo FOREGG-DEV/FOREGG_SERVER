@@ -131,4 +131,9 @@ public class LedgerController {
         return ApiResponse.onSuccess(result);
     }
 
+    @DeleteMapping("/expenditure/{id}")
+    public ApiResponse<String> deleteExpenditure(@PathVariable(name = "id") Long id) {
+        ledgerService.deleteExpenditure(id);
+        return ApiResponse.onSuccess();
+    }
 }

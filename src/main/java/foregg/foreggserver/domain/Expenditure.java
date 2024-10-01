@@ -27,7 +27,6 @@ public class Expenditure extends BaseEntity {
     private int amount;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Cascade(CascadeType.ALL)
     private Ledger ledger;
 
     @ManyToOne(fetch = FetchType.LAZY)

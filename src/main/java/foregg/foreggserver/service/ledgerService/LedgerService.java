@@ -5,12 +5,10 @@ import foregg.foreggserver.apiPayload.exception.handler.SurgeryHandler;
 import foregg.foreggserver.converter.ExpenditureConverter;
 import foregg.foreggserver.converter.LedgerConverter;
 import foregg.foreggserver.converter.SurgeryConverter;
-import foregg.foreggserver.domain.Expenditure;
-import foregg.foreggserver.domain.Ledger;
-import foregg.foreggserver.domain.Surgery;
-import foregg.foreggserver.domain.User;
+import foregg.foreggserver.domain.*;
 import foregg.foreggserver.dto.ledgerDTO.LedgerRequestDTO;
 import foregg.foreggserver.jwt.SecurityUtil;
+import foregg.foreggserver.repository.ExpenditureRepository;
 import foregg.foreggserver.repository.LedgerRepository;
 import foregg.foreggserver.repository.SurgeryRepository;
 import foregg.foreggserver.service.expenditureService.ExpenditureService;
@@ -39,6 +37,7 @@ public class LedgerService {
     private final SurgeryRepository surgeryRepository;
     private final MyPageService myPageService;
     private final SubsidyQueryService subsidyQueryService;
+    private final ExpenditureRepository expenditureRepository;
 
     public void writeLedger(LedgerRequestDTO dto) {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
@@ -80,6 +79,13 @@ public class LedgerService {
                 .startAt(surgery.getStartAt())
                 .build();
         myPageService.modifySurgery(SurgeryConverter.toMyPageRequestDTO(updateSurgery));
+    }
+
+    public void deleteExpenditure(Long id) {
+        Expenditure expenditure = expenditureRepository.findByIdAndUser(id, userQueryService.getUser(SecurityUtil.getCurrentUser())).orElseThrow(() -> new LedgerHandler(NOT_FOUND_EXPENDITURE));
+        Subsidy subsidy = expenditure.getSubsidy();
+        subsidy.restoreSubsidy(expenditure.getAmount());
+        expenditureRepository.delete(expenditure);
     }
 
 }
