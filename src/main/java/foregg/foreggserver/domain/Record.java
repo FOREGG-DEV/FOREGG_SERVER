@@ -5,10 +5,7 @@ import foregg.foreggserver.domain.enums.RecordType;
 import foregg.foreggserver.dto.recordDTO.RecordRequestDTO;
 import foregg.foreggserver.util.DateUtil;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -52,6 +49,10 @@ public class Record extends BaseEntity {
     private String yearmonth;
 
     private List<String> start_end_yearmonth;
+
+    @Setter
+    @Column(columnDefinition = "boolean default false")
+    private boolean todo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

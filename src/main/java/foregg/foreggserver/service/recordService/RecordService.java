@@ -23,6 +23,7 @@ import foregg.foreggserver.service.userService.UserQueryService;
 import foregg.foreggserver.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -201,11 +202,23 @@ public class RecordService {
                 findByUserAndRecord(user, null);
     }
 
-    private boolean newIsEarlier(String newDate, String oldDate) {
-        if (DateUtil.toLocalDate(newDate).isBefore(DateUtil.toLocalDate(oldDate))) {
-            return true;
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void resetTodoField() {
+        List<Record> records = recordRepository.findAll();
+        for (Record record : records) {
+            record.setTodo(false);  // todo 필드를 false로 설정
+            recordRepository.save(record);  // 업데이트된 엔티티 저장
         }
-        return false;
     }
+
+    public void checkTodo(Long id) {
+        Record record = recordRepository.findByIdAndUser(id, userQueryService.getUser(SecurityUtil.getCurrentUser())).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
+        if (record.isTodo()) {
+            record.setTodo(false);
+        } else {
+            record.setTodo(true);
+        }
+    }
+
 
 }

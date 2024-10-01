@@ -19,5 +19,6 @@ public class HomeRecordResponseDTO {
     private List<String> times;
     private String name;
     private String memo;
+    private boolean todo;
 
 }

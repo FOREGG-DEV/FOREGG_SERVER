@@ -25,7 +25,8 @@ public class HomeConverter {
                 .recordType(record.getType())
                 .times(resultList)
                 .name(record.getName())
-                .memo(record.getMemo()).build();
+                .memo(record.getMemo())
+                .todo(record.isTodo()).build();
     }
 
     public static HomeResponseDTO toHomeResponseDTO(String userName,
