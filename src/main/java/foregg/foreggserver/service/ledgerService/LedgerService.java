@@ -88,7 +88,9 @@ public class LedgerService {
     public void deleteExpenditure(Long id) {
         Expenditure expenditure = expenditureRepository.findByIdAndUser(id, userQueryService.getUser(SecurityUtil.getCurrentUser())).orElseThrow(() -> new LedgerHandler(NOT_FOUND_EXPENDITURE));
         Subsidy subsidy = expenditure.getSubsidy();
-        subsidy.restoreSubsidy(expenditure.getAmount());
+        if (subsidy != null) {
+            subsidy.restoreSubsidy(expenditure.getAmount());
+        }
         expenditureRepository.delete(expenditure);
     }
 

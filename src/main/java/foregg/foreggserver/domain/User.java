@@ -80,6 +80,9 @@ public class User extends BaseEntity implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Subsidy> subsidies;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LedgerMemo> ledgerMemos;
+
     // Jwt 전용 설정 (UserDetails 인터페이스 구현)
 
     @ElementCollection(fetch = FetchType.EAGER) //roles 컬렉션
