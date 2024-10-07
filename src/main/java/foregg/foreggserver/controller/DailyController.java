@@ -2,6 +2,7 @@ package foregg.foreggserver.controller;
 
 import foregg.foreggserver.apiPayload.ApiResponse;
 import foregg.foreggserver.dto.dailyDTO.*;
+import foregg.foreggserver.dto.dailyDTO.DailyResponseDTO.DailyAllResponseDTO;
 import foregg.foreggserver.dto.dailyDTO.DailyResponseDTO.DailyByCountResponseDTO;
 import foregg.foreggserver.dto.injectionDTO.InjectionResponseDTO;
 import foregg.foreggserver.service.dailyService.DailyQueryService;
@@ -30,12 +31,24 @@ public class DailyController {
     private final InjectionQueryService injectionQueryService;
     private final S3Service s3Service;
 
+    @Operation(summary = "전체 하루기록 보기 API")
+    @GetMapping("")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+    })
+    @PreAuthorize("isAuthenticated()")
+    public ApiResponse<DailyAllResponseDTO> getAllDaily(@RequestParam(name = "page") int page) {
+        DailyAllResponseDTO allDaily = dailyQueryService.getAllDaily(page);
+        return ApiResponse.onSuccess(allDaily);
+    }
+
     @Operation(summary = "하루기록 보기 API")
     @GetMapping("/byDate/{date}")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
     })
     @PreAuthorize("isAuthenticated()")
+
     public ApiResponse<DailyResponseDTO> getDaily(@PathVariable(name = "date") String date) {
         return ApiResponse.onSuccess(dailyQueryService.getDaily(date));
     }

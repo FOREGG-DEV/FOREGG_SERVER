@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @Builder
 @AllArgsConstructor
@@ -25,11 +27,21 @@ public class DailyResponseDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class DailyAllResponseDTO {
+        private List<DailyByCountResponseDTO> dto;
+        private int currentPage;
+        private int totalPages;
+        private long totalItems;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class DailyByCountResponseDTO {
         private Long id;
         private String date;
         private DailyConditionType dailyConditionType;
         private String content;
     }
-
 }

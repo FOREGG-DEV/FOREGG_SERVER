@@ -2,6 +2,8 @@ package foregg.foreggserver.repository;
 
 import foregg.foreggserver.domain.Daily;
 import foregg.foreggserver.domain.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,7 +17,7 @@ public interface DailyRepository extends JpaRepository<Daily, Long> {
 
     Optional<Daily> findByIdAndUser(Long id, User user);
 
-    Optional<List<Daily>> findByUser(User user);
+    Page<Daily> findByUser(User user, Pageable pageable);
 
     Optional<List<Daily>> findByUserAndCount(User user, int count);
 
