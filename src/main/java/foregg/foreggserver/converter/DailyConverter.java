@@ -6,10 +6,12 @@ import foregg.foreggserver.domain.SideEffect;
 import foregg.foreggserver.domain.User;
 import foregg.foreggserver.dto.dailyDTO.DailyRequestDTO;
 import foregg.foreggserver.dto.dailyDTO.DailyResponseDTO;
+import foregg.foreggserver.dto.dailyDTO.DailyResponseDTO.DailyAllResponseDTO;
 import foregg.foreggserver.dto.dailyDTO.DailyResponseDTO.DailyByCountResponseDTO;
 import foregg.foreggserver.dto.dailyDTO.SideEffectRequestDTO;
 import foregg.foreggserver.dto.dailyDTO.SideEffectResponseDTO;
 import foregg.foreggserver.util.DateUtil;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,6 +19,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DailyConverter {
+
+    public static DailyAllResponseDTO toDailyAllResponse(Page<Daily> dailyPage) {
+        List<DailyByCountResponseDTO> result = new ArrayList<>();
+        for (Daily daily : dailyPage.getContent()) {
+            DailyByCountResponseDTO dto = DailyByCountResponseDTO.builder()
+                    .id(daily.getId())
+                    .dailyConditionType(daily.getDailyConditionType())
+                    .date(daily.getDate())
+                    .content(daily.getContent())
+                    .build();
+            result.add(dto);
+        }
+
+        return DailyAllResponseDTO.builder()
+                .dto(result)
+                .currentPage(dailyPage.getNumber())
+                .totalPages(dailyPage.getTotalPages())
+                .totalItems(dailyPage.getTotalElements())
+                .build();
+    }
+
 
     public static Daily toDaily(DailyRequestDTO dto, User user, String imageUrl, int count) {
         return Daily.builder()
