@@ -12,6 +12,9 @@ import foregg.foreggserver.repository.SideEffectRepository;
 import foregg.foreggserver.service.userService.UserQueryService;
 import foregg.foreggserver.util.DateUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +34,15 @@ public class DailyQueryService {
     private final DailyRepository dailyRepository;
     private final UserQueryService userQueryService;
     private final SideEffectRepository sideEffectRepository;
+
+    public DailyAllResponseDTO getAllDaily(int page) {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        Pageable pageable = PageRequest.of(page, 10);
+        Page<Daily> dailyPage = dailyRepository.findByUser(user, pageable);
+
+        return DailyConverter.toDailyAllResponse(dailyPage);
+    }
+
 
     public DailyResponseDTO getDaily(String date) {
         User user = userQueryService.returnWifeOrHusband();
