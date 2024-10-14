@@ -7,6 +7,8 @@ import foregg.foreggserver.converter.RepeatTimeConverter;
 import foregg.foreggserver.domain.*;
 import foregg.foreggserver.domain.Record;
 import foregg.foreggserver.domain.enums.RecordType;
+import foregg.foreggserver.dto.homeDTO.CheckResponseDTO;
+import foregg.foreggserver.dto.homeDTO.CheckResponseDTO.CheckInSameRecordResponseDTO;
 import foregg.foreggserver.dto.recordDTO.MedicalRecordRequestDTO;
 import foregg.foreggserver.dto.recordDTO.MedicalRecordResponseDTO;
 import foregg.foreggserver.dto.recordDTO.RecordRequestDTO;
@@ -180,6 +182,29 @@ public class RecordService {
         return RecordConverter.toMedicalRecordResponse(record);
     }
 
+    public CheckResponseDTO checkTodo(Long id, String time) {
+        Record record = recordRepository.findById(id).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
+        RepeatTime repeatTime = repeatTimeRepository.findByRecordIdAndTime(id, time).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
+
+        if (repeatTime.isTodo()) {
+            repeatTime.setTodo(false);
+        }else{
+            repeatTime.setTodo(true);
+        }
+
+        List<RepeatTime> repeatTimes = record.getRepeatTimes();
+        List<String> times = new ArrayList<>();
+        for (RepeatTime rt : repeatTimes) {
+            if (rt.isTodo()) {
+                times.add(rt.getTime());
+            }
+        }
+        return CheckResponseDTO.builder()
+                .dto(CheckInSameRecordResponseDTO.builder().recordId(id).times(times).build()).build();
+    }
+
+
+
     //RepeatTime 추출하기
     private RecordResponseDTO getRepeatTimes(Record record) {
         Optional<List<RepeatTime>> repeatTimes = repeatTimeRepository.findByRecord(record);
@@ -202,23 +227,6 @@ public class RecordService {
                 findByUserAndRecord(user, null);
     }
 
-    @Scheduled(cron = "0 0 0 * * ?")
-    public void resetTodoField() {
-        List<Record> records = recordRepository.findAll();
-        for (Record record : records) {
-            record.setTodo(false);  // todo 필드를 false로 설정
-            recordRepository.save(record);  // 업데이트된 엔티티 저장
-        }
-    }
-
-    public void checkTodo(Long id) {
-        Record record = recordRepository.findByIdAndUser(id, userQueryService.getUser(SecurityUtil.getCurrentUser())).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
-        if (record.isTodo()) {
-            record.setTodo(false);
-        } else {
-            record.setTodo(true);
-        }
-    }
 
 
 }
