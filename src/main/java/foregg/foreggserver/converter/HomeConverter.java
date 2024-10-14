@@ -12,7 +12,7 @@ import java.util.List;
 
 public class HomeConverter {
 
-    public static HomeRecordResponseDTO toHomeRecordResponseDTO(Record record) {
+    public static HomeRecordResponseDTO toHomeRecordResponseDTO(Record record, RepeatTime repeatTime) {
 
         List<String> resultList = new ArrayList<>();
         List<RepeatTime> repeatTimes = record.getRepeatTimes();
@@ -23,10 +23,10 @@ public class HomeConverter {
         return HomeRecordResponseDTO.builder()
                 .id(record.getId())
                 .recordType(record.getType())
-                .times(resultList)
+                .time(repeatTime.getTime())
                 .name(record.getName())
                 .memo(record.getMemo())
-                .todo(record.isTodo()).build();
+                .todo(repeatTime.isTodo()).build();
     }
 
     public static HomeResponseDTO toHomeResponseDTO(String userName,
