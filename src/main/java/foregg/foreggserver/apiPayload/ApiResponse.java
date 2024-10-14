@@ -27,6 +27,10 @@ public class ApiResponse<T> {
         return new ApiResponse<>(true, SuccessStatus._OK.getCode() , SuccessStatus._OK.getMessage(), data);
     }
 
+    public static <T> ApiResponse<T> redirect(T data) {
+        return new ApiResponse<>(true, SuccessStatus._MOVED_PERMANENTLY.getCode() , SuccessStatus._MOVED_PERMANENTLY.getMessage(), data);
+    }
+
     public static <T> ApiResponse<T> of(BaseCode code, T data){
         return new ApiResponse<>(true, code.getReasonHttpStatus().getCode() , code.getReasonHttpStatus().getMessage(), data);
     }

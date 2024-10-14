@@ -50,10 +50,6 @@ public class Record extends BaseEntity {
 
     private List<String> start_end_yearmonth;
 
-    @Setter
-    @Column(columnDefinition = "boolean default false")
-    private boolean todo;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;

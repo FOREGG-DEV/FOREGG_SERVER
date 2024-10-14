@@ -127,7 +127,9 @@ public class DailyService {
         Daily daily = dailyRepository.findByIdAndUser(id, user).orElseThrow(() -> new RecordHandler(NOT_FOUND_DAILY));
 
         // S3에서 해당 이미지 파일 삭제 (URL인 경우 deleteFileByUrl 사용)
-        s3Service.deleteFileByUrl(daily.getImage());
+        if (daily.getImage() != null) {
+            s3Service.deleteFileByUrl(daily.getImage());
+        }
 
         // Daily 기록 삭제
         dailyRepository.delete(daily);

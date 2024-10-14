@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import foregg.foreggserver.domain.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
@@ -27,5 +24,9 @@ public class RepeatTime extends BaseEntity {
     @JoinColumn(name = "record_id")
     @JsonIgnore
     private Record record;
+
+    @Setter
+    @Column(columnDefinition = "boolean default false")
+    private boolean todo;
 
 }

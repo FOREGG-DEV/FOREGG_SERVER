@@ -8,6 +8,7 @@ import foregg.foreggserver.domain.User;
 import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.ChallengeParticipationRespository;
 import foregg.foreggserver.repository.ChallengeRepository;
+import foregg.foreggserver.repository.UserRepository;
 import foregg.foreggserver.service.userService.UserQueryService;
 import foregg.foreggserver.util.DateUtil;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
+import static foregg.foreggserver.dto.challengeDTO.ChallengeRequestDTO.*;
 
 @Transactional
 @Service
@@ -31,6 +33,7 @@ public class ChallengeService {
     private final ChallengeRepository challengeRepository;
     private final ChallengeParticipationRespository challengeParticipationRespository;
     private final UserQueryService userQueryService;
+    private final UserRepository userRepository;
 
     public void participate(Long challengeId) {
         Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
@@ -83,6 +86,24 @@ public class ChallengeService {
             throw new ChallengeHandler(NO_SUCCESS_DAY);
         }
         successDays.remove(DateUtil.formatLocalDateTime(LocalDate.now()));
+    }
+
+    public String createChallengeName(ChallengeNameRequestDTO dto) {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        if (user.getChallengeName() != null) {
+            return "301";
+        }
+
+        if (user.getChallengeName() != null) {
+            throw new ChallengeHandler(NICKNAME_EXIST);
+        }
+        User byChallengeName = userRepository.findByChallengeName(dto.getChallengeNickname());
+        if (byChallengeName != null) {
+            throw new ChallengeHandler(NICKNAME_DUPLICATE);
+        }
+        user.setChallengeName(dto.getChallengeNickname());
+        user.addPoint(2000);
+        return "200";
     }
 
 

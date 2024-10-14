@@ -16,7 +16,7 @@ public class HomeRecordResponseDTO {
 
     private Long id;
     private RecordType recordType;
-    private List<String> times;
+    private String time;
     private String name;
     private String memo;
     private boolean todo;

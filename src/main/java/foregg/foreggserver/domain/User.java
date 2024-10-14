@@ -1,11 +1,9 @@
 package foregg.foreggserver.domain;
 
+import foregg.foreggserver.apiPayload.exception.handler.UserHandler;
 import foregg.foreggserver.domain.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +13,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.OVER_BUDGET;
+import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.USER_NOT_FOUND;
 
 @Getter
 @Entity
@@ -45,6 +46,11 @@ public class User extends BaseEntity implements UserDetails {
     private Long spouseId;
 
     private String fcmToken;
+
+    @Setter
+    private String challengeName;
+
+    private int point;
 
     @OneToOne
     @JoinColumn(name = "surgery_id")
@@ -137,6 +143,17 @@ public class User extends BaseEntity implements UserDetails {
 
     public void setFcmToken(String fcmToken) {
         this.fcmToken = fcmToken;
+    }
+
+    public void addPoint(int point) {
+        this.point += point;
+    }
+
+    public void deductPoint(int point) {
+        if (this.point - point < 0) {
+            throw new UserHandler(OVER_BUDGET);
+        }
+        this.point -= point;
     }
 
 }
