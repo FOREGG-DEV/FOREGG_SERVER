@@ -107,7 +107,7 @@ public class ChallengeController {
     public ApiResponse<String> createChallengeName(@RequestBody ChallengeNameRequestDTO dto) {
         String status = challengeService.createChallengeName(dto);
         if (status.equals("301")) {
-            return ApiResponse.redirct("챌린지에 참여 중인 회원입니다");
+            return ApiResponse.redirect("챌린지에 참여 중인 회원입니다");
         }
         return ApiResponse.onSuccess();
     }
