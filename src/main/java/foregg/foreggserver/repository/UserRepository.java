@@ -11,4 +11,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
     Optional<User> findByKeyCode(String keyCode);
 
     Optional<User> findBySpouseCode(String spouseCode);
+
+    User findByChallengeName(String challengeName);
+
 }
