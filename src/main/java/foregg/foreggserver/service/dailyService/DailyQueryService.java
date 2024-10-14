@@ -15,13 +15,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.NOT_FOUND_DAILY;
 import static foregg.foreggserver.dto.dailyDTO.DailyResponseDTO.*;
@@ -37,12 +36,10 @@ public class DailyQueryService {
 
     public DailyAllResponseDTO getAllDaily(int page) {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
-        Pageable pageable = PageRequest.of(page, 10);
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "date"));
         Page<Daily> dailyPage = dailyRepository.findByUser(user, pageable);
-
         return DailyConverter.toDailyAllResponse(dailyPage);
     }
-
 
     public DailyResponseDTO getDaily(String date) {
         User user = userQueryService.returnWifeOrHusband();
