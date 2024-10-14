@@ -2,6 +2,7 @@ package foregg.foreggserver.controller;
 
 import foregg.foreggserver.apiPayload.ApiResponse;
 import foregg.foreggserver.domain.Record;
+import foregg.foreggserver.dto.homeDTO.CheckResponseDTO;
 import foregg.foreggserver.dto.recordDTO.MedicalRecordRequestDTO;
 import foregg.foreggserver.dto.recordDTO.MedicalRecordResponseDTO;
 import foregg.foreggserver.dto.recordDTO.RecordRequestDTO;
@@ -112,16 +113,15 @@ public class RecordController {
         return ApiResponse.onSuccess(dto);
     }
 
-
     @PatchMapping("/checkTodo/{id}")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "RECORD4001", description = "존재하지 않는 일정입니다"),
     })
     @PreAuthorize("hasRole('ROLE_WIFE')")
-    public ApiResponse<String> checkTodo(@PathVariable(name = "id") Long id) {
-        recordService.checkTodo(id);
-        return ApiResponse.onSuccess();
+    public ApiResponse<CheckResponseDTO> checkTodo(@PathVariable(name = "id") Long id, @RequestParam(name = "time") String time) {
+        CheckResponseDTO dto = recordService.checkTodo(id, time);
+        return ApiResponse.onSuccess(dto);
     }
 
 }
