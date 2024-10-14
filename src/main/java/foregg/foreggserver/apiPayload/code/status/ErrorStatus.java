@@ -54,6 +54,8 @@ public enum ErrorStatus implements BaseErrorCode {
     ALREADY_PARTICIPATING(BAD_REQUEST, "CHALLENGE4004", "이미 참여하고 있는 챌린지입니다"),
     DUPLICATED_SUCCESS_DATE(BAD_REQUEST,"CHALLENGE4005", "이미 성공한 날짜입니다"),
     NO_SUCCESS_DAY(BAD_REQUEST, "CHALLENGE4006", "성공한 날짜가 없습니다"),
+    NICKNAME_EXIST(BAD_REQUEST, "CHALLENGE4007", "챌린지 닉네임이 이미 존재합니다"),
+    NICKNAME_DUPLICATE(BAD_REQUEST, "CHALLENGE4008", "챌린지 닉네임이 중복됩니다"),
 
     //가계부 관련 에러
     LEDGER_NOT_FOUND(BAD_REQUEST, "LEDGER4001", "존재하지 않는 가계부입니다"),
@@ -85,14 +87,10 @@ public enum ErrorStatus implements BaseErrorCode {
     SUBSIDY_ALREADY_EXIST(BAD_REQUEST, "SUBSIDY4003", "해당 회차의 같은 이름의 지원금이 존재합니다"),
 
     //지출 관련 에러
-    NOT_FOUND_EXPENDITURE(BAD_REQUEST, "EXPENDITURE4001", "해당 지출이 존재하지 않습니다");
+    NOT_FOUND_EXPENDITURE(BAD_REQUEST, "EXPENDITURE4001", "해당 지출이 존재하지 않습니다"),
 
-
-
-
-
-
-
+    //포인트 관련 에러
+    OVER_BUDGET(BAD_REQUEST, "POINT4001", "포인트가 부족합니다");
 
 
 
