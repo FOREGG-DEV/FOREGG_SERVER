@@ -3,6 +3,7 @@ package foregg.foreggserver.controller;
 import foregg.foreggserver.apiPayload.ApiResponse;
 import foregg.foreggserver.dto.challengeDTO.ChallengeAllResponseDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeMyResponseDTO;
+import foregg.foreggserver.dto.challengeDTO.ChallengeRequestDTO.ChallengeNameRequestDTO;
 import foregg.foreggserver.service.challengeService.ChallengeQueryService;
 import foregg.foreggserver.service.challengeService.ChallengeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -95,4 +96,19 @@ public class ChallengeController {
         return ApiResponse.onSuccess();
     }
 
+    @Operation(summary = "챌린지 닉네임 만들기, 2000 포인트 제공 API //이미 챌린지에 참여하고 있으면 301을 반환")
+    @PatchMapping("/nickname")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "REDIRECT", description = "리다이렉트 필요"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4007", description = "챌린지 닉네임이 이미 존재합니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4008", description = "챌린지 닉네임이 중복됩니다"),
+    })
+    public ApiResponse<String> createChallengeName(@RequestBody ChallengeNameRequestDTO dto) {
+        String status = challengeService.createChallengeName(dto);
+        if (status.equals("301")) {
+            return ApiResponse.redirct("챌린지에 참여 중인 회원입니다");
+        }
+        return ApiResponse.onSuccess();
+    }
 }
