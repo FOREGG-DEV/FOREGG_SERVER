@@ -110,16 +110,21 @@ public class RecordQueryService {
 
         List<Record> records = foundRecord.get();
         for (Record record : records) {
+            List<RepeatTime> repeatTimes = record.getRepeatTimes();
             if (record.getDate() == null) {
                 //반복주기가 설정된 일정
                 List<String> intervalDates = DateUtil.getIntervalDates(record.getStart_date(), record.getEnd_date());
                 if (intervalDates.contains(todayDate)&& ((record.getRepeat_date().contains(DateUtil.getKoreanDayOfWeek(todayDate)))|| record.getRepeat_date().contains("매일"))) {
-                    resultList.add(HomeConverter.toHomeRecordResponseDTO(record));
+                    for (RepeatTime repeatTime : repeatTimes) {
+                        resultList.add(HomeConverter.toHomeRecordResponseDTO(record,repeatTime));
+                    }
                 }
             } else {
                 //반복주기가 설정되지 않은 일정
                 if (record.getDate().equals(todayDate)) {
-                    resultList.add(HomeConverter.toHomeRecordResponseDTO(record));
+                    for (RepeatTime repeatTime : repeatTimes) {
+                        resultList.add(HomeConverter.toHomeRecordResponseDTO(record, repeatTime));
+                    }
                 }
             }
         }
