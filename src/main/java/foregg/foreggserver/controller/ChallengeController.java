@@ -3,7 +3,10 @@ package foregg.foreggserver.controller;
 import foregg.foreggserver.apiPayload.ApiResponse;
 import foregg.foreggserver.dto.challengeDTO.ChallengeAllResponseDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeMyResponseDTO;
+import foregg.foreggserver.dto.challengeDTO.ChallengeRequestDTO;
+import foregg.foreggserver.dto.challengeDTO.ChallengeRequestDTO.ChallengeCreateRequestDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeRequestDTO.ChallengeNameRequestDTO;
+import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO;
 import foregg.foreggserver.service.challengeService.ChallengeQueryService;
 import foregg.foreggserver.service.challengeService.ChallengeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/challenge")
@@ -25,6 +30,16 @@ public class ChallengeController {
     private final ChallengeQueryService challengeQueryService;
     private final ChallengeService challengeService;
 
+    @Operation(summary = "챌린지 메인 API")
+    @GetMapping("")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+    })
+    public ApiResponse<ChallengeResponseDTO> challengeMain() {
+        ChallengeResponseDTO result = challengeQueryService.challengeMain();
+        return ApiResponse.onSuccess(result);
+    }
+
     @Operation(summary = "모든 챌린지 보기 API")
     @GetMapping("/all")
     @ApiResponses({
@@ -33,18 +48,6 @@ public class ChallengeController {
     public ApiResponse<List<ChallengeAllResponseDTO>> seeAllChallenges() {
         List<ChallengeAllResponseDTO> result = challengeQueryService.getAllChallenges();
         return ApiResponse.onSuccess(result);
-    }
-
-    @Operation(summary = "챌린지 참가하기 API")
-    @PostMapping("/participation/{id}")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4001", description = "존재하지 않는 챌린지입니다"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4004", description = "이미 참여하고 있는 챌린지입니다"),
-    })
-    public ApiResponse<String> participate(@PathVariable(name = "id") Long id) {
-        challengeService.participate(id);
-        return ApiResponse.onSuccess();
     }
 
     @Operation(summary = "참여하고 있는 챌린지 보기 API")
@@ -111,4 +114,42 @@ public class ChallengeController {
         }
         return ApiResponse.onSuccess();
     }
+
+    @Operation(summary = "챌린지 잠금 해제")
+    @PatchMapping("/unlock/{id}")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4001", description = "존재하지 않는 챌린지입니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4010", description = "이미 오픈된 챌린지입니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "POINT4001", description = "포인트가 부족합니다"),
+    })
+    public ApiResponse<String> openChallenge(@PathVariable(name = "id") Long id) {
+        challengeService.unlock(id);
+        return ApiResponse.onSuccess();
+    }
+
+    @Operation(summary = "챌린지 참여하기")
+    @PatchMapping("/participate/{id}")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4001", description = "존재하지 않는 챌린지입니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4004", description = "이미 참여하고 있는 챌린지입니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4009", description = "오픈되지 않은 챌린지입니다"),
+    })
+    public ApiResponse<String> participateChallenge(@PathVariable(name = "id") Long id) {
+        challengeService.participate(id);
+        return ApiResponse.onSuccess();
+    }
+
+    @Operation(summary = "챌린지 제작하기")
+    @PostMapping("/create")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "POINT4001", description = "포인트가 부족합니다"),
+    })
+    public ApiResponse<String> createChallenge(@RequestBody ChallengeCreateRequestDTO dto) {
+        challengeService.createChallenge(dto);
+        return ApiResponse.onSuccess();
+    }
+
 }

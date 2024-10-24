@@ -2,8 +2,6 @@ package foregg.foreggserver.converter;
 
 import foregg.foreggserver.domain.*;
 import foregg.foreggserver.domain.Record;
-import foregg.foreggserver.dto.myPageDTO.MyPageBoardResponseDTO;
-import foregg.foreggserver.dto.myPageDTO.MyPageFAQResponseDTO;
 import foregg.foreggserver.dto.myPageDTO.MyPageRecordResponseDTO;
 import foregg.foreggserver.dto.myPageDTO.MyPageResponseDTO;
 

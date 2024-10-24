@@ -35,14 +35,14 @@ public class ChallengeService {
     private final UserQueryService userQueryService;
     private final UserRepository userRepository;
 
-    public void participate(Long challengeId) {
-        Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
+    public void participate(Long id) {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
-        Optional<ChallengeParticipation> challengeParticipation = challengeParticipationRespository.findByUserAndChallenge(user, challenge);
-        if (challengeParticipation.isPresent()) {
+        Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
+        ChallengeParticipation cp = challengeParticipationRespository.findByUserAndChallenge(user, challenge).orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_OPEN));
+        if (cp.isOpen()) {
             throw new ChallengeHandler(ALREADY_PARTICIPATING);
         }
-        challengeParticipationRespository.save(ChallengeConverter.toChallengeParticipation(user, challenge));
+        cp.setParticipating(true);
     }
 
     public void quitChallenge(Long challengeId) {
@@ -106,6 +106,32 @@ public class ChallengeService {
         return "200";
     }
 
+    public void unlock(Long id) {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
+        Optional<ChallengeParticipation> foundCp = challengeParticipationRespository.findByUserAndChallenge(user, challenge);
+        if (foundCp.isPresent()) {
+            throw new ChallengeHandler(ALREADY_OPEN);
+        }
+        user.deductPoint(700);
+        ChallengeParticipation cp = ChallengeParticipation.builder()
+                .user(user)
+                .challenge(challenge)
+                .isOpen(true)
+                .isParticipating(false)
+                .build();
+        challengeParticipationRespository.save(cp);
+    }
+
+    public void createChallenge(ChallengeCreateRequestDTO dto) {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        user.deductPoint(1000);
+        Challenge challenge = Challenge.builder().name(dto.getName()).description(dto.getDescription())
+                .image(dto.getChallengeEmojiType())
+                .producerId(user.getId())
+                .build();
+        challengeRepository.save(challenge);
+    }
 
 
 }

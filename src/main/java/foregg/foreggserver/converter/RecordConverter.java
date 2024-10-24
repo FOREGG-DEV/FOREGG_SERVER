@@ -50,7 +50,7 @@ public class RecordConverter {
                 .build();
     }
 
-    public static RecordResponseDTO toRecordResponseDTO(Record record, List<RepeatTime> repeatTimes)  {
+    public static RecordResponseDTO toRecordResponseDTO(Record record, List<RepeatTime> repeatTimes, Boolean isMine)  {
 
         List<RepeatTimeResponseDTO> result = new ArrayList<>();
         for (RepeatTime repeatTime : repeatTimes) {
@@ -70,6 +70,7 @@ public class RecordConverter {
                 .dose(record.getDose())
                 .memo(record.getMemo())
                 .vibration(record.getVibration())
+                .isMine(isMine)
                 .build();
     }
 

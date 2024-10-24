@@ -2,10 +2,7 @@ package foregg.foreggserver.domain;
 
 import foregg.foreggserver.domain.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -27,6 +24,11 @@ public class ChallengeParticipation extends BaseEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "challenge_id")
     private Challenge challenge;
+
+    private boolean isOpen;
+
+    @Setter
+    private boolean isParticipating;
 
     private List<String> successDays;
 

@@ -13,7 +13,7 @@ public class ChallengeAllResponseDTO {
     private Long id;
     private String name;
     private String description;
-    private String image;
+    private Object image;
     private int participants;
     private boolean ifMine;
 }
