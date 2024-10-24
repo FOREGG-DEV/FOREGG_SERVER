@@ -1,8 +1,10 @@
 package foregg.foreggserver.domain;
 
 import foregg.foreggserver.domain.common.BaseEntity;
+import foregg.foreggserver.domain.enums.ChallengeEmojiType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +14,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Challenge extends BaseEntity {
 
     @Id
@@ -24,9 +27,12 @@ public class Challenge extends BaseEntity {
     @Column(nullable = false)
     private String description;
 
-    private String image;
+    @Enumerated(EnumType.STRING)
+    private ChallengeEmojiType image;
 
     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
     private List<ChallengeParticipation> challengeParticipations;
+
+    private Long producerId;
 
 }

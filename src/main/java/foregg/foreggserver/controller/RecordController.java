@@ -29,8 +29,9 @@ public class RecordController {
     @PostMapping("/add")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "RECORD4010", description = "남편은 기타 일정 외에는 추가할 수 없습니다"),
     })
-    @PreAuthorize("hasRole('ROLE_WIFE')")
+    @PreAuthorize("isAuthenticated()")
     public ApiResponse<RecordResponseDTO> addRecord(@RequestBody RecordRequestDTO dto) {
         RecordResponseDTO resultDTO = recordService.addRecord(dto);
         return ApiResponse.onSuccess(resultDTO);
@@ -45,7 +46,7 @@ public class RecordController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "RECORD4001", description = "존재하지 않는 일정입니다"),
     })
-    @PreAuthorize("hasRole('ROLE_WIFE')")
+    @PreAuthorize("isAuthenticated()")
     public ApiResponse<String> deleteRecord(@PathVariable("id") Long id) {
         recordService.deleteRecord(id);
         return ApiResponse.onSuccess();
@@ -60,7 +61,7 @@ public class RecordController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "RECORD4001", description = "존재하지 않는 일정입니다"),
     })
-    @PreAuthorize("hasRole('ROLE_WIFE')")
+    @PreAuthorize("isAuthenticated()")
     public ApiResponse<String> modifyRecord(@PathVariable("id") Long id, @RequestBody RecordRequestDTO dto) {
         recordService.modifyRecord(id, dto);
         return ApiResponse.onSuccess();

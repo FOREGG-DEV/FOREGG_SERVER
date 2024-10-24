@@ -46,6 +46,8 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_INJECTION_RECORD(BAD_REQUEST, "RECORD4007", "주사 일정이 아닙니다"),
     NOT_FOUND_LATEST_MEDICAL_RECORD(BAD_REQUEST, "RECORD4008", "최근의 진료 기록이 없습니다"),
     NOT_FOUND_MY_INJECTION_RECORD(BAD_REQUEST, "RECORD4009","나의 주사 일정을 찾을 수 없습니다"),
+    MEN_ONLY_ETC(BAD_REQUEST, "RECORD4010","남편은 기타 일정 외에는 추가할 수 없습니다"),
+
 
     //챌린지 관련 에러
     CHALLENGE_NOT_FOUND(BAD_REQUEST, "CHALLENGE4001", "존재하지 않는 챌린지입니다"),
@@ -56,6 +58,8 @@ public enum ErrorStatus implements BaseErrorCode {
     NO_SUCCESS_DAY(BAD_REQUEST, "CHALLENGE4006", "성공한 날짜가 없습니다"),
     NICKNAME_EXIST(BAD_REQUEST, "CHALLENGE4007", "챌린지 닉네임이 이미 존재합니다"),
     NICKNAME_DUPLICATE(BAD_REQUEST, "CHALLENGE4008", "챌린지 닉네임이 중복됩니다"),
+    CHALLENGE_NOT_OPEN(BAD_REQUEST, "CHALLENGE4009", "오픈되지 않은 챌린지입니다"),
+    ALREADY_OPEN(BAD_REQUEST, "CHALLENGE4010", "이미 오픈된 챌린지입니다"),
 
     //가계부 관련 에러
     LEDGER_NOT_FOUND(BAD_REQUEST, "LEDGER4001", "존재하지 않는 가계부입니다"),

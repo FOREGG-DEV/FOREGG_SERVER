@@ -29,7 +29,7 @@ public class FcmMessageDTO {
         private String type;
         private String targetId;
         private String time;
-        private Boolean vibration;
+        private String vibration;
     }
 
     @Builder

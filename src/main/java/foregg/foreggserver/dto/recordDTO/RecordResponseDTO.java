@@ -25,5 +25,6 @@ public class RecordResponseDTO {
     private String dose;
     private String memo;
     private Boolean vibration;
+    private Boolean isMine;
 
 }

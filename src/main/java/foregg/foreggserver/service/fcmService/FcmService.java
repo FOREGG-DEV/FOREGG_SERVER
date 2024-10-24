@@ -77,7 +77,7 @@ public class FcmService{
                                 .type(type)
                                 .targetId(targetId)
                                 .time(time)
-                                .vibration(vibration)
+                                .vibration(vibration.toString())
                                 .build()
                         )
                         .android(FcmMessageDTO.Android.builder()

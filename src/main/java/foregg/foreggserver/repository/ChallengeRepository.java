@@ -9,4 +9,6 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
 
     List<Challenge> findAll();
 
+    List<Challenge> findByProducerId(Long producerId);
+
 }

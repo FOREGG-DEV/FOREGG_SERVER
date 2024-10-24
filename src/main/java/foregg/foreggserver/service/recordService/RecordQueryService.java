@@ -54,15 +54,11 @@ public class RecordQueryService {
     public ScheduleResponseDTO calendar(String yearmonth) {
         //인접 월
         List<String> adjacentMonths = DateUtil.getAdjacentMonths(yearmonth);
-        User user = userQueryService.returnWifeOrHusband();
+       // User user = userQueryService.returnWifeOrHusband();
         List<RecordResponseDTO> resultList = new ArrayList<>();
 
-        Optional<List<Record>> foundRecords = recordRepository.findByUser(user);
-        if (foundRecords.isEmpty()) {
-            return null;
-        }
+        List<Record> records = getCombinationRecords();
 
-        List<Record> records = foundRecords.get();
         for (Record record : records) {
             if (record.getDate() == null) {
                 //반복 주기가 설정되어 있는 일정
@@ -87,12 +83,13 @@ public class RecordQueryService {
     }
 
     private RecordResponseDTO includeRepeatTimes(Record record) {
+        Boolean isMine = this.isMine(record);
         Optional<List<RepeatTime>> repeatTimes = repeatTimeRepository.findByRecord(record);
         if (repeatTimes.isPresent()) {
             List<RepeatTime> result = repeatTimes.get();
-            return RecordConverter.toRecordResponseDTO(record, result);
+            return RecordConverter.toRecordResponseDTO(record, result,isMine);
         }
-        return RecordConverter.toRecordResponseDTO(record, null);
+        return RecordConverter.toRecordResponseDTO(record, null,isMine);
     }
 
     public HomeResponseDTO getTodayRecord() {
@@ -216,6 +213,14 @@ public class RecordQueryService {
         return allUpcomingRecords.stream().findFirst().orElse(null);
     }
 
+    public Boolean isMine(Record record) {
+        Long userId = userQueryService.getUser(SecurityUtil.getCurrentUser()).getId();
+        if (record.getUser().getId() == userId) {
+            return true;
+        }
+        return false;
+    }
+
     // 다음 발생일들을 계산하는 헬퍼 메서드
     private Stream<LocalDate> getNextOccurrences(String startDate, String endDate, String repeatDate) {
         LocalDate start = LocalDate.parse(startDate, DATE_FORMATTER);
@@ -258,40 +263,31 @@ public class RecordQueryService {
         }
     }
 
-    public Record getNearestDateTime(Record record1, Record record2) {
-        LocalDateTime dateTime1 = getNearestRecordDateTime(record1, LocalDate.now());
-        LocalDateTime dateTime2 = getNearestRecordDateTime(record2, LocalDate.now());
+    private List<Record> getCombinationRecords() {
+        List<Record> result = new ArrayList<>();
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
 
-        return dateTime1.isBefore(dateTime2) ? record1 : record2;
-    }
+        // 사용자의 Record를 result에 추가
+        List<Record> userRecords = getRecordByUser(user);
+        if (userRecords != null) {
+            result.addAll(userRecords);
+        }
 
-    private LocalDateTime getNearestRecordDateTime(Record record, LocalDate today) {
-        if (record.getDate() != null) {
-            // 단순 기록의 날짜와 시간을 반환
-            LocalDate date = LocalDate.parse(record.getDate(), DATE_FORMATTER);
-            if (date.isAfter(today)) {
-                LocalTime time = getEarliestRepeatTime(record);
-                return date.atTime(time != null ? time : LocalTime.MIN);
+        // 배우자가 있을 경우 배우자의 Record를 result에 추가
+        if (user.getSpouseId() != null) {
+            List<Record> spouseRecords = getRecordByUser(userQueryService.returnSpouse());
+            if (spouseRecords != null) {
+                result.addAll(spouseRecords);
             }
-        } else if (record.getStart_date() != null && record.getEnd_date() != null && record.getRepeat_date() != null) {
-            // 반복 기록의 가장 가까운 날짜와 시간을 반환
-            return getNextOccurrences(record.getStart_date(), record.getEnd_date(), record.getRepeat_date())
-                    .filter(d -> d.isAfter(today))
-                    .map(d -> d.atTime(Optional.ofNullable(getEarliestRepeatTime(record)).orElse(LocalTime.MIN)))
-                    .findFirst()
-                    .orElse(LocalDateTime.MAX);
         }
-        return LocalDateTime.MAX;
+
+        // 결합된 result 리스트 반환
+        return result;
     }
 
-    private LocalTime getEarliestRepeatTime(Record record) {
-        if (record.getRepeatTimes() != null && !record.getRepeatTimes().isEmpty()) {
-            return record.getRepeatTimes().stream()
-                    .map(repeatTime -> LocalTime.parse(repeatTime.getTime(), TIME_FORMATTER))
-                    .min(Comparator.naturalOrder())
-                    .orElse(LocalTime.MAX);
-        }
-        return null;
+    private List<Record> getRecordByUser(User user) {
+        return recordRepository.findByUser(user).orElse(Collections.emptyList());
     }
+
 
 }

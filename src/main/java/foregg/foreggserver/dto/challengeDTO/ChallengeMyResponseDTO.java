@@ -16,7 +16,7 @@ public class ChallengeMyResponseDTO {
     private Long id;
     private String name;
     private String description;
-    private String image;
+    private Object image;
     private int participants;
     private List<String> successDays;
     private String weekOfMonth;

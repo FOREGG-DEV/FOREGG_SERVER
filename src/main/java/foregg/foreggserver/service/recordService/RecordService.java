@@ -58,6 +58,7 @@ public class RecordService {
 
     //일정 추가하기
     public RecordResponseDTO addRecord(RecordRequestDTO dto) {
+        validateMenRecord(dto.getRecordType());
         User user = getUser(SecurityUtil.getCurrentUser());
         Record nearestHospitalRecord = recordQueryService.getNearestHospitalRecord(LocalDate.now());
         List<SideEffect> sideEffects = sideEffectRepository.findByUserAndRecord(user, nearestHospitalRecord);
@@ -87,9 +88,10 @@ public class RecordService {
             notificationService.scheduleNotifications(user, record, repeatTimes);
         }
         User spouse = userQueryService.returnSpouse();
+        log.info("배우자 " + spouse.getNickname());
         if (spouse != null) {
             try {
-                fcmService.sendMessageTo(spouse.getFcmToken(), "새로운 일정이 등록되었습니다", String.format("%s님이 일정을 추가했어요", user.getNickname()),"calendar",null,null, dto.getVibration());
+                fcmService.sendMessageTo(spouse.getFcmToken(), "새로운 일정이 등록되었습니다", String.format("%s님이 일정을 추가했어요", user.getNickname()),"calendar",null, null,dto.getVibration());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -207,12 +209,13 @@ public class RecordService {
 
     //RepeatTime 추출하기
     private RecordResponseDTO getRepeatTimes(Record record) {
+        Boolean isMine = recordQueryService.isMine(record);
         Optional<List<RepeatTime>> repeatTimes = repeatTimeRepository.findByRecord(record);
         if(repeatTimes.isPresent()){
             List<RepeatTime> result = repeatTimes.get();
-            return RecordConverter.toRecordResponseDTO(record, result);
+            return RecordConverter.toRecordResponseDTO(record, result, isMine);
         }
-        return RecordConverter.toRecordResponseDTO(record, null);
+        return RecordConverter.toRecordResponseDTO(record, null, isMine);
     }
 
     private User getUser(String keycode) {
@@ -226,6 +229,13 @@ public class RecordService {
 
                 findByUserAndRecord(user, null);
     }
+
+    private void validateMenRecord(RecordType recordType) {
+        if (SecurityUtil.ifHusband() && !recordType.equals(RecordType.ETC)) {
+            throw new RecordHandler(MEN_ONLY_ETC);
+        }
+    }
+
 
 
 
