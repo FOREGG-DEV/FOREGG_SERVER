@@ -153,6 +153,9 @@ public class UserService {
             if (husband != null) {
                 userRepository.delete(husband);
             }
+        }else{
+            User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+            user.setSpouseId(null);
         }
 
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
