@@ -1,0 +1,23 @@
+<configuration>
+
+    <!-- 파일을 저장할 경로와 파일명 패턴 설정 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/home/ubuntu/logs/foregg.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/home/ubuntu/logs/foregg.%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <maxFileSize>8MB</maxFileSize>
+            <maxHistory>14</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <!-- 로그 패턴 설정: 날짜, 시간, 로그 레벨, 클래스명, 메시지 -->
+            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 모든 로그를 FILE로 출력 -->
+    <root level="INFO">
+        <appender-ref ref="FILE" />
+    </root>
+
+</configuration>
