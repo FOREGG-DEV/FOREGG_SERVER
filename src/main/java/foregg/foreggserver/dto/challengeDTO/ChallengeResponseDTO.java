@@ -18,7 +18,6 @@ public class ChallengeResponseDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ChallengeDTO{
-
         private Long id;
         private int point;
         private Object image;
@@ -27,8 +26,17 @@ public class ChallengeResponseDTO {
         private int participants;
         private boolean isOpen;
         private boolean isParticipating;
-
     }
 
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class MyChallengeDTO {
+        private Long id;
+        private String name;
+        private int participants;
+        private List<String> successDays;
+    }
 
 }
