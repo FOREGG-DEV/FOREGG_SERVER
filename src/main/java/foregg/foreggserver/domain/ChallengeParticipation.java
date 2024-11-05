@@ -4,6 +4,7 @@ import foregg.foreggserver.domain.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -28,12 +29,25 @@ public class ChallengeParticipation extends BaseEntity {
     private boolean isOpen;
 
     @Setter
+    private String thoughts;
+
+    @Setter
     private boolean isParticipating;
 
-    private List<String> successDays;
+    @Builder.Default
+    private List<String> successDays = new ArrayList<>();
 
-    public void setSuccessDays(List<String> successDays) {
-        this.successDays = successDays;
+    public void setSuccessDays(String today) {
+        this.successDays.add(today);
     }
+
+    @PrePersist
+    @PostLoad
+    private void initializeSuccessDays() {
+        if (this.successDays == null) {
+            this.successDays = new ArrayList<>();
+        }
+    }
+
 
 }
