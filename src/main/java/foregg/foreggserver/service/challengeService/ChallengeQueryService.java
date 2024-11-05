@@ -5,10 +5,10 @@ import foregg.foreggserver.converter.ChallengeConverter;
 import foregg.foreggserver.domain.Challenge;
 import foregg.foreggserver.domain.ChallengeParticipation;
 import foregg.foreggserver.domain.User;
-import foregg.foreggserver.dto.challengeDTO.ChallengeAllResponseDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeMyResponseDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeDTO;
+import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeDTO;
 import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.ChallengeParticipationRespository;
 import foregg.foreggserver.repository.ChallengeRepository;
@@ -20,11 +20,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.MAKE_NICKNAME_FIRST;
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.NOT_FOUND_MY_CHALLENGE;
 
 @Transactional(readOnly = true)
@@ -39,12 +38,14 @@ public class ChallengeQueryService {
 
     public ChallengeResponseDTO challengeMain() {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        if (user.getChallengeName() == null) {
+            throw new ChallengeHandler(MAKE_NICKNAME_FIRST);
+        }
         List<ChallengeDTO> result = new ArrayList<>();
 
         //일단 관리자 id는 -1
         List<Challenge> challenges = getMainChallenge();
         for (Challenge challenge : challenges) {
-            log.info("챌린지 " +challenge.getId());
             Optional<ChallengeParticipation> cp = challengeParticipationRespository.findByUserAndChallenge(user, challenge);
             ChallengeDTO challengeResponseDTO = ChallengeConverter.toChallengeResponseDTO(challenge, user, cp);
             result.add(challengeResponseDTO);
@@ -52,51 +53,42 @@ public class ChallengeQueryService {
         return ChallengeResponseDTO.builder().dtos(result).build();
     }
 
-
-    public List<ChallengeAllResponseDTO> getAllChallenges() {
-        List<Challenge> challenges = challengeRepository.findAll();
-        List<ChallengeAllResponseDTO> resultList = new ArrayList<>();
-
-        for (Challenge challenge : challenges) {
-            Optional<List<ChallengeParticipation>> foundChallengeParticipation = challengeParticipationRespository.findByChallenge(challenge);
-            if (foundChallengeParticipation.isEmpty()) {
-                continue;
-            }
-            List<ChallengeParticipation> challengeParticipations = foundChallengeParticipation.get();
-            int participants = challengeParticipations.size();
-            boolean ifMine=false;
-            Optional<ChallengeParticipation> byUserAndChallenge = challengeParticipationRespository.findByUserAndChallenge(userQueryService.getUser(SecurityUtil.getCurrentUser()), challenge);
-            if (byUserAndChallenge.isPresent()) {
-                ifMine = true;
-            }
-            resultList.add(ChallengeConverter.toChallengeAllResponseDTO(challenge,participants,ifMine));
-        }
-        return resultList;
-    }
-
-    public List<ChallengeMyResponseDTO> getMyChallenges() {
-        List<String> weekDates = DateUtil.getWeekDates();
-
-        List<ChallengeMyResponseDTO> resultList = new ArrayList<>();
+    public ChallengeResponseDTO getAllChallenges() {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
-        List<ChallengeParticipation> foundChallengeParticipation = challengeParticipationRespository.findByUser(user).orElseThrow(() -> new ChallengeHandler(NOT_FOUND_MY_CHALLENGE));
-
-        for (ChallengeParticipation result : foundChallengeParticipation) {
-            boolean lastSaturday = false;
-            Challenge challenge = result.getChallenge();
-            List<String> successDays = result.getSuccessDays();
-
-            if (successDays!= null && successDays.contains(DateUtil.getLastSaturday())) {
-                lastSaturday = true;
-            }
-            Optional<List<ChallengeParticipation>> byChallenge = challengeParticipationRespository.findByChallenge(challenge);
-            List<String> successDates = extractSuccessDays(weekDates, successDays);
-            List<String> successDaysResult = DateUtil.convertDatesToDayOfWeek(successDates);
-            ChallengeMyResponseDTO resultDTO = ChallengeConverter.toChallengeMyResponseDTO(challenge, getChallengeParticipants(byChallenge),successDaysResult, DateUtil.getWeekOfMonth(DateUtil.formatLocalDateTime(LocalDate.now())), lastSaturday);
-            resultList.add(resultDTO);
+        List<ChallengeDTO> resultList = new ArrayList<>();
+        List<Challenge> mainChallenge = challengeRepository.findByProducerId(-1L);
+        for (Challenge challenge : mainChallenge) {
+            Optional<ChallengeParticipation> cp = challengeParticipationRespository.findByUserAndChallenge(user, challenge);
+            ChallengeDTO challengeResponseDTO = ChallengeConverter.toChallengeResponseDTO(challenge, user, cp);
+            resultList.add(challengeResponseDTO);
         }
-        return resultList;
+
+        resultList.addAll(getCustomChallenge());
+        return ChallengeResponseDTO.builder().dtos(resultList).build();
     }
+
+    public List<MyChallengeDTO> getMyChallenges() {
+        List<MyChallengeDTO> result = new ArrayList<>();
+        List<ChallengeParticipation> cp = getMyCParticipation();
+        for (ChallengeParticipation challengeParticipation : cp) {
+            result.add(ChallengeConverter.toMyChallengeDTO(challengeParticipation, getChallengeParticipants(challengeParticipation)));
+        }
+        return result;
+    }
+
+    //챌린지 검색 메서드
+    public ChallengeResponseDTO searchChallenge(String keyword) {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        List<Challenge> challenges = challengeRepository.findByNameContaining(keyword);
+        List<ChallengeDTO> resultList = new ArrayList<>();
+        for (Challenge challenge : challenges) {
+            Optional<ChallengeParticipation> cp = challengeParticipationRespository.findByUserAndChallenge(user, challenge);
+            ChallengeDTO challengeResponseDTO = ChallengeConverter.toChallengeResponseDTO(challenge, user, cp);
+            resultList.add(challengeResponseDTO);
+        }
+        return ChallengeResponseDTO.builder().dtos(resultList).build();
+    }
+
 
     private List<Challenge> getMainChallenge() {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
@@ -131,12 +123,50 @@ public class ChallengeQueryService {
         return result;
     }
 
+    private List<ChallengeDTO> getCustomChallenge() {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        List<Challenge> challenges = challengeRepository.findAll();
+        challenges.removeIf(challenge -> challenge.getProducerId() == -1L);
+        List<Challenge> participatingChallenge = new ArrayList<>();
+        List<Challenge> notParticipatingChallenge = new ArrayList<>();
+        List<Challenge> resultChallenges = new ArrayList<>();
+        List<ChallengeDTO> result = new ArrayList<>();
 
-    private int getChallengeParticipants(Optional<List<ChallengeParticipation>> challengeParticipations) {
-        if (challengeParticipations.isEmpty()) {
-            return 0;
+        for (Challenge challenge : challenges) {
+            Optional<ChallengeParticipation> cParticipation = challengeParticipationRespository.findByUserAndChallenge(user, challenge);
+            if (cParticipation.isEmpty()) {
+                notParticipatingChallenge.add(challenge);
+                continue;
+            }
+            participatingChallenge.add(challenge);
         }
-        return challengeParticipations.get().size();
+
+        resultChallenges.addAll(participatingChallenge);
+        resultChallenges.addAll(notParticipatingChallenge);
+
+        for (Challenge challenge : resultChallenges) {
+            Optional<ChallengeParticipation> cp = challengeParticipationRespository.findByUserAndChallenge(user, challenge);
+            ChallengeDTO challengeResponseDTO = ChallengeConverter.toChallengeResponseDTO(challenge, user, cp);
+            result.add(challengeResponseDTO);
+        }
+        return result;
+    }
+
+    private List<ChallengeParticipation> getMyCParticipation() {
+        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        List<ChallengeParticipation> cParticipation = challengeParticipationRespository.findByUser(user).orElse(null);
+        cParticipation.removeIf(cp -> !cp.isParticipating());
+        List<Challenge> result = new ArrayList<>();
+        return cParticipation;
+    }
+
+    public int getChallengeParticipants(ChallengeParticipation cp) {
+        Challenge challenge = cp.getChallenge();
+        Optional<List<ChallengeParticipation>> challengeParticipation = challengeParticipationRespository.findByChallenge(challenge);
+        if (challengeParticipation.isPresent()) {
+            return challengeParticipation.get().size();
+        }
+        return 0;
     }
 
     private List<String> extractSuccessDays(List<String> weekDates, List<String> successDates) {

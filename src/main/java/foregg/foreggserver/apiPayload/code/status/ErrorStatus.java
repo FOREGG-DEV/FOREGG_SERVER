@@ -60,6 +60,9 @@ public enum ErrorStatus implements BaseErrorCode {
     NICKNAME_DUPLICATE(BAD_REQUEST, "CHALLENGE4008", "챌린지 닉네임이 중복됩니다"),
     CHALLENGE_NOT_OPEN(BAD_REQUEST, "CHALLENGE4009", "오픈되지 않은 챌린지입니다"),
     ALREADY_OPEN(BAD_REQUEST, "CHALLENGE4010", "이미 오픈된 챌린지입니다"),
+    MAKE_NICKNAME_FIRST(BAD_REQUEST, "CHALLENGE4011", "챌린지 닉네임을 먼저 만들어주세요"),
+    OUT_OF_VALIDATE_DAYS(BAD_REQUEST, "CHALLENGE4012", "오늘, 어제 날짜 이외에는 챌린지 성공 할 수 없습니다"),
+
 
     //가계부 관련 에러
     LEDGER_NOT_FOUND(BAD_REQUEST, "LEDGER4001", "존재하지 않는 가계부입니다"),

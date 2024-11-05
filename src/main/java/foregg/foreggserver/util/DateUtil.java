@@ -6,9 +6,11 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 public class DateUtil {
 
@@ -268,5 +270,16 @@ public class DateUtil {
         LocalDateTime localDateTime = LocalDateTime.parse(dateTimeStr, originalFormatter);
         return localDateTime.format(targetFormatter);
     }
+
+    public static String getTodayDayOfWeek() {
+        DayOfWeek dayOfWeek = LocalDate.now().getDayOfWeek();
+        return dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+    }
+
+    public static String getYesterdayDayOfWeek() {
+        DayOfWeek dayOfWeek = LocalDate.now().minusDays(1).getDayOfWeek();
+        return dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+    }
+
 
 }

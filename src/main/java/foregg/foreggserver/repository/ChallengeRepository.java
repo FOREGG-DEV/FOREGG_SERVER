@@ -11,4 +11,5 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
 
     List<Challenge> findByProducerId(Long producerId);
 
+    List<Challenge> findByNameContaining(String keyword);
 }
