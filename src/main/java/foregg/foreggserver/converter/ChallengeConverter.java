@@ -3,11 +3,8 @@ package foregg.foreggserver.converter;
 import foregg.foreggserver.domain.Challenge;
 import foregg.foreggserver.domain.ChallengeParticipation;
 import foregg.foreggserver.domain.User;
-import foregg.foreggserver.dto.challengeDTO.ChallengeAllResponseDTO;
-import foregg.foreggserver.dto.challengeDTO.ChallengeMyResponseDTO;
-import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeDTO;
-import foregg.foreggserver.repository.ChallengeParticipationRespository;
+import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeDTO;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -15,8 +12,6 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 public class ChallengeConverter {
-
-    private final ChallengeParticipationRespository challengeParticipationRespository;
 
     public static ChallengeDTO toChallengeResponseDTO(Challenge challenge, User user, Optional<ChallengeParticipation> cp) {
         boolean isOpen;
@@ -44,34 +39,13 @@ public class ChallengeConverter {
                 .isParticipating(isParticipating).build();
     }
 
-    public static ChallengeAllResponseDTO toChallengeAllResponseDTO(Challenge challenge, int participants, boolean ifMine) {
-        return ChallengeAllResponseDTO.builder()
+    public static MyChallengeDTO toMyChallengeDTO(ChallengeParticipation cp, int participants) {
+        Challenge challenge = cp.getChallenge();
+        return MyChallengeDTO.builder()
                 .id(challenge.getId())
                 .name(challenge.getName())
-                .description(challenge.getDescription())
-                .image(challenge.getImage())
                 .participants(participants)
-                .ifMine(ifMine)
-                .build();
+                .successDays(cp.getSuccessDays()).build();
     }
 
-    public static ChallengeMyResponseDTO toChallengeMyResponseDTO(Challenge challenge, int participants, List<String> successDays, String weekOfMonth, boolean lastSaturday) {
-        return ChallengeMyResponseDTO.builder()
-                .id(challenge.getId())
-                .name(challenge.getName())
-                .description(challenge.getDescription())
-                .image(challenge.getImage())
-                .participants(participants)
-                .successDays(successDays)
-                .weekOfMonth(weekOfMonth)
-                .lastSaturday(lastSaturday)
-                .build();
-    }
-
-    public static ChallengeParticipation toChallengeParticipation(User user, Challenge challenge) {
-        return ChallengeParticipation.builder()
-                .user(user)
-                .challenge(challenge)
-                .build();
-    }
 }
