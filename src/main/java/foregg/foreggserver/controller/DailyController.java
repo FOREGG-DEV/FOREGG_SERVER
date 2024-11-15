@@ -8,6 +8,7 @@ import foregg.foreggserver.dto.injectionDTO.InjectionResponseDTO;
 import foregg.foreggserver.service.dailyService.DailyQueryService;
 import foregg.foreggserver.service.dailyService.DailyService;
 import foregg.foreggserver.service.injectionService.InjectionQueryService;
+import foregg.foreggserver.service.questionService.QuestionService;
 import foregg.foreggserver.service.s3Service.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -30,6 +31,7 @@ public class DailyController {
     private final DailyQueryService dailyQueryService;
     private final InjectionQueryService injectionQueryService;
     private final S3Service s3Service;
+    private final QuestionService questionService;
 
     @Operation(summary = "전체 하루기록 보기 API")
     @GetMapping("")
@@ -182,7 +184,6 @@ public class DailyController {
     @Operation(summary = "주사 투여 완료 공유하기 API")
     @PreAuthorize("hasRole('ROLE_WIFE')")
     @PostMapping("/shareInjection/{id}")
-
     public ApiResponse<String> sendNotificationInjection(@PathVariable(name = "id") Long id,
                                                          @RequestParam(name = "time") String time) {
 
@@ -197,5 +198,13 @@ public class DailyController {
                                                               @RequestParam(name = "time") String time) {
         InjectionResponseDTO dto = injectionQueryService.getInjectionInfo(id, time);
         return ApiResponse.onSuccess(dto);
+    }
+
+    @Operation(summary = "스폐셜 질문")
+    @PreAuthorize("hasRole('ROLE_WIFE')")
+    @GetMapping("/specialQuestion")
+    public ApiResponse<String> specialQuestion() {
+        String question = questionService.specialQuestion();
+        return ApiResponse.onSuccess(question);
     }
 }
