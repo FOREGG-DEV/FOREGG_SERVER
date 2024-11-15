@@ -201,7 +201,7 @@ public class DailyController {
     })
     @GetMapping("/specialQuestion")
     public ApiResponse<String> specialQuestion() {
-        String question = questionQueryService.getSpecialQuestion();
+        String question = questionQueryService.getTodaySpecialQuestion();
         return ApiResponse.onSuccess(question);
     }
 
