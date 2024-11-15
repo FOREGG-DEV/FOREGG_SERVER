@@ -73,4 +73,12 @@ public class UserQueryService {
         }
         return spouse.get();
     }
+
+    public boolean challengeNameExist(String challengeName) {
+        User user = userRepository.findByChallengeName(challengeName);
+        if (user == null) {
+            return false;
+        }
+        return true;
+    }
 }
