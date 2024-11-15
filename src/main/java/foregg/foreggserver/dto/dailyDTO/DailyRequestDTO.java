@@ -1,6 +1,7 @@
 package foregg.foreggserver.dto.dailyDTO;
 
 import foregg.foreggserver.domain.enums.DailyConditionType;
+import foregg.foreggserver.domain.enums.ReplyEmojiType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,6 +22,7 @@ public class DailyRequestDTO {
     @NoArgsConstructor
     public static class DailyReplyRequestDTO {
         private Long id;
-        private String reply;
+        private ReplyEmojiType replyEmojiType;
+        private String content;
     }
 }

@@ -2,12 +2,14 @@ package foregg.foreggserver.controller;
 
 import foregg.foreggserver.apiPayload.ApiResponse;
 import foregg.foreggserver.dto.dailyDTO.*;
+import foregg.foreggserver.dto.dailyDTO.DailyRequestDTO.DailyReplyRequestDTO;
 import foregg.foreggserver.dto.dailyDTO.DailyResponseDTO.DailyAllResponseDTO;
 import foregg.foreggserver.dto.dailyDTO.DailyResponseDTO.DailyByCountResponseDTO;
 import foregg.foreggserver.dto.injectionDTO.InjectionResponseDTO;
 import foregg.foreggserver.service.dailyService.DailyQueryService;
 import foregg.foreggserver.service.dailyService.DailyService;
 import foregg.foreggserver.service.injectionService.InjectionQueryService;
+import foregg.foreggserver.service.questionService.QuestionQueryService;
 import foregg.foreggserver.service.questionService.QuestionService;
 import foregg.foreggserver.service.s3Service.S3Service;
 import foregg.foreggserver.service.userService.UserQueryService;
@@ -34,6 +36,7 @@ public class DailyController {
     private final S3Service s3Service;
     private final QuestionService questionService;
     private final UserQueryService userQueryService;
+    private final QuestionQueryService questionQueryService;
 
     @Operation(summary = "전체 하루기록 보기 API")
     @GetMapping("")
@@ -94,7 +97,7 @@ public class DailyController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DAILY4001", description = "오늘의 하루기록이 이미 존재합니다"),
     })
     @PreAuthorize("hasRole('ROLE_HUSBAND')")
-    public ApiResponse<String> reply(@RequestBody DailyRequestDTO.DailyReplyRequestDTO dto) {
+    public ApiResponse<String> reply(@RequestBody DailyReplyRequestDTO dto) {
         dailyService.reply(dto);
         return ApiResponse.onSuccess();
     }
@@ -126,18 +129,6 @@ public class DailyController {
         return ApiResponse.onSuccess();
     }
 
-
-    @Operation(summary = "하루기록 이모지 API")
-    @PutMapping("/{id}/emotion")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DAILY4002", description = "해당 하루기록이 존재하지 않습니다"),
-    })
-    @PreAuthorize("hasRole('ROLE_HUSBAND')")
-    public ApiResponse<String> emotion(@PathVariable(name = "id") Long id, @RequestBody EmotionRequestDTO dto) {
-        dailyService.putEmotion(id, dto);
-        return ApiResponse.onSuccess();
-    }
 
     @Operation(summary = "부작용 작성 API")
     @PostMapping("/sideEffect")
@@ -210,7 +201,7 @@ public class DailyController {
     })
     @GetMapping("/specialQuestion")
     public ApiResponse<String> specialQuestion() {
-        String question = questionService.specialQuestion();
+        String question = questionQueryService.getTodaySpecialQuestion();
         return ApiResponse.onSuccess(question);
     }
 

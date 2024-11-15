@@ -9,6 +9,7 @@ import foregg.foreggserver.dto.dailyDTO.DailyResponseDTO;
 import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.DailyRepository;
 import foregg.foreggserver.repository.SideEffectRepository;
+import foregg.foreggserver.service.questionService.QuestionQueryService;
 import foregg.foreggserver.service.userService.UserQueryService;
 import foregg.foreggserver.util.DateUtil;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class DailyQueryService {
     private final DailyRepository dailyRepository;
     private final UserQueryService userQueryService;
     private final SideEffectRepository sideEffectRepository;
+    private final QuestionQueryService questionQueryService;
 
     public DailyAllResponseDTO getAllDaily(int page) {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
@@ -47,7 +49,10 @@ public class DailyQueryService {
         if (daily == null) {
             throw new DailyHandler(NOT_FOUND_DAILY);
         }
-        return DailyConverter.toDailyResponseDTO(daily);
+
+        String question = questionQueryService.getSpecialQuestion(date);
+
+        return DailyConverter.toDailyResponseDTO(daily, question);
     }
 
     public List<DailyByCountResponseDTO> dailyByCount(int count) {

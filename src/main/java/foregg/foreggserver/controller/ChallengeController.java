@@ -8,6 +8,7 @@ import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeDTO;
 import foregg.foreggserver.service.challengeService.ChallengeQueryService;
 import foregg.foreggserver.service.challengeService.ChallengeService;
+import foregg.foreggserver.service.userService.UserQueryService;
 import foregg.foreggserver.util.DateUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -27,6 +28,7 @@ public class ChallengeController {
 
     private final ChallengeQueryService challengeQueryService;
     private final ChallengeService challengeService;
+    private final UserQueryService userQueryService;
 
     @Operation(summary = "챌린지 메인 API")
     @GetMapping("")
@@ -167,4 +169,14 @@ public class ChallengeController {
         ChallengeResponseDTO result = challengeQueryService.searchChallenge(keyword);
         return ApiResponse.onSuccess(result);
     }
+
+    @Operation(summary = "챌린지 닉네임 조회하기")
+    @GetMapping("/getChallengeName")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+    })
+    public ApiResponse<String> getChallengeName() {
+        return ApiResponse.onSuccess(userQueryService.getChallengeName());
+    }
+
 }

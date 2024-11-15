@@ -4,16 +4,15 @@ import foregg.foreggserver.apiPayload.exception.handler.DailyHandler;
 import foregg.foreggserver.apiPayload.exception.handler.RecordHandler;
 import foregg.foreggserver.apiPayload.exception.handler.UserHandler;
 import foregg.foreggserver.converter.DailyConverter;
-import foregg.foreggserver.domain.Daily;
+import foregg.foreggserver.domain.*;
 import foregg.foreggserver.domain.Record;
-import foregg.foreggserver.domain.SideEffect;
-import foregg.foreggserver.domain.User;
 import foregg.foreggserver.dto.dailyDTO.DailyRequestDTO;
-import foregg.foreggserver.dto.dailyDTO.EmotionRequestDTO;
+import foregg.foreggserver.dto.dailyDTO.DailyRequestDTO.DailyReplyRequestDTO;
 import foregg.foreggserver.dto.dailyDTO.SideEffectRequestDTO;
 import foregg.foreggserver.dto.dailyDTO.SideEffectResponseDTO;
 import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.DailyRepository;
+import foregg.foreggserver.repository.ReplyRepository;
 import foregg.foreggserver.repository.SideEffectRepository;
 import foregg.foreggserver.service.fcmService.FcmService;
 import foregg.foreggserver.service.myPageService.MyPageQueryService;
@@ -48,11 +47,7 @@ public class DailyService {
     private final FcmService fcmService;
     private final MyPageQueryService myPageQueryService;
     private final S3Service s3Service;
-
-    public void putEmotion(Long id, EmotionRequestDTO dto) {
-        Daily daily = dailyRepository.findByIdAndUser(id,userQueryService.returnSpouse()).orElseThrow(() -> new RecordHandler(NOT_FOUND_DAILY));
-        daily.setEmotionType(dto.getEmotionType());
-    }
+    private final ReplyRepository replyRepository;
 
     public void writeDaily(DailyRequestDTO dto, String imageUrl) {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
@@ -84,10 +79,15 @@ public class DailyService {
         dailyRepository.deleteAll(dailyList);
     }
 
-    public void reply(DailyRequestDTO.DailyReplyRequestDTO dto) {
+    public void reply(DailyReplyRequestDTO dto) {
         User wife = userQueryService.returnSpouse();
         Daily daily = dailyRepository.findByIdAndUser(dto.getId(), wife).orElseThrow(() -> new DailyHandler(NOT_FOUND_DAILY));
-        daily.setReply(dto.getReply());
+        Reply reply = Reply.builder()
+                .content(dto.getContent())
+                .replyEmojiType(dto.getReplyEmojiType())
+                .daily(daily)
+                .build();
+        replyRepository.save(reply);
     }
 
     public void writeSideEffect(SideEffectRequestDTO dto) {
