@@ -81,4 +81,10 @@ public class UserQueryService {
         }
         return true;
     }
+
+    public String getChallengeName() {
+        User user = this.getUser(SecurityUtil.getCurrentUser());
+        return user.getChallengeName();
+    }
+
 }

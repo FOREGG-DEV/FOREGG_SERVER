@@ -169,17 +169,4 @@ public class ChallengeQueryService {
         return 0;
     }
 
-    private List<String> extractSuccessDays(List<String> weekDates, List<String> successDates) {
-        List<String> resultList = new ArrayList<>();
-        if (successDates == null) {
-            return null;
-        }
-        for (String successDate : successDates) {
-            if (weekDates.contains(successDate)) {
-                resultList.add(successDate);
-            }
-        }
-        return resultList;
-    }
-
 }
