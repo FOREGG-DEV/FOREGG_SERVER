@@ -2,7 +2,6 @@ package foregg.foreggserver.domain;
 
 import foregg.foreggserver.domain.common.BaseEntity;
 import foregg.foreggserver.domain.enums.DailyConditionType;
-import foregg.foreggserver.domain.enums.EmotionType;
 import foregg.foreggserver.dto.dailyDTO.DailyRequestDTO;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,9 +23,6 @@ public class Daily extends BaseEntity {
     @Column(nullable = false)
     private String content;
 
-    @Enumerated(EnumType.STRING)
-    private EmotionType emotionType;
-
     @Column(length = 2048)
     private String image;
 
@@ -41,11 +37,8 @@ public class Daily extends BaseEntity {
     private User user;
 
     @Setter
-    private String reply;
-
-    public void setEmotionType(EmotionType emotionType) {
-        this.emotionType = emotionType;
-    }
+    @OneToOne(cascade = CascadeType.REMOVE)
+    private Reply reply;
 
     public void updateDaily(DailyRequestDTO dto, String imageUrl) {
         this.dailyConditionType = dto.getDailyConditionType();
