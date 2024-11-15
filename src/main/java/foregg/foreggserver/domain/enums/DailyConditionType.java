@@ -1,5 +1,5 @@
 package foregg.foreggserver.domain.enums;
 
 public enum DailyConditionType {
-    WORST, BAD, SOSO, GOOD, PERFECT
+    MAD, SAD, ANXIOUS, HAPPY, LOVE
 }
