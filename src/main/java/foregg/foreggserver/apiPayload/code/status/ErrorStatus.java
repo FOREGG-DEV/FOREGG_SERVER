@@ -79,6 +79,8 @@ public enum ErrorStatus implements BaseErrorCode {
     //하루기록 관련 에러
     ALREADY_WRITTEN(BAD_REQUEST, "DAILY4001", "오늘의 하루기록이 이미 존재합니다"),
     NOT_FOUND_DAILY(BAD_REQUEST, "DAILY4002","하루 기록이 존재하지 않습니다"),
+    NOT_FRIDAY(BAD_REQUEST, "DAILY4003","금요일이 아닙니다"),
+
 
     //부작용 관련 에러
     NOT_FOUND_SIDEEFFECT(BAD_REQUEST, "SIDEEFFECT4001", "부작용이 존재하지 않습니다"),
