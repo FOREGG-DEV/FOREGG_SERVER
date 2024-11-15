@@ -202,6 +202,10 @@ public class DailyController {
 
     @Operation(summary = "스폐셜 질문")
     @PreAuthorize("hasRole('ROLE_WIFE')")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DAILY4003", description = "금요일이 아닙니다"),
+    })
     @GetMapping("/specialQuestion")
     public ApiResponse<String> specialQuestion() {
         String question = questionService.specialQuestion();
