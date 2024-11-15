@@ -4,6 +4,7 @@ import foregg.foreggserver.domain.Daily;
 import foregg.foreggserver.domain.Record;
 import foregg.foreggserver.domain.SideEffect;
 import foregg.foreggserver.domain.User;
+import foregg.foreggserver.domain.enums.ReplyEmojiType;
 import foregg.foreggserver.dto.dailyDTO.DailyRequestDTO;
 import foregg.foreggserver.dto.dailyDTO.DailyResponseDTO;
 import foregg.foreggserver.dto.dailyDTO.DailyResponseDTO.DailyAllResponseDTO;
@@ -47,13 +48,17 @@ public class DailyConverter {
                 .content(dto.getContent())
                 .count(count)
                 .date(DateUtil.formatLocalDateTime(LocalDateTime.now()))
-                .emotionType(null)
                 .image(imageUrl)
                 .user(user).build();
     }
 
-    public static DailyResponseDTO toDailyResponseDTO(Daily daily) {
-        String reply = (daily.getReply() != null) ? daily.getReply() : null;
+    public static DailyResponseDTO toDailyResponseDTO(Daily daily, String specialQuestion) {
+        String replyContent = null;
+        ReplyEmojiType replyEmojiType = null;
+        if (daily.getReply() != null) {
+            replyContent = daily.getReply().getContent();
+            replyEmojiType = daily.getReply().getReplyEmojiType();
+        }
 
         return DailyResponseDTO.builder()
                 .id(daily.getId())
@@ -63,7 +68,9 @@ public class DailyConverter {
                 .dailyConditionType(daily.getDailyConditionType())
                 .content(daily.getContent())
                 .imageUrl(daily.getImage())
-                .reply(reply)
+                .replyContent(replyContent)
+                .replyEmojiType(replyEmojiType)
+                .specialQuestion(specialQuestion)
                 .build();
     }
 
