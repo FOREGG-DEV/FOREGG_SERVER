@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.NOT_FRIDAY;
 
 @Service
@@ -32,10 +34,7 @@ public class QuestionQueryService {
         if (!today.equals("Fri")) {
             throw new DailyHandler(NOT_FRIDAY);
         }
-
-        Question question = questionRepository.findByDate(today);
+        Question question = questionRepository.findByDate(LocalDate.now().toString());
         return question.getContent();
     }
-
-
 }
