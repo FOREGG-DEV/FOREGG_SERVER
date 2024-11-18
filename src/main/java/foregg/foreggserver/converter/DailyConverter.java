@@ -47,7 +47,7 @@ public class DailyConverter {
                 .dailyConditionType(dto.getDailyConditionType())
                 .content(dto.getContent())
                 .count(count)
-                .date(DateUtil.formatLocalDateTime(LocalDateTime.now()))
+                .date(LocalDate.now().toString())
                 .image(imageUrl)
                 .user(user).build();
     }
