@@ -60,3 +60,6 @@ fcm:
 
 server:
   port: 8080
+  servlet:
+    context-parameters:
+      user.timezone: Asia/Seoul
