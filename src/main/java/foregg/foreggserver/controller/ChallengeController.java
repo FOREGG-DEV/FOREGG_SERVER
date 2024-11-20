@@ -1,10 +1,12 @@
 package foregg.foreggserver.controller;
 
 import foregg.foreggserver.apiPayload.ApiResponse;
+import foregg.foreggserver.domain.enums.NotificationType;
 import foregg.foreggserver.domain.enums.ChallengeSuccessDayType;
 import foregg.foreggserver.dto.challengeDTO.ChallengeRequestDTO.ChallengeCreateRequestDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeRequestDTO.ChallengeNameRequestDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO;
+import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeCheerResponseDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeDTO;
 import foregg.foreggserver.service.challengeService.ChallengeQueryService;
 import foregg.foreggserver.service.challengeService.ChallengeService;
@@ -177,6 +179,36 @@ public class ChallengeController {
     })
     public ApiResponse<String> getChallengeName() {
         return ApiResponse.onSuccess(userQueryService.getChallengeName());
+    }
+
+    @Operation(summary = "챌린지 찌르기 리스트")
+    @GetMapping("{id}/participantsList")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4002", description = "존재하지 않는 챌린지입니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4003", description = "참여히고 있는 챌린지가 아닙니다")
+    })
+    public ApiResponse<List<ChallengeCheerResponseDTO>> getParticipantsList(@PathVariable(name = "id") Long id) {
+        List<ChallengeCheerResponseDTO> result = challengeQueryService.getParticipantsList(id);
+        return ApiResponse.onSuccess(result);
+    }
+
+    @Operation(summary = "챌린지 찌르기")
+    @PostMapping("{challengeId}")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4002", description = "존재하지 않는 챌린지입니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4003", description = "참여하고 있는 챌린지가 아닙니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4013", description = "응원과 박수는 각각 하루에 세 번까지 가능합니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4014", description = "이미 오늘 찌르기를 한 유저입니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4015", description = "성공하지 않은 유저에게는 박수를 보낼 수 없습니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4016", description = "성공한 유저에게는 응원을 보낼 수 없습니다"),
+    })
+    public ApiResponse<String> cheer(@PathVariable(name = "challengeId") Long challengeId,
+                                     @RequestParam(name = "cheerType") NotificationType cheerType,
+                                     @RequestParam(name = "receiverId") Long receiverId) {
+        challengeService.cheer(receiverId, cheerType, challengeId);
+        return ApiResponse.onSuccess();
     }
 
 }
