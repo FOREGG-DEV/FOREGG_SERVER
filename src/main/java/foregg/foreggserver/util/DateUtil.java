@@ -257,10 +257,10 @@ public class DateUtil {
     }
 
     public static String getDayOfWeekFromString(String dateTimeString) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime localDateTime = LocalDateTime.parse(dateTimeString, formatter);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate localDate = LocalDate.parse(dateTimeString, formatter);
         // 만약 날짜 부분만 필요하다면 localDateTime.toLocalDate()를 사용
-        return localDateTime.getDayOfWeek().toString();
+        return localDate.getDayOfWeek().toString();
     }
 
     public static String convertToMonthDay(String dateTimeStr) {
@@ -280,6 +280,5 @@ public class DateUtil {
         DayOfWeek dayOfWeek = LocalDate.now().minusDays(1).getDayOfWeek();
         return dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
     }
-
 
 }
