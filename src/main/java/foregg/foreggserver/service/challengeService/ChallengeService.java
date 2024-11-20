@@ -1,15 +1,20 @@
 package foregg.foreggserver.service.challengeService;
 
 import foregg.foreggserver.apiPayload.exception.handler.ChallengeHandler;
+import foregg.foreggserver.apiPayload.exception.handler.UserHandler;
 import foregg.foreggserver.converter.ChallengeConverter;
 import foregg.foreggserver.domain.Challenge;
 import foregg.foreggserver.domain.ChallengeParticipation;
+import foregg.foreggserver.domain.Notification;
 import foregg.foreggserver.domain.User;
+import foregg.foreggserver.domain.enums.NotificationType;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeDTO;
 import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.ChallengeParticipationRespository;
 import foregg.foreggserver.repository.ChallengeRepository;
+import foregg.foreggserver.repository.NotificationRepository;
 import foregg.foreggserver.repository.UserRepository;
+import foregg.foreggserver.service.notificationService.NotificationService;
 import foregg.foreggserver.service.userService.UserQueryService;
 import foregg.foreggserver.util.DateUtil;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +41,8 @@ public class ChallengeService {
     private final UserQueryService userQueryService;
     private final UserRepository userRepository;
     private final ChallengeQueryService challengeQueryService;
+    private final NotificationService notificationService;
+    private final NotificationRepository notificationRepository;
 
     public void participate(Long id) {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
@@ -153,5 +160,44 @@ public class ChallengeService {
             cp.getSuccessDays().clear(); // successDays 초기화
         }
         challengeParticipationRepository.saveAll(challengeParticipations); // 변경 사항 저장
+    }
+
+    public void cheer(Long id, NotificationType type, Long challengeId) {
+        User receiver = userRepository.findById(id).orElseThrow(() -> new UserHandler(USER_NOT_FOUND));
+        User sender = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
+
+        ChallengeParticipation cp = challengeParticipationRepository.findByUserAndChallenge(sender, challenge).orElseThrow(() -> new ChallengeHandler(NO_PARTICIPATING_CHALLENGE));
+        if (!cp.isParticipating()) {
+            throw new ChallengeHandler(NO_PARTICIPATING_CHALLENGE);
+        }
+        ChallengeParticipation challengeParticipation = challengeParticipationRepository.findByUserAndChallenge(receiver, challenge).orElseThrow(() -> new ChallengeHandler(NO_PARTICIPATING_CHALLENGE));
+        if (!challengeParticipation.isParticipating()) {
+            throw new ChallengeHandler(NO_PARTICIPATING_CHALLENGE);
+        }
+
+        catchCheerException(challengeParticipation, type);
+
+        List<Notification> notificationList = notificationRepository.findBySenderAndDateAndNotificationType(sender, LocalDate.now().toString(), type);
+        if (notificationList.size() >= 3) {
+            throw new ChallengeHandler(NO_MORE_THAN_THIRD_TIME);
+        }
+
+        if (notificationRepository.findBySenderAndReceiverAndDateAndNotificationType(sender, receiver, LocalDate.now().toString(), type) != null) {
+            throw new ChallengeHandler(ALREADY_SEND_CHEER);
+        }
+
+        Notification notification = notificationService.createNotification(type, receiver, sender);
+        notificationRepository.save(notification);
+    }
+
+    private void catchCheerException(ChallengeParticipation challengeParticipation, NotificationType notificationType) {
+        if (challengeParticipation.getSuccessDays().contains(DateUtil.getTodayDayOfWeek()) && notificationType.equals(NotificationType.SUPPORT)) {
+            throw new ChallengeHandler(UNABLE_TO_SEND_SUPPORT);
+        }
+
+        if (!challengeParticipation.getSuccessDays().contains(DateUtil.getTodayDayOfWeek()) && notificationType.equals(NotificationType.CLAP)) {
+            throw new ChallengeHandler(UNABLE_TO_SEND_CLAP);
+        }
     }
 }
