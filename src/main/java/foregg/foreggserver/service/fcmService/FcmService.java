@@ -68,6 +68,10 @@ public class FcmService{
 
     private String makeMessage(String fcmToken, String title, String body, String type, String targetId, String time, Boolean vibration) throws JsonProcessingException {
         ObjectMapper om = new ObjectMapper();
+        Boolean vib = null;
+        if (vibration != null) {
+            vib = vibration;
+        }
         FcmMessageDTO fcmMessageDto = FcmMessageDTO.builder()
                 .message(FcmMessageDTO.Message.builder()
                         .token(fcmToken)
@@ -77,7 +81,7 @@ public class FcmService{
                                 .type(type)
                                 .targetId(targetId)
                                 .time(time)
-                                .vibration(vibration.toString())
+                                .vibration(vib.toString())
                                 .build()
                         )
                         .android(FcmMessageDTO.Android.builder()
