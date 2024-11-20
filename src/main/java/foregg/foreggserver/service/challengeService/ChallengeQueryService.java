@@ -4,12 +4,15 @@ import foregg.foreggserver.apiPayload.exception.handler.ChallengeHandler;
 import foregg.foreggserver.converter.ChallengeConverter;
 import foregg.foreggserver.domain.Challenge;
 import foregg.foreggserver.domain.ChallengeParticipation;
+import foregg.foreggserver.domain.Notification;
 import foregg.foreggserver.domain.User;
-import foregg.foreggserver.dto.challengeDTO.ChallengeMyResponseDTO;
+import foregg.foreggserver.domain.enums.NotificationType;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO;
+import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeCheerResponseDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeDTO;
 import foregg.foreggserver.jwt.SecurityUtil;
+import foregg.foreggserver.repository.NotificationRepository;
 import foregg.foreggserver.repository.ChallengeParticipationRespository;
 import foregg.foreggserver.repository.ChallengeRepository;
 import foregg.foreggserver.service.userService.UserQueryService;
@@ -23,8 +26,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.MAKE_NICKNAME_FIRST;
-import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.NOT_FOUND_MY_CHALLENGE;
+import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
 
 @Transactional(readOnly = true)
 @Service
@@ -35,6 +37,7 @@ public class ChallengeQueryService {
     private final ChallengeRepository challengeRepository;
     private final ChallengeParticipationRespository challengeParticipationRespository;
     private final UserQueryService userQueryService;
+    private final NotificationRepository notificationRepository;
 
     public ChallengeResponseDTO challengeMain() {
         User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
@@ -75,6 +78,59 @@ public class ChallengeQueryService {
         }
         return result;
     }
+
+    public List<ChallengeCheerResponseDTO> getParticipantsList(Long id) {
+        User currentUser = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        Challenge challenge = challengeRepository.findById(id)
+                .orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
+
+        ChallengeParticipation challengeParticipation = challengeParticipationRespository.findByUserAndChallenge(currentUser, challenge)
+                .orElseThrow(() -> new ChallengeHandler(NO_PARTICIPATING_CHALLENGE));
+
+        if (!challengeParticipation.isParticipating()) {
+            throw new ChallengeHandler(NO_PARTICIPATING_CHALLENGE);
+        }
+
+        String today = LocalDate.now().toString();
+        List<ChallengeParticipation> challengeParticipations = challengeParticipationRespository.findByChallenge(challenge)
+                .orElseThrow(()-> new ChallengeHandler(CHALLENGE_NOT_FOUND));
+
+        // 자신을 제외한 참여자 리스트
+        challengeParticipations.removeIf(cp -> cp.getUser().equals(currentUser));
+        if (challengeParticipations.isEmpty()) {
+            return null;
+        }
+
+        return challengeParticipations.stream()
+                .map(cp -> createChallengeCheerResponseDTO(currentUser, cp, today))
+                .collect(Collectors.toList());
+    }
+
+    private ChallengeCheerResponseDTO createChallengeCheerResponseDTO(User sender, ChallengeParticipation cp, String today) {
+        boolean success = cp.getSuccessDays().contains(DateUtil.getTodayDayOfWeek());
+        boolean clap = false;
+        boolean support = false;
+        List<Notification> notifications = notificationRepository.findBySenderAndReceiverAndDate(sender, cp.getUser(), today);
+
+        for (Notification notification : notifications) {
+            if (notification.getNotificationType().equals(NotificationType.CLAP)) {
+                clap = true;
+            }
+            if (notification.getNotificationType().equals(NotificationType.SUPPORT)) {
+                support = true;
+            }
+        }
+
+        return ChallengeCheerResponseDTO.builder()
+                .id(cp.getUser().getId())
+                .challengeNickname(cp.getUser().getChallengeName())
+                .thought(cp.getThoughts())
+                .success(success)
+                .clap(clap)
+                .support(support)
+                .build();
+    }
+
 
     //챌린지 검색 메서드
     public ChallengeResponseDTO searchChallenge(String keyword) {

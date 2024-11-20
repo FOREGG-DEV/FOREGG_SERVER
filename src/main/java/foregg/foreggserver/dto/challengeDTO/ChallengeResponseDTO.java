@@ -39,4 +39,17 @@ public class ChallengeResponseDTO {
         private List<String> successDays;
     }
 
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ChallengeCheerResponseDTO {
+        private Long id;
+        private String challengeNickname;
+        private String thought;
+        private boolean success;
+        private boolean clap;
+        private boolean support;
+    }
+
 }

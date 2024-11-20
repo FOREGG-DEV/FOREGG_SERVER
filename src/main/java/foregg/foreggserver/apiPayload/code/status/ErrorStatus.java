@@ -50,7 +50,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
 
     //챌린지 관련 에러
-    CHALLENGE_NOT_FOUND(BAD_REQUEST, "CHALLENGE4001", "존재하지 않는 챌린지입니다"),
+    CHALLENGE_NOT_FOUND(BAD_REQUEST, "CHALLENGE4002", "존재하지 않는 챌린지입니다"),
     NOT_FOUND_MY_CHALLENGE(BAD_REQUEST, "CHALLENGE4002", "나의 챌린지가 존재하지 않습니다"),
     NO_PARTICIPATING_CHALLENGE(BAD_REQUEST, "CHALLENGE4003", "참여하고 있는 챌린지가 아닙니다"),
     ALREADY_PARTICIPATING(BAD_REQUEST, "CHALLENGE4004", "이미 참여하고 있는 챌린지입니다"),
@@ -62,6 +62,10 @@ public enum ErrorStatus implements BaseErrorCode {
     ALREADY_OPEN(BAD_REQUEST, "CHALLENGE4010", "이미 오픈된 챌린지입니다"),
     MAKE_NICKNAME_FIRST(BAD_REQUEST, "CHALLENGE4011", "챌린지 닉네임을 먼저 만들어주세요"),
     OUT_OF_VALIDATE_DAYS(BAD_REQUEST, "CHALLENGE4012", "오늘, 어제 날짜 이외에는 챌린지 성공 할 수 없습니다"),
+    NO_MORE_THAN_THIRD_TIME(BAD_REQUEST, "CHALLENGE4013", "응원과 박수는 각각 하루에 세 번까지 가능합니다"),
+    ALREADY_SEND_CHEER(BAD_REQUEST, "CHALLENGE4014", "이미 오늘 찌르기를 한 유저입니다"),
+    UNABLE_TO_SEND_CLAP(BAD_REQUEST, "CHALLENGE4015", "성공하지 않은 유저에게는 박수를 보낼 수 없습니다"),
+    UNABLE_TO_SEND_SUPPORT(BAD_REQUEST, "CHALLENGE4016", "성공한 유저에게는 응원을 보낼 수 없습니다"),
 
 
     //가계부 관련 에러

@@ -1,8 +1,10 @@
 package foregg.foreggserver.service.notificationService;
 
+import foregg.foreggserver.domain.Notification;
 import foregg.foreggserver.domain.Record;
 import foregg.foreggserver.domain.RepeatTime;
 import foregg.foreggserver.domain.User;
+import foregg.foreggserver.domain.enums.NotificationType;
 import foregg.foreggserver.repository.UserRepository;
 import foregg.foreggserver.service.fcmService.FcmService;
 import lombok.RequiredArgsConstructor;
@@ -179,6 +181,14 @@ public class NotificationService {
         }
     }
 
-
+    //알림 만드는 로직
+    public Notification createNotification(NotificationType notificationType, User receiver, User sender) {
+        return Notification.builder()
+                .notificationType(notificationType)
+                .receiver(receiver)
+                .sender(sender)
+                .date(LocalDate.now().toString())
+                .build();
+    }
 
 }
