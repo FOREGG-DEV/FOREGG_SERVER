@@ -88,6 +88,7 @@ public class DailyService {
                 .daily(daily)
                 .build();
         replyRepository.save(reply);
+        daily.setReply(reply);
     }
 
     public void writeSideEffect(SideEffectRequestDTO dto) {
