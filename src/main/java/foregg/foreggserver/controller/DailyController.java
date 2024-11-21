@@ -55,7 +55,6 @@ public class DailyController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
     })
     @PreAuthorize("isAuthenticated()")
-
     public ApiResponse<DailyResponseDTO> getDaily(@PathVariable(name = "date") String date) {
         return ApiResponse.onSuccess(dailyQueryService.getDaily(date));
     }
@@ -95,6 +94,7 @@ public class DailyController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DAILY4001", description = "오늘의 하루기록이 이미 존재합니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DAILY4004", description = "이미 답장을 했습니다"),
     })
     @PreAuthorize("hasRole('ROLE_HUSBAND')")
     public ApiResponse<String> reply(@RequestBody DailyReplyRequestDTO dto) {
