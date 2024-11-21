@@ -49,9 +49,7 @@ public class DailyQueryService {
         if (daily == null) {
             throw new DailyHandler(NOT_FOUND_DAILY);
         }
-
         String question = questionQueryService.getSpecialQuestion(date);
-
         return DailyConverter.toDailyResponseDTO(daily, question);
     }
 
