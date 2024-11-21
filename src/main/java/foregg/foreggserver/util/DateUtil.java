@@ -1,9 +1,6 @@
 package foregg.foreggserver.util;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.YearMonth;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.TextStyle;
@@ -279,6 +276,29 @@ public class DateUtil {
     public static String getYesterdayDayOfWeek() {
         DayOfWeek dayOfWeek = LocalDate.now().minusDays(1).getDayOfWeek();
         return dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+    }
+
+    public static String getElapsedTime(LocalDateTime pastTime) {
+        // 현재 시각
+        LocalDateTime now = LocalDateTime.now();
+
+        // 경과 시간 계산
+        Duration duration = Duration.between(pastTime, now);
+
+        long seconds = duration.getSeconds();
+        long minutes = duration.toMinutes();
+        long hours = duration.toHours();
+        long days = duration.toDays();
+
+        if (seconds < 60) {
+            return "방금"; // 1분 이내
+        } else if (minutes < 60) {
+            return minutes + "분 전"; // 1분부터 59분
+        } else if (hours < 24) {
+            return hours + "시간 전"; // 1시간부터 23시간
+        } else {
+            return days + "일 전"; // 그 이상
+        }
     }
 
 }

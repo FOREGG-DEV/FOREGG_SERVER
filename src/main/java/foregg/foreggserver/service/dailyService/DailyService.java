@@ -82,12 +82,18 @@ public class DailyService {
     public void reply(DailyReplyRequestDTO dto) {
         User wife = userQueryService.returnSpouse();
         Daily daily = dailyRepository.findByIdAndUser(dto.getId(), wife).orElseThrow(() -> new DailyHandler(NOT_FOUND_DAILY));
+        if (daily.getReply() != null) {
+            throw new DailyHandler(ALREADY_REPLY);
+        }
         Reply reply = Reply.builder()
                 .content(dto.getContent())
                 .replyEmojiType(dto.getReplyEmojiType())
                 .daily(daily)
+                .receiver(wife)
+                .sender(userQueryService.getUser(SecurityUtil.getCurrentUser()))
                 .build();
         replyRepository.save(reply);
+        daily.setReply(reply);
     }
 
     public void writeSideEffect(SideEffectRequestDTO dto) {

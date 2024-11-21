@@ -37,7 +37,7 @@ public class DailyQueryService {
     private final QuestionQueryService questionQueryService;
 
     public DailyAllResponseDTO getAllDaily(int page) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.returnWifeOrHusband();
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "date"));
         Page<Daily> dailyPage = dailyRepository.findByUser(user, pageable);
         return DailyConverter.toDailyAllResponse(dailyPage);
@@ -49,9 +49,7 @@ public class DailyQueryService {
         if (daily == null) {
             throw new DailyHandler(NOT_FOUND_DAILY);
         }
-
         String question = questionQueryService.getSpecialQuestion(date);
-
         return DailyConverter.toDailyResponseDTO(daily, question);
     }
 

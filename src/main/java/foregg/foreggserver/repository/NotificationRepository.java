@@ -14,4 +14,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     Notification findBySenderAndReceiverAndDateAndNotificationType(User sender, User receiver, String date, NotificationType notificationType);
 
     List<Notification> findBySenderAndDateAndNotificationType(User sender, String date, NotificationType notificationType);
+
+    List<Notification> findByReceiver(User receiver);
 }
