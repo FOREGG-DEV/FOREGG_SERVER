@@ -86,8 +86,6 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_FRIDAY(BAD_REQUEST, "DAILY4003","금요일이 아닙니다"),
     ALREADY_REPLY(BAD_REQUEST, "DAILY4004","이미 답장을 했습니다"),
 
-
-
     //부작용 관련 에러
     NOT_FOUND_SIDEEFFECT(BAD_REQUEST, "SIDEEFFECT4001", "부작용이 존재하지 않습니다"),
 
@@ -105,7 +103,10 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_FOUND_EXPENDITURE(BAD_REQUEST, "EXPENDITURE4001", "해당 지출이 존재하지 않습니다"),
 
     //포인트 관련 에러
-    OVER_BUDGET(BAD_REQUEST, "POINT4001", "포인트가 부족합니다");
+    OVER_BUDGET(BAD_REQUEST, "POINT4001", "포인트가 부족합니다"),
+
+    //페이징 관련 에러
+    PAGE_OUT_OF_RANGE(BAD_REQUEST, "PAGE4001", "페이지를 벗어났습니다");
 
 
 
