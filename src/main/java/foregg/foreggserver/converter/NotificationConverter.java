@@ -4,6 +4,7 @@ import foregg.foreggserver.domain.Notification;
 import foregg.foreggserver.domain.Reply;
 import foregg.foreggserver.domain.enums.NotificationType;
 import foregg.foreggserver.dto.notificationDTO.NotificationResponseDTO;
+import foregg.foreggserver.dto.notificationDTO.NotificationResponseDTO.NotificationDTO;
 import foregg.foreggserver.util.DateUtil;
 
 import java.util.ArrayList;
@@ -11,10 +12,10 @@ import java.util.List;
 
 public class NotificationConverter {
 
-    public static List<NotificationResponseDTO> fromReplyToNotification(List<Reply> replyList) {
-        List<NotificationResponseDTO> result = new ArrayList<>();
+    public static List<NotificationDTO> fromReplyToNotification(List<Reply> replyList) {
+        List<NotificationDTO> result = new ArrayList<>();
         for (Reply reply : replyList) {
-            NotificationResponseDTO dto = NotificationResponseDTO.builder()
+            NotificationDTO dto = NotificationDTO.builder()
                     .id(reply.getId())
                     .notificationType(NotificationType.REPLY)
                     .sender(reply.getSender().getNickname())
@@ -26,10 +27,10 @@ public class NotificationConverter {
         return result;
     }
 
-    public static List<NotificationResponseDTO> toNotificationResponse(List<Notification> notificationList) {
-        List<NotificationResponseDTO> result = new ArrayList<>();
+    public static List<NotificationDTO> toNotificationResponse(List<Notification> notificationList) {
+        List<NotificationDTO> result = new ArrayList<>();
         for (Notification notification : notificationList) {
-            NotificationResponseDTO dto = NotificationResponseDTO.builder()
+            NotificationDTO dto = NotificationDTO.builder()
                     .id(notification.getId())
                     .notificationType(notification.getNotificationType())
                     .sender(notification.getSender().getNickname())
