@@ -187,7 +187,7 @@ public class ChallengeService {
             throw new ChallengeHandler(ALREADY_SEND_CHEER);
         }
 
-        Notification notification = notificationService.createNotification(type, receiver, sender);
+        Notification notification = notificationService.createNotification(type, receiver, sender, challengeId);
         notificationRepository.save(notification);
     }
 
