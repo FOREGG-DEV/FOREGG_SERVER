@@ -182,12 +182,13 @@ public class NotificationService {
     }
 
     //알림 만드는 로직
-    public Notification createNotification(NotificationType notificationType, User receiver, User sender) {
+    public Notification createNotification(NotificationType notificationType, User receiver, User sender, Long challengeId) {
         return Notification.builder()
                 .notificationType(notificationType)
                 .receiver(receiver)
                 .sender(sender)
                 .date(LocalDate.now().toString())
+                .challengeId(challengeId)
                 .build();
     }
 
