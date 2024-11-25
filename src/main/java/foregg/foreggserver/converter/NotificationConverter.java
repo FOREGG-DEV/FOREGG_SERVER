@@ -17,6 +17,7 @@ public class NotificationConverter {
         for (Reply reply : replyList) {
             NotificationDTO dto = NotificationDTO.builder()
                     .id(reply.getId())
+                    .targetId(reply.getDaily().getId())
                     .notificationType(NotificationType.REPLY)
                     .sender(reply.getSender().getNickname())
                     .elapsedTime(DateUtil.getElapsedTime(reply.getCreatedAt()))
@@ -32,6 +33,7 @@ public class NotificationConverter {
         for (Notification notification : notificationList) {
             NotificationDTO dto = NotificationDTO.builder()
                     .id(notification.getId())
+                    .targetId(notification.getChallengeId())
                     .notificationType(notification.getNotificationType())
                     .sender(notification.getSender().getNickname())
                     .elapsedTime(DateUtil.getElapsedTime(notification.getCreatedAt()))
