@@ -25,7 +25,7 @@ public class NotificationResponseDTO {
     @NoArgsConstructor
     public static class NotificationDTO {
         private Long id;
-        private Long targetId;
+        private String targetKey;
         private NotificationType notificationType;
         private String sender;
         private String createdAt;
