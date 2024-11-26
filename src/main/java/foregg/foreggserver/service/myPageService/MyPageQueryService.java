@@ -33,7 +33,7 @@ public class MyPageQueryService {
     private final RecordRepository recordRepository;
 
     public MyPageResponseDTO getInformation() {
-        User me = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User me = userQueryService.getUser();
         User spouse = userQueryService.returnSpouse();
         String spouseNickname = null;
         Surgery surgery;

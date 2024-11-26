@@ -93,7 +93,7 @@ public class RecordQueryService {
     }
 
     public HomeResponseDTO getTodayRecord() {
-        User me = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User me = userQueryService.getUser();
         User user = userQueryService.returnWifeOrHusband();
         User spouse = userQueryService.returnSpouse();
         Optional<List<Record>> foundRecord = recordRepository.findByUser(user);
@@ -169,7 +169,7 @@ public class RecordQueryService {
     }
 
     public Record getNearestHospitalRecord(LocalDate today) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
 
         List<Record> foundRecords = recordRepository.findByUserAndType(user, RecordType.HOSPITAL)
                 .orElseThrow(() -> new RecordHandler(NOT_RESERVED_HOSPITAL_RECORD));
@@ -214,7 +214,7 @@ public class RecordQueryService {
     }
 
     public Boolean isMine(Record record) {
-        Long userId = userQueryService.getUser(SecurityUtil.getCurrentUser()).getId();
+        Long userId = userQueryService.getUser().getId();
         if (record.getUser().getId() == userId) {
             return true;
         }
@@ -265,7 +265,7 @@ public class RecordQueryService {
 
     private List<Record> getCombinationRecords() {
         List<Record> result = new ArrayList<>();
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
 
         // 사용자의 Record를 result에 추가
         List<Record> userRecords = getRecordByUser(user);

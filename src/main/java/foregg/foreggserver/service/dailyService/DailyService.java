@@ -50,7 +50,7 @@ public class DailyService {
     private final ReplyRepository replyRepository;
 
     public void writeDaily(DailyRequestDTO dto, String imageUrl) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         Daily daily = dailyRepository.findByDateAndUser(DateUtil.formatLocalDateTime(LocalDate.now()),user);
         int count = myPageQueryService.getSurgeryCount();
         if (daily != null) {
@@ -71,7 +71,7 @@ public class DailyService {
 
     //회차 전체 삭제하기
     public void deleteByCount(int count) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         List<Daily> dailyList = dailyRepository.findByUserAndCount(user, count).orElseThrow(() -> new DailyHandler(NOT_FOUND_DAILY));
         for (Daily daily : dailyList) {
             s3Service.deleteFileByUrl(daily.getImage());
@@ -90,21 +90,21 @@ public class DailyService {
                 .replyEmojiType(dto.getReplyEmojiType())
                 .daily(daily)
                 .receiver(wife)
-                .sender(userQueryService.getUser(SecurityUtil.getCurrentUser()))
+                .sender(userQueryService.getUser())
                 .build();
         replyRepository.save(reply);
         daily.setReply(reply);
     }
 
     public void writeSideEffect(SideEffectRequestDTO dto) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         Record hospitalRecord = recordQueryService.getNearestHospitalRecord(LocalDate.now());
         SideEffect sideEffect = DailyConverter.toSideEffect(dto, hospitalRecord, user);
         sideEffectRepository.save(sideEffect);
     }
 
     public List<SideEffectResponseDTO> getSideEffectList() {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         Optional<List<SideEffect>> foundSideEffect = sideEffectRepository.findByUser(user);
         if (foundSideEffect.isEmpty()) {
             return null;
@@ -114,20 +114,20 @@ public class DailyService {
     }
 
     public void modifySideEffect(Long id, SideEffectRequestDTO dto) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         SideEffect sideEffect = sideEffectRepository.findByUserAndId(user, id).orElseThrow(() -> new RecordHandler(NOT_FOUND_SIDEEFFECT));
         sideEffect.setContent(dto.getContent());
     }
 
     public void deleteSideEffect(Long id) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         SideEffect sideEffect = sideEffectRepository.findByUserAndId(user, id).orElseThrow(() -> new RecordHandler(NOT_FOUND_SIDEEFFECT));
         sideEffectRepository.delete(sideEffect);
     }
 
     public void deleteDaily(Long id) {
         // 현재 사용자 가져오기
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
 
         // 사용자와 ID에 해당하는 Daily 가져오기
         Daily daily = dailyRepository.findByIdAndUser(id, user).orElseThrow(() -> new RecordHandler(NOT_FOUND_DAILY));
@@ -143,7 +143,7 @@ public class DailyService {
 
 
     public void modifyDaily(Long id, DailyRequestDTO dto, MultipartFile image) throws IOException {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         Daily daily = dailyRepository.findByIdAndUser(id, user).orElseThrow(() -> new RecordHandler(NOT_FOUND_DAILY));
         String date = daily.getDate();
         String imageUrl = null;

@@ -44,7 +44,7 @@ public class LedgerService {
 
 
     public void writeLedger(LedgerRequestDTO dto) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
 
         //가계부 저장
         Ledger ledger = LedgerConverter.toLedger(dto, user);
@@ -62,7 +62,7 @@ public class LedgerService {
 
     public void deleteLedger(Long id) {
         //단순히 삭제하는게 아니라 지원금을 원상복구 해야됨
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         Ledger ledger = ledgerRepository.findByIdAndUser(id, user).orElseThrow(() -> new LedgerHandler(NOT_FOUND_MY_LEDGER));
         List<Expenditure> expenditureList = ledger.getExpenditureList();
         subsidyQueryService.restoreSubsidy(expenditureList, ledger.getCount());
@@ -75,7 +75,7 @@ public class LedgerService {
     }
 
     public void createCount() {
-        User currentUser = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User currentUser = userQueryService.getUser();
         Surgery surgery = surgeryRepository.findByUser(currentUser).orElseThrow(() -> new SurgeryHandler(NOT_FOUND_MY_SURGERY));
         Surgery updateSurgery = Surgery.builder()
                 .surgeryType(surgery.getSurgeryType())
@@ -86,7 +86,7 @@ public class LedgerService {
     }
 
     public void deleteExpenditure(Long id) {
-        Expenditure expenditure = expenditureRepository.findByIdAndUser(id, userQueryService.getUser(SecurityUtil.getCurrentUser())).orElseThrow(() -> new LedgerHandler(NOT_FOUND_EXPENDITURE));
+        Expenditure expenditure = expenditureRepository.findByIdAndUser(id, userQueryService.getUser()).orElseThrow(() -> new LedgerHandler(NOT_FOUND_EXPENDITURE));
         Subsidy subsidy = expenditure.getSubsidy();
         if (subsidy != null) {
             subsidy.restoreSubsidy(expenditure.getAmount());
@@ -95,7 +95,7 @@ public class LedgerService {
     }
 
     public void memo(int count, LedgerMemoRequestDTO dto) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         List<Ledger> ledgers = ledgerRepository.findByUserAndCount(user, count);
         if (ledgers == null) {
             throw new LedgerHandler(NOT_FOUND_MY_LEDGER);

@@ -45,7 +45,7 @@ public class ChallengeService {
     private final NotificationRepository notificationRepository;
 
     public void participate(Long id) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
         ChallengeParticipation cp = challengeParticipationRepository.findByUserAndChallenge(user, challenge).orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_OPEN));
         if (cp.isParticipating()) {
@@ -55,7 +55,7 @@ public class ChallengeService {
     }
 
     public void quitChallenge(Long challengeId) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         Challenge challenge = challengeRepository.findById(challengeId).
                 orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
         ChallengeParticipation challengeParticipations = challengeParticipationRepository.findByUserAndChallenge(user,challenge).
@@ -64,7 +64,7 @@ public class ChallengeService {
     }
 
     public void deleteTodaySuccess(Long id) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
         ChallengeParticipation challengeParticipation = challengeParticipationRepository.findByUserAndChallenge(user, challenge).
                 orElseThrow(() -> new ChallengeHandler(NO_PARTICIPATING_CHALLENGE));
@@ -76,7 +76,7 @@ public class ChallengeService {
     }
 
     public String createChallengeName(ChallengeNameRequestDTO dto) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         if (user.getChallengeName() != null) {
             return "301";
         }
@@ -94,7 +94,7 @@ public class ChallengeService {
     }
 
     public void unlock(Long id) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
         Optional<ChallengeParticipation> foundCp = challengeParticipationRepository.findByUserAndChallenge(user, challenge);
         if (foundCp.isPresent()) {
@@ -111,7 +111,7 @@ public class ChallengeService {
     }
 
     public void createChallenge(ChallengeCreateRequestDTO dto) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         user.deductPoint(1000);
         Challenge challenge = Challenge.builder().name(dto.getName()).description(dto.getDescription())
                 .image(dto.getChallengeEmojiType())
@@ -129,7 +129,7 @@ public class ChallengeService {
     }
 
     public MyChallengeDTO success(Long challengeId, String todayDayOfWeek, String thoughts) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
 
         Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
         ChallengeParticipation cParticipation = challengeParticipationRepository.findByUserAndChallenge(user, challenge).orElseThrow(() -> new ChallengeHandler(NO_PARTICIPATING_CHALLENGE));
@@ -164,7 +164,7 @@ public class ChallengeService {
 
     public void cheer(Long id, NotificationType type, Long challengeId) {
         User receiver = userRepository.findById(id).orElseThrow(() -> new UserHandler(USER_NOT_FOUND));
-        User sender = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User sender = userQueryService.getUser();
         Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
 
         ChallengeParticipation cp = challengeParticipationRepository.findByUserAndChallenge(sender, challenge).orElseThrow(() -> new ChallengeHandler(NO_PARTICIPATING_CHALLENGE));

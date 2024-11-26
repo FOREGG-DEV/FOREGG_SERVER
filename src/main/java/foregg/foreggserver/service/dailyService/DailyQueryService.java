@@ -54,7 +54,7 @@ public class DailyQueryService {
     }
 
     public List<DailyByCountResponseDTO> dailyByCount(int count) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         List<Daily> dailyList = dailyRepository.findByUserAndCount(user, count).orElseThrow(() -> new DailyHandler(NOT_FOUND_DAILY));
         return DailyConverter.toDailyByCountResponseDTO(dailyList);
     }
@@ -69,7 +69,7 @@ public class DailyQueryService {
     }
 
     public List<SideEffect> getNullAndAfterTodaySideEffect() {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         List<SideEffect> result = new ArrayList<>();
         List<SideEffect> foundSideEffect = sideEffectRepository.findByUserAndRecord(user, null);
         for (SideEffect sf : foundSideEffect) {

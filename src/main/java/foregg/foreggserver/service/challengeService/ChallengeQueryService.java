@@ -40,7 +40,7 @@ public class ChallengeQueryService {
     private final NotificationRepository notificationRepository;
 
     public ChallengeResponseDTO challengeMain() {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         if (user.getChallengeName() == null) {
             throw new ChallengeHandler(MAKE_NICKNAME_FIRST);
         }
@@ -57,7 +57,7 @@ public class ChallengeQueryService {
     }
 
     public ChallengeResponseDTO getAllChallenges() {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         List<ChallengeDTO> resultList = new ArrayList<>();
         List<Challenge> mainChallenge = challengeRepository.findByProducerId(-1L);
         for (Challenge challenge : mainChallenge) {
@@ -80,7 +80,7 @@ public class ChallengeQueryService {
     }
 
     public List<ChallengeCheerResponseDTO> getParticipantsList(Long id) {
-        User currentUser = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User currentUser = userQueryService.getUser();
         Challenge challenge = challengeRepository.findById(id)
                 .orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
 
@@ -134,7 +134,7 @@ public class ChallengeQueryService {
 
     //챌린지 검색 메서드
     public ChallengeResponseDTO searchChallenge(String keyword) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         List<Challenge> challenges = challengeRepository.findByNameContaining(keyword);
         List<ChallengeDTO> resultList = new ArrayList<>();
         for (Challenge challenge : challenges) {
@@ -147,7 +147,7 @@ public class ChallengeQueryService {
 
 
     private List<Challenge> getMainChallenge() {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         List<Challenge> mainChallenge = challengeRepository.findByProducerId(-1L);
         List<Challenge> result = new ArrayList<>();
         List<Challenge> tmp = new ArrayList<>();
@@ -180,7 +180,7 @@ public class ChallengeQueryService {
     }
 
     private List<ChallengeDTO> getCustomChallenge() {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         List<Challenge> challenges = challengeRepository.findAll();
         challenges.removeIf(challenge -> challenge.getProducerId() == -1L);
         List<Challenge> participatingChallenge = new ArrayList<>();
@@ -209,7 +209,7 @@ public class ChallengeQueryService {
     }
 
     private List<ChallengeParticipation> getMyCParticipation() {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         List<ChallengeParticipation> cParticipation = challengeParticipationRespository.findByUser(user).orElse(null);
         cParticipation.removeIf(cp -> !cp.isParticipating());
         List<Challenge> result = new ArrayList<>();

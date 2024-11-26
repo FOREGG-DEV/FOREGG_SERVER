@@ -52,6 +52,9 @@ public class User extends BaseEntity implements UserDetails {
 
     private int point;
 
+    @Setter
+    private LocalDateTime lastConnect;
+
     @OneToOne
     @JoinColumn(name = "surgery_id")
     private Surgery surgery;

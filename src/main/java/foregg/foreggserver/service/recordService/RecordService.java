@@ -100,7 +100,7 @@ public class RecordService {
 
     //일정 삭제하기
     public void deleteRecord(Long id) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         Record record = recordRepository.findByIdAndUser(id,user).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
         notificationService.cancelScheduledTasks(id);
         if (record.getType() == RecordType.HOSPITAL) {
@@ -122,7 +122,7 @@ public class RecordService {
 
     //일정 변경하기
     public void modifyRecord(Long id, RecordRequestDTO dto) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         Record record = recordRepository.findByIdAndUser(id,user).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
         notificationService.cancelScheduledTasks(id);
         record.updateRecord(dto);
@@ -156,7 +156,7 @@ public class RecordService {
         if (SecurityUtil.ifCurrentUserIsHusband()) {
             user = userQueryService.returnSpouse();
         }else{
-            user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+            user = userQueryService.getUser();
         }
         Record record = recordRepository.findByIdAndUser(id, user).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
         return getRepeatTimes(record);
@@ -164,7 +164,7 @@ public class RecordService {
 
     //진료기록 추가하기
     public void addMedicalRecord(Long id, MedicalRecordRequestDTO dto) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         Record record = recordRepository.findByIdAndUser(id,user).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
         if (record.getType() != RecordType.HOSPITAL) {
             throw new RecordHandler(NOT_HOSPITAL_RECORD);
@@ -175,7 +175,7 @@ public class RecordService {
 
     //진료기록 및 부작용 확인하기
     public MedicalRecordResponseDTO medicalRecordAndSideEffect(Long id) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         Record record = recordRepository.findByIdAndUser(id,user).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
         if (record.getType() != RecordType.HOSPITAL) {
             throw new RecordHandler(NOT_HOSPITAL_RECORD);
@@ -223,7 +223,7 @@ public class RecordService {
     }
 
     private List<SideEffect> getOrphanSideEffect() {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         return sideEffectRepository.
 
                 findByUserAndRecord(user, null);
