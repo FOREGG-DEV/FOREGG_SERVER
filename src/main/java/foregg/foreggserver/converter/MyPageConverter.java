@@ -11,6 +11,7 @@ public class MyPageConverter {
 
         if (surgery == null) {
             return MyPageResponseDTO.builder()
+                    .id(me.getId())
                     .nickname(me.getNickname())
                     .surgeryType(null)
                     .count(0)
@@ -21,6 +22,7 @@ public class MyPageConverter {
         }
 
         return MyPageResponseDTO.builder()
+                .id(me.getId())
                 .nickname(me.getNickname())
                 .surgeryType(surgery.getSurgeryType())
                 .count(surgery.getCount())
