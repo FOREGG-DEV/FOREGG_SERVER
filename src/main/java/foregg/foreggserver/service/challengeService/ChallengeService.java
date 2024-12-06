@@ -8,8 +8,7 @@ import foregg.foreggserver.domain.ChallengeParticipation;
 import foregg.foreggserver.domain.Notification;
 import foregg.foreggserver.domain.User;
 import foregg.foreggserver.domain.enums.NotificationType;
-import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeDTO;
-import foregg.foreggserver.jwt.SecurityUtil;
+import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeTotalDTO.MyChallengeDTO;
 import foregg.foreggserver.repository.ChallengeParticipationRespository;
 import foregg.foreggserver.repository.ChallengeRepository;
 import foregg.foreggserver.repository.NotificationRepository;
@@ -128,7 +127,7 @@ public class ChallengeService {
         challengeParticipationRepository.save(cp);
     }
 
-    public MyChallengeDTO success(Long challengeId, String todayDayOfWeek, String thoughts) {
+    public MyChallengeDTO success(Long challengeId, String todayDayOfWeek, ChallengeCompleteRequestDTO dto) {
         User user = userQueryService.getUser();
 
         Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
@@ -142,7 +141,7 @@ public class ChallengeService {
         cParticipation.getSuccessDays().add(todayDayOfWeek);
         if (todayDayOfWeek.equals(DateUtil.getTodayDayOfWeek())) {
             user.addPoint(100);
-            cParticipation.setThoughts(thoughts);
+            cParticipation.setThoughts(dto.getThoughts());
         } else if (todayDayOfWeek.equals(DateUtil.getYesterdayDayOfWeek())) {
             user.addPoint(50);
         } else {
@@ -162,15 +161,11 @@ public class ChallengeService {
         challengeParticipationRepository.saveAll(challengeParticipations); // 변경 사항 저장
     }
 
-    public void cheer(Long id, NotificationType type, Long challengeId) {
-        User receiver = userRepository.findById(id).orElseThrow(() -> new UserHandler(USER_NOT_FOUND));
+    public void cheer(Long receiverId, NotificationType type, Long challengeId) {
+        User receiver = userRepository.findById(receiverId).orElseThrow(() -> new UserHandler(USER_NOT_FOUND));
         User sender = userQueryService.getUser();
-        Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
+        Challenge challenge = challengeQueryService.isParticipating(challengeId);
 
-        ChallengeParticipation cp = challengeParticipationRepository.findByUserAndChallenge(sender, challenge).orElseThrow(() -> new ChallengeHandler(NO_PARTICIPATING_CHALLENGE));
-        if (!cp.isParticipating()) {
-            throw new ChallengeHandler(NO_PARTICIPATING_CHALLENGE);
-        }
         ChallengeParticipation challengeParticipation = challengeParticipationRepository.findByUserAndChallenge(receiver, challenge).orElseThrow(() -> new ChallengeHandler(NO_PARTICIPATING_CHALLENGE));
         if (!challengeParticipation.isParticipating()) {
             throw new ChallengeHandler(NO_PARTICIPATING_CHALLENGE);
