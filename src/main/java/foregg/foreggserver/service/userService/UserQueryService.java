@@ -45,24 +45,24 @@ public class UserQueryService {
         return UserSpouseCodeResponseDTO.builder().spouseCode(spouseCodeGenerator.generateRandomCode()).build();
     }
 
-    public User getUser(String keycode) {
-        User user = userRepository.findByKeyCode(keycode).orElseThrow(() -> new UserHandler(USER_NOT_FOUND));
+    public User getUser() {
+        User user = userRepository.findByKeyCode(SecurityUtil.getCurrentUser()).orElseThrow(() -> new UserHandler(USER_NOT_FOUND));
         return user;
     }
 
     //현재 유저가 남편이면 와이프 반환, 남편이 아니라면 그냥 현재 유저 반환 -> 그냥 와이프 반환하는 메서드
     public User returnWifeOrHusband() {
         if (SecurityUtil.ifCurrentUserIsHusband()) {
-            Long spouseId = getUser(SecurityUtil.getCurrentUser()).getSpouseId();
+            Long spouseId = getUser().getSpouseId();
             return userRepository.findById(spouseId).orElseThrow(() -> new UserHandler(SPOUSE_NOT_FOUND));
         }else{
-            return getUser(SecurityUtil.getCurrentUser());
+            return getUser();
         }
     }
 
     //배우자 반환
     public User returnSpouse() {
-        User user = getUser(SecurityUtil.getCurrentUser());
+        User user = getUser();
         Long spouseId = user.getSpouseId();
         if (spouseId == null) {
             return null;
@@ -83,7 +83,7 @@ public class UserQueryService {
     }
 
     public String getChallengeName() {
-        User user = this.getUser(SecurityUtil.getCurrentUser());
+        User user = this.getUser();
         return user.getChallengeName();
     }
 

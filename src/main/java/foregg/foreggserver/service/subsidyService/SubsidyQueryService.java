@@ -46,12 +46,12 @@ public class SubsidyQueryService {
     }
 
     public Subsidy getSubsidyByIdAndUser(Long id) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         return subsidyRepository.findByIdAndUser(id, user).orElseThrow(() -> new SubsidyHandler(NOT_FOUND_MY_SUBSIDY));
     }
 
     public SubsidyResponseDTO getSubsidyByCount(int count) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         List<Subsidy> subsidies = subsidyRepository.findByUserAndCount(user, count);
         User spouse = userQueryService.returnSpouse();
         if (spouse != null) {
@@ -64,7 +64,7 @@ public class SubsidyQueryService {
     }
 
     public Subsidy getSubsidyByUserCountName(int count, String name) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         Subsidy subsidy = subsidyRepository.findByUserAndCountAndNickname(user, count, name);
         if (subsidy == null) {
             User spouse = userQueryService.returnSpouse();
@@ -74,13 +74,13 @@ public class SubsidyQueryService {
     }
 
     public List<Subsidy> getSubsidyByUserAndCount(int count) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         List<Subsidy> subsidies = subsidyRepository.findByUserAndCount(user, count);
         return subsidies;
     }
 
     public List<LedgerResponseDTO.SubsidyAvailable> toSubsidyAvailable(int count) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         List<LedgerResponseDTO.SubsidyAvailable> result = new ArrayList<>();
         List<Subsidy> subsidies = subsidyRepository.findByUserAndCount(user, count);
 
@@ -96,7 +96,7 @@ public class SubsidyQueryService {
     }
 
     public void subsidyExist(String nickname, int count) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         Subsidy subsidy = subsidyRepository.findByUserAndCountAndNickname(user, count, nickname);
         if (subsidy != null) {
             throw new SubsidyHandler(SUBSIDY_ALREADY_EXIST);
@@ -105,7 +105,7 @@ public class SubsidyQueryService {
 
     public void restoreSubsidy(List<Expenditure> expenditureList, int count) {
         expenditureList.removeIf(expenditure -> "개인".equals(expenditure.getName()));
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         for (Expenditure expenditure : expenditureList) {
             Subsidy subsidy = subsidyRepository.findByUserAndCountAndNickname(user, count, expenditure.getName());
             subsidy.restoreSubsidy(expenditure.getAmount());

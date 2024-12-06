@@ -15,6 +15,7 @@ import foregg.foreggserver.jwt.JwtTokenProvider;
 import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.SurgeryRepository;
 import foregg.foreggserver.repository.UserRepository;
+import foregg.foreggserver.service.notificationService.NotificationService;
 import foregg.foreggserver.service.redisService.RedisService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,6 +29,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
@@ -45,14 +47,19 @@ public class UserService {
     private final KakaoRequestService kakaoRequestService;
     private final RedisService redisService;
     private final UserQueryService userQueryService;
+    private final NotificationService notificationService;
 
     public UserResponseDTO login(String userPk) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(userPk);
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        User user = userQueryService.getUser();
+        user.setLastConnect(LocalDateTime.now());
 
         String accessToken = jwtTokenProvider.createToken(userPk);
         String refreshToken = jwtTokenProvider.createRefresh(userPk);
+
+        //notificationService.scheduleAwakeUser(user);
 
         return UserResponseDTO.builder()
                 .keyCode(userPk)
@@ -154,11 +161,11 @@ public class UserService {
                 userRepository.delete(husband);
             }
         }else{
-            User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+            User user = userQueryService.getUser();
             user.setSpouseId(null);
         }
 
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         userRepository.delete(user);
 
         redisService.deleteData(SecurityUtil.getCurrentUser());
@@ -168,7 +175,7 @@ public class UserService {
     }
 
     public void renewalFcm(FcmRenewalRequest dto) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         user.setFcmToken(dto.getFcm());
     }
 

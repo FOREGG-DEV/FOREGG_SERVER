@@ -3,11 +3,13 @@ package foregg.foreggserver.controller;
 import foregg.foreggserver.apiPayload.ApiResponse;
 import foregg.foreggserver.domain.enums.NotificationType;
 import foregg.foreggserver.domain.enums.ChallengeSuccessDayType;
+import foregg.foreggserver.dto.challengeDTO.ChallengeRequestDTO.ChallengeCompleteRequestDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeRequestDTO.ChallengeCreateRequestDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeRequestDTO.ChallengeNameRequestDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO;
-import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeCheerResponseDTO;
-import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeDTO;
+import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeParticipantsDTO;
+import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeTotalDTO;
+import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeTotalDTO.MyChallengeDTO;
 import foregg.foreggserver.service.challengeService.ChallengeQueryService;
 import foregg.foreggserver.service.challengeService.ChallengeService;
 import foregg.foreggserver.service.userService.UserQueryService;
@@ -59,8 +61,8 @@ public class ChallengeController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4002", description = "나의 챌린지가 존재하지 않습니다"),
     })
-    public ApiResponse<List<MyChallengeDTO>> myChallenge() {
-        List<MyChallengeDTO> result = challengeQueryService.getMyChallenges();
+    public ApiResponse<MyChallengeTotalDTO> myChallenge() {
+        MyChallengeTotalDTO result = challengeQueryService.getMyChallenges();
         return ApiResponse.onSuccess(result);
     }
 
@@ -87,12 +89,12 @@ public class ChallengeController {
     })
     public ApiResponse<MyChallengeDTO> complete(@PathVariable(name = "id") Long challengeId,
                                                 @RequestParam(name = "day") ChallengeSuccessDayType day,
-                                                @RequestBody(required = false) String thoughts) {
+                                                @RequestBody(required = false) ChallengeCompleteRequestDTO dto) {
         if (day.equals(ChallengeSuccessDayType.TODAY)) {
-            MyChallengeDTO result = challengeService.success(challengeId, DateUtil.getTodayDayOfWeek(), thoughts);
+            MyChallengeDTO result = challengeService.success(challengeId, DateUtil.getTodayDayOfWeek(), dto);
             return ApiResponse.onSuccess(result);
         }
-        MyChallengeDTO result = challengeService.success(challengeId, DateUtil.getYesterdayDayOfWeek(), thoughts);
+        MyChallengeDTO result = challengeService.success(challengeId, DateUtil.getYesterdayDayOfWeek(), dto);
         return ApiResponse.onSuccess(result);
     }
 
@@ -182,14 +184,12 @@ public class ChallengeController {
     }
 
     @Operation(summary = "챌린지 찌르기 리스트")
-    @GetMapping("{id}/participantsList")
+    @GetMapping("/{challengeId}/{isSuccess}/participants")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4002", description = "존재하지 않는 챌린지입니다"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4003", description = "참여히고 있는 챌린지가 아닙니다")
     })
-    public ApiResponse<List<ChallengeCheerResponseDTO>> getParticipantsList(@PathVariable(name = "id") Long id) {
-        List<ChallengeCheerResponseDTO> result = challengeQueryService.getParticipantsList(id);
+    public ApiResponse<List<ChallengeParticipantsDTO>> getCompleteList(@PathVariable(name = "challengeId") Long challengeId, @PathVariable(name = "isSuccess") boolean isSuccess) {
+        List<ChallengeParticipantsDTO> result = challengeQueryService.getParticipants(challengeId, isSuccess);
         return ApiResponse.onSuccess(result);
     }
 

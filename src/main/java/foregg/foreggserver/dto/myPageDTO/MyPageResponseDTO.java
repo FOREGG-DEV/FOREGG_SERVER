@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MyPageResponseDTO {
 
+    private Long id;
     private String nickname;
     private SurgeryType surgeryType;
     private int count;

@@ -4,6 +4,7 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.TextStyle;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -299,6 +300,14 @@ public class DateUtil {
         } else {
             return days + "일 전"; // 그 이상
         }
+    }
+
+    public static String getFirstDayOfWeek() {
+        LocalDate today = LocalDate.now(); // 현재 날짜
+        LocalDate firstDayOfWeek = today.with(TemporalAdjusters.previousOrSame(java.time.DayOfWeek.SUNDAY)); // 이번 주의 첫 번째 날
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // 원하는 형식
+        return firstDayOfWeek.format(formatter); // 포맷팅된 날짜 반환
     }
 
 }

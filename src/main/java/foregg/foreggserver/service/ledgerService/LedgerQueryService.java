@@ -59,7 +59,7 @@ public class LedgerQueryService {
 
     //가계부 수정할 때 나오는 Detail
     public LedgerRequestDTO ledgerDetail(Long id) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         User spouse = userQueryService.returnSpouse();
         Ledger ledger = ledgerRepository.findById(id).orElseThrow(() -> new LedgerHandler(NOT_FOUND_MY_LEDGER));
         if (ledger.getUser() != user && ledger.getUser() != spouse) {
@@ -132,7 +132,7 @@ public class LedgerQueryService {
 
     //현재 유저의 가계부와 배우자의 가계부를 합쳐서 반환하는 메서드
     public List<Ledger> getHusbandAndWifeLedgers() {
-        List<Ledger> result = ledgerRepository.findByUser(userQueryService.getUser(SecurityUtil.getCurrentUser()));
+        List<Ledger> result = ledgerRepository.findByUser(userQueryService.getUser());
         User spouse = userQueryService.returnSpouse();
         if(spouse != null) {
             List<Ledger> spouseLedgers = ledgerRepository.findByUser(spouse);
@@ -148,7 +148,7 @@ public class LedgerQueryService {
     }
 
     private String getLedgerMemo(int count) {
-        LedgerMemo ledgerMemo = ledgerMemoRepository.findByUserAndCount(userQueryService.getUser(SecurityUtil.getCurrentUser()), count);
+        LedgerMemo ledgerMemo = ledgerMemoRepository.findByUserAndCount(userQueryService.getUser(), count);
         if (ledgerMemo == null) {
             return null;
         }

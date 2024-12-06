@@ -33,7 +33,7 @@ public class InjectionQueryService {
     private final RepeatTimeRepository repeatTimeRepository;
 
     public void shareInjection(Long id, String time) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         Optional<Record> foundRecord = recordRepository.findByIdAndUser(id, user);
         if (foundRecord.isEmpty()) {
             throw new RecordHandler(NOT_FOUND_MY_INJECTION_RECORD);
@@ -86,7 +86,7 @@ public class InjectionQueryService {
                 throw new RecordHandler(NOT_FOUND_MY_INJECTION_RECORD);
             }
         }else{
-            User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+            User user = userQueryService.getUser();
             if (!recordUser.equals(user)) {
                 throw new RecordHandler(NOT_FOUND_MY_INJECTION_RECORD);
             }

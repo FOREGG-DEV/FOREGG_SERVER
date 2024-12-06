@@ -26,7 +26,7 @@ public class FcmMessageDTO {
     public static class Data {
         private String title;
         private String body;
-        private String type;
+        private String navigation;
         private String targetId;
         private String time;
         private String vibration;

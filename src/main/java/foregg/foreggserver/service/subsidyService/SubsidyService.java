@@ -32,7 +32,7 @@ public class SubsidyService {
     private final SubsidyQueryService subsidyQueryService;
 
     public void createSubsidy(SubsidyRequestDTO dto) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         subsidyQueryService.subsidyExist(dto.getNickname(), dto.getCount());
         int userSubsidyCount = subsidyRepository.countByUserAndCount(user, dto.getCount());
         SubsidyColorType color = SubsidyColorType.values()[userSubsidyCount % SubsidyColorType.values().length];

@@ -36,7 +36,7 @@ public class NotificationQueryService {
         List<NotificationDTO> result = new ArrayList<>();
 
         LocalDateTime thresholdDate = LocalDateTime.now().minusDays(30);
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
 
         // 필터링된 Reply 리스트
         List<Reply> replyList = replyRepository.findByReceiver(user).stream()

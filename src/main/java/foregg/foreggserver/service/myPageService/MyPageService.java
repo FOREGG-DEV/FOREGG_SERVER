@@ -23,7 +23,7 @@ public class MyPageService {
     private final UserQueryService userQueryService;
 
     public void modifySurgery(MyPageRequestDTO dto) {
-        User user = userQueryService.getUser(SecurityUtil.getCurrentUser());
+        User user = userQueryService.getUser();
         Surgery surgery = surgeryRepository.findByUser(user).orElseThrow(() -> new SurgeryHandler(NOT_FOUND_MY_SURGERY));
         surgery.update(dto);
     }
