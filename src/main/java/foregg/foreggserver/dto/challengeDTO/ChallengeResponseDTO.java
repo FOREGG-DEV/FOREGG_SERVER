@@ -32,24 +32,34 @@ public class ChallengeResponseDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class MyChallengeDTO {
-        private Long id;
-        private String name;
-        private int participants;
-        private List<String> successDays;
+    public static class MyChallengeTotalDTO {
+
+        String firstDateOfWeek;
+        List<MyChallengeDTO> dtos;
+
+        @Getter
+        @Builder
+        @AllArgsConstructor
+        @NoArgsConstructor
+        public static class MyChallengeDTO{
+            private Long id;
+            private String name;
+            private int participants;
+            private List<String> successDays;
+        }
     }
 
     @Getter
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class ChallengeCheerResponseDTO {
-        private Long id;
-        private String challengeNickname;
-        private String thought;
-        private boolean success;
-        private boolean clap;
-        private boolean support;
+    public static class ChallengeParticipantsDTO {
+
+        private Long userId;
+        private String nickname;
+        private String thoughts;
+        private boolean isSupported;
+
     }
 
 }
