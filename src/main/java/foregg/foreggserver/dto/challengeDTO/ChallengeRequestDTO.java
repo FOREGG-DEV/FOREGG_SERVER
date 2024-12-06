@@ -28,4 +28,12 @@ public class ChallengeRequestDTO {
         private String description;
     }
 
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ChallengeCompleteRequestDTO {
+        private String thoughts;
+    }
+
 }
