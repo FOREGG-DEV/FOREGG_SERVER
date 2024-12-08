@@ -25,9 +25,9 @@ public class FcmService{
      *
      * @return 성공(1), 실패(0)
      */
-    public int sendMessageTo(String fcmToken, String title, String body, String type, String targetId, String time, Boolean vibration) throws IOException {
+    public int sendMessageTo(String fcmToken, String title, String body, String navigation, String targetId, String time, Boolean vibration) throws IOException {
 
-        String message = makeMessage(fcmToken, "Hugg", body, type, targetId, time, vibration);
+        String message = makeMessage(fcmToken, "Hugg", body, navigation, targetId, time, vibration);
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
