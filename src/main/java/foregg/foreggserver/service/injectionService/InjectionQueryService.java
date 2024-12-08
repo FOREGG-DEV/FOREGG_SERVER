@@ -42,7 +42,7 @@ public class InjectionQueryService {
         User spouse = userQueryService.returnSpouse();
         if (spouse != null) {
             try {
-                fcmService.sendMessageTo(spouse.getFcmToken(), "주사 푸시 알림입니다", String.format("따끔, %s님이 %s 주사를 맞았어요", user.getNickname(),foundRecord.get().getName()),"injection male", id.toString(),time, null);
+                fcmService.sendMessageTo(spouse.getFcmToken(), "주사 푸시 알림입니다", String.format("%s님이 일정을 완료했어요.", user.getNickname(),foundRecord.get().getName()),"inj_med_info_screen", id.toString(),time, null);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
