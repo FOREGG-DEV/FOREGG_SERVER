@@ -3,7 +3,6 @@ package foregg.foreggserver.converter;
 import foregg.foreggserver.domain.Notification;
 import foregg.foreggserver.domain.Reply;
 import foregg.foreggserver.domain.enums.NotificationType;
-import foregg.foreggserver.dto.notificationDTO.NotificationResponseDTO;
 import foregg.foreggserver.dto.notificationDTO.NotificationResponseDTO.NotificationDTO;
 import foregg.foreggserver.util.DateUtil;
 
@@ -33,9 +32,9 @@ public class NotificationConverter {
         for (Notification notification : notificationList) {
             NotificationDTO dto = NotificationDTO.builder()
                     .id(notification.getId())
-                    .targetKey(notification.getChallengeId().toString())
+                    .targetKey(notification.getTargetId().toString())
                     .notificationType(notification.getNotificationType())
-                    .sender(notification.getSender().getNickname())
+                    .sender(notification.getSender())
                     .elapsedTime(DateUtil.getElapsedTime(notification.getCreatedAt()))
                     .createdAt(notification.getCreatedAt().toString())
                     .build();

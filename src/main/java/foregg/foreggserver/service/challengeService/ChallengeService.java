@@ -173,16 +173,16 @@ public class ChallengeService {
 
         catchCheerException(challengeParticipation, type);
 
-        List<Notification> notificationList = notificationRepository.findBySenderAndDateAndNotificationType(sender, LocalDate.now().toString(), type);
+        List<Notification> notificationList = notificationRepository.findBySenderAndDateAndNotificationType(sender.getChallengeName(), LocalDate.now().toString(), type);
         if (notificationList.size() >= 3) {
             throw new ChallengeHandler(NO_MORE_THAN_THIRD_TIME);
         }
 
-        if (notificationRepository.findBySenderAndReceiverAndDateAndNotificationType(sender, receiver, LocalDate.now().toString(), type) != null) {
+        if (notificationRepository.findBySenderAndReceiverAndDateAndNotificationType(sender.getChallengeName(), receiver, LocalDate.now().toString(), type) != null) {
             throw new ChallengeHandler(ALREADY_SEND_CHEER);
         }
 
-        Notification notification = notificationService.createNotification(type, receiver, sender, challengeId);
+        Notification notification = notificationService.createNotification(type, receiver, sender.getChallengeName(), challengeId);
         notificationRepository.save(notification);
     }
 
