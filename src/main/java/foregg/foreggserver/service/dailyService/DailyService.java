@@ -6,16 +6,19 @@ import foregg.foreggserver.apiPayload.exception.handler.UserHandler;
 import foregg.foreggserver.converter.DailyConverter;
 import foregg.foreggserver.domain.*;
 import foregg.foreggserver.domain.Record;
+import foregg.foreggserver.domain.enums.NotificationType;
 import foregg.foreggserver.dto.dailyDTO.DailyRequestDTO;
 import foregg.foreggserver.dto.dailyDTO.DailyRequestDTO.DailyReplyRequestDTO;
 import foregg.foreggserver.dto.dailyDTO.SideEffectRequestDTO;
 import foregg.foreggserver.dto.dailyDTO.SideEffectResponseDTO;
 import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.DailyRepository;
+import foregg.foreggserver.repository.NotificationRepository;
 import foregg.foreggserver.repository.ReplyRepository;
 import foregg.foreggserver.repository.SideEffectRepository;
 import foregg.foreggserver.service.fcmService.FcmService;
 import foregg.foreggserver.service.myPageService.MyPageQueryService;
+import foregg.foreggserver.service.notificationService.NotificationService;
 import foregg.foreggserver.service.recordService.RecordQueryService;
 import foregg.foreggserver.service.s3Service.S3Service;
 import foregg.foreggserver.service.userService.UserQueryService;
@@ -48,6 +51,8 @@ public class DailyService {
     private final MyPageQueryService myPageQueryService;
     private final S3Service s3Service;
     private final ReplyRepository replyRepository;
+    private final NotificationService notificationService;
+    private final NotificationRepository notificationRepository;
 
     public void writeDaily(DailyRequestDTO dto, String imageUrl) {
         User user = userQueryService.getUser();
@@ -94,6 +99,8 @@ public class DailyService {
                 .build();
         replyRepository.save(reply);
         daily.setReply(reply);
+        Notification notification = notificationService.createNotification(NotificationType.REPLY, wife, userQueryService.getUser().getNickname(), daily.getId());
+        notificationRepository.save(notification);
     }
 
     public void writeSideEffect(SideEffectRequestDTO dto) {
