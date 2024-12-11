@@ -19,9 +19,8 @@ public class Notification extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id")
-    private User sender;
+    @Column(nullable = false)
+    private String sender;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_id")
@@ -34,6 +33,6 @@ public class Notification extends BaseEntity {
     private NotificationType notificationType;
 
     @Column(nullable = false)
-    private Long challengeId;
+    private Long targetId;
 }
 
