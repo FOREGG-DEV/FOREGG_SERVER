@@ -99,9 +99,9 @@ public class ChallengeQueryService {
         for (ChallengeParticipation cp : challengeParticipations) {
             Notification notification;
             if (isSuccess) {
-                notification = notificationRepository.findBySenderAndReceiverAndDateAndNotificationType(currentUser, cp.getUser(), LocalDate.now().toString(), NotificationType.CLAP);
+                notification = notificationRepository.findBySenderAndReceiverAndDateAndNotificationType(currentUser.getChallengeName(), cp.getUser(), LocalDate.now().toString(), NotificationType.CLAP);
             } else {
-                notification = notificationRepository.findBySenderAndReceiverAndDateAndNotificationType(currentUser, cp.getUser(), LocalDate.now().toString(), NotificationType.SUPPORT);
+                notification = notificationRepository.findBySenderAndReceiverAndDateAndNotificationType(currentUser.getChallengeName(), cp.getUser(), LocalDate.now().toString(), NotificationType.SUPPORT);
             }
             if (notification == null) {
                 result.add(ChallengeConverter.toChallengeParticipantDTO(cp, false));
