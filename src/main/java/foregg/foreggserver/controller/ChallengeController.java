@@ -7,6 +7,7 @@ import foregg.foreggserver.dto.challengeDTO.ChallengeRequestDTO.ChallengeComplet
 import foregg.foreggserver.dto.challengeDTO.ChallengeRequestDTO.ChallengeCreateRequestDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeRequestDTO.ChallengeNameRequestDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO;
+import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeParticipantsDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeTotalDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeTotalDTO.MyChallengeDTO;
@@ -164,7 +165,7 @@ public class ChallengeController {
         return ApiResponse.onSuccess();
     }
 
-    @Operation(summary = "챌린지 제작하기")
+    @Operation(summary = "챌린지 검색하기")
     @GetMapping("/search")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
@@ -211,4 +212,14 @@ public class ChallengeController {
         return ApiResponse.onSuccess();
     }
 
+    @Operation(summary = "챌린지 상세")
+    @GetMapping("/{challengeId}")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4002", description = "존재하지 않는 챌린지입니다"),
+    })
+    public ApiResponse<ChallengeDTO> detail(@PathVariable(name = "challengeId") Long challengeId){
+        ChallengeDTO result = challengeQueryService.detail(challengeId);
+        return ApiResponse.onSuccess(result);
+    }
 }
