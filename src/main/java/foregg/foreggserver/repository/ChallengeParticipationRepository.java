@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface ChallengeParticipationRespository extends JpaRepository<ChallengeParticipation, Long> {
+public interface ChallengeParticipationRepository extends JpaRepository<ChallengeParticipation, Long> {
 
     Optional<List<ChallengeParticipation>> findByChallenge(Challenge challenge);
 
