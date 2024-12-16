@@ -11,7 +11,7 @@ import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeParticipantsDTO;
 import foregg.foreggserver.repository.NotificationRepository;
-import foregg.foreggserver.repository.ChallengeParticipationRespository;
+import foregg.foreggserver.repository.ChallengeParticipationRepository;
 import foregg.foreggserver.repository.ChallengeRepository;
 import foregg.foreggserver.service.userService.UserQueryService;
 import foregg.foreggserver.util.DateUtil;
@@ -32,7 +32,7 @@ import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
 public class ChallengeQueryService {
 
     private final ChallengeRepository challengeRepository;
-    private final ChallengeParticipationRespository challengeParticipationRespository;
+    private final ChallengeParticipationRepository challengeParticipationRepository;
     private final UserQueryService userQueryService;
     private final NotificationRepository notificationRepository;
 
@@ -46,7 +46,7 @@ public class ChallengeQueryService {
         //일단 관리자 id는 -1
         List<Challenge> challenges = getMainChallenge();
         for (Challenge challenge : challenges) {
-            Optional<ChallengeParticipation> cp = challengeParticipationRespository.findByUserAndChallenge(user, challenge);
+            Optional<ChallengeParticipation> cp = challengeParticipationRepository.findByUserAndChallenge(user, challenge);
             ChallengeDTO challengeResponseDTO = ChallengeConverter.toChallengeResponseDTO(challenge, user, cp);
             result.add(challengeResponseDTO);
         }
@@ -58,7 +58,7 @@ public class ChallengeQueryService {
         List<ChallengeDTO> resultList = new ArrayList<>();
         List<Challenge> mainChallenge = challengeRepository.findByProducerId(-1L);
         for (Challenge challenge : mainChallenge) {
-            Optional<ChallengeParticipation> cp = challengeParticipationRespository.findByUserAndChallenge(user, challenge);
+            Optional<ChallengeParticipation> cp = challengeParticipationRepository.findByUserAndChallenge(user, challenge);
             ChallengeDTO challengeResponseDTO = ChallengeConverter.toChallengeResponseDTO(challenge, user, cp);
             resultList.add(challengeResponseDTO);
         }
@@ -118,7 +118,7 @@ public class ChallengeQueryService {
         List<Challenge> challenges = challengeRepository.findByNameContaining(keyword);
         List<ChallengeDTO> resultList = new ArrayList<>();
         for (Challenge challenge : challenges) {
-            Optional<ChallengeParticipation> cp = challengeParticipationRespository.findByUserAndChallenge(user, challenge);
+            Optional<ChallengeParticipation> cp = challengeParticipationRepository.findByUserAndChallenge(user, challenge);
             ChallengeDTO challengeResponseDTO = ChallengeConverter.toChallengeResponseDTO(challenge, user, cp);
             resultList.add(challengeResponseDTO);
         }
@@ -128,11 +128,18 @@ public class ChallengeQueryService {
     public Challenge isParticipating(Long challengeId) {
         User user = userQueryService.getUser();
         Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
-        ChallengeParticipation challengeParticipation = challengeParticipationRespository.findByUserAndChallenge(user, challenge).orElseThrow(() -> new ChallengeHandler(NO_PARTICIPATING_CHALLENGE));
+        ChallengeParticipation challengeParticipation = challengeParticipationRepository.findByUserAndChallenge(user, challenge).orElseThrow(() -> new ChallengeHandler(NO_PARTICIPATING_CHALLENGE));
         if (!challengeParticipation.isParticipating()) {
             throw new ChallengeHandler((NO_PARTICIPATING_CHALLENGE));
         }
         return challenge;
+    }
+
+    public ChallengeDTO detail(Long challengeId) {
+        User user = userQueryService.getUser();
+        Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
+        ChallengeParticipation cp = challengeParticipationRepository.findByUserAndChallenge(user, challenge).orElse(null);
+        return ChallengeConverter.toChallengeDTO(challenge, cp, user);
     }
 
     private List<Challenge> getMainChallenge() {
@@ -142,11 +149,11 @@ public class ChallengeQueryService {
         List<Challenge> tmp = new ArrayList<>();
 
         // 해당 사용자의 ChallengeParticipation을 가져와서 Challenge와 매핑
-        List<ChallengeParticipation> userParticipations = challengeParticipationRespository.findByUser(user)
+        List<ChallengeParticipation> userParticipations = challengeParticipationRepository.findByUser(user)
                 .orElse(Collections.emptyList());
 
         for (Challenge challenge : mainChallenge) {
-            Optional<ChallengeParticipation> foundChallenge = challengeParticipationRespository.findByUserAndChallenge(user, challenge);
+            Optional<ChallengeParticipation> foundChallenge = challengeParticipationRepository.findByUserAndChallenge(user, challenge);
             if (foundChallenge.isEmpty()) {
                 tmp.add(challenge);  // 참여하지 않은 챌린지
             } else {
@@ -156,8 +163,8 @@ public class ChallengeQueryService {
 
         // 참여 중인 챌린지를 ChallengeParticipation의 생성 시간(createdDate) 기준으로 정렬
         result.sort((c1, c2) -> {
-            Optional<ChallengeParticipation> cp1 = challengeParticipationRespository.findByUserAndChallenge(user, c1);
-            Optional<ChallengeParticipation> cp2 = challengeParticipationRespository.findByUserAndChallenge(user, c2);
+            Optional<ChallengeParticipation> cp1 = challengeParticipationRepository.findByUserAndChallenge(user, c1);
+            Optional<ChallengeParticipation> cp2 = challengeParticipationRepository.findByUserAndChallenge(user, c2);
 
             return cp1.get().getCreatedAt().compareTo(cp2.get().getCreatedAt());
         });
@@ -178,7 +185,7 @@ public class ChallengeQueryService {
         List<ChallengeDTO> result = new ArrayList<>();
 
         for (Challenge challenge : challenges) {
-            Optional<ChallengeParticipation> cParticipation = challengeParticipationRespository.findByUserAndChallenge(user, challenge);
+            Optional<ChallengeParticipation> cParticipation = challengeParticipationRepository.findByUserAndChallenge(user, challenge);
             if (cParticipation.isEmpty()) {
                 notParticipatingChallenge.add(challenge);
                 continue;
@@ -190,7 +197,7 @@ public class ChallengeQueryService {
         resultChallenges.addAll(notParticipatingChallenge);
 
         for (Challenge challenge : resultChallenges) {
-            Optional<ChallengeParticipation> cp = challengeParticipationRespository.findByUserAndChallenge(user, challenge);
+            Optional<ChallengeParticipation> cp = challengeParticipationRepository.findByUserAndChallenge(user, challenge);
             ChallengeDTO challengeResponseDTO = ChallengeConverter.toChallengeResponseDTO(challenge, user, cp);
             result.add(challengeResponseDTO);
         }
@@ -199,7 +206,7 @@ public class ChallengeQueryService {
 
     private List<ChallengeParticipation> getMyCParticipation() {
         User user = userQueryService.getUser();
-        List<ChallengeParticipation> cParticipation = challengeParticipationRespository.findByUser(user).orElse(null);
+        List<ChallengeParticipation> cParticipation = challengeParticipationRepository.findByUser(user).orElse(null);
         cParticipation.removeIf(cp -> !cp.isParticipating());
         List<Challenge> result = new ArrayList<>();
         return cParticipation;
@@ -207,7 +214,7 @@ public class ChallengeQueryService {
 
     public int getChallengeParticipants(ChallengeParticipation cp) {
         Challenge challenge = cp.getChallenge();
-        Optional<List<ChallengeParticipation>> challengeParticipation = challengeParticipationRespository.findByChallenge(challenge);
+        Optional<List<ChallengeParticipation>> challengeParticipation = challengeParticipationRepository.findByChallenge(challenge);
         if (challengeParticipation.isPresent()) {
             return challengeParticipation.get().size();
         }
