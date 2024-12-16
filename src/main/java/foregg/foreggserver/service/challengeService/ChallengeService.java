@@ -9,7 +9,7 @@ import foregg.foreggserver.domain.Notification;
 import foregg.foreggserver.domain.User;
 import foregg.foreggserver.domain.enums.NotificationType;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeTotalDTO.MyChallengeDTO;
-import foregg.foreggserver.repository.ChallengeParticipationRespository;
+import foregg.foreggserver.repository.ChallengeParticipationRepository;
 import foregg.foreggserver.repository.ChallengeRepository;
 import foregg.foreggserver.repository.NotificationRepository;
 import foregg.foreggserver.repository.UserRepository;
@@ -36,7 +36,7 @@ import static foregg.foreggserver.dto.challengeDTO.ChallengeRequestDTO.*;
 public class ChallengeService {
 
     private final ChallengeRepository challengeRepository;
-    private final ChallengeParticipationRespository challengeParticipationRepository;
+    private final ChallengeParticipationRepository challengeParticipationRepository;
     private final UserQueryService userQueryService;
     private final UserRepository userRepository;
     private final ChallengeQueryService challengeQueryService;
