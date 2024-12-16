@@ -56,4 +56,22 @@ public class ChallengeConverter {
                 .isSupported(isSupported).build();
     }
 
+    public static ChallengeDTO toChallengeDTO(Challenge challenge, ChallengeParticipation challengeParticipation, User user) {
+        boolean isOpen = false;
+        boolean isParticipating = false;
+        if (challengeParticipation != null) {
+            isOpen = challengeParticipation.isOpen();
+            isParticipating = challengeParticipation.isParticipating();
+        }
+        return ChallengeDTO.builder()
+                .id(challenge.getId())
+                .point(user.getPoint())
+                .image(challenge.getImage())
+                .name(challenge.getName())
+                .description(challenge.getDescription())
+                .participants(challenge.getChallengeParticipations().size())
+                .isOpen(isOpen)
+                .isParticipating(isParticipating).build();
+    }
+
 }
