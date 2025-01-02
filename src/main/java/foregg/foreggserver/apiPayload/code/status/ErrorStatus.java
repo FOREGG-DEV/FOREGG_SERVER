@@ -43,10 +43,11 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_FOUND_MY_RECORD(BAD_REQUEST, "RECORD4004", "나의 기록이 존재하지 않습니다"),
     NOT_RESERVED_HOSPITAL_RECORD(BAD_REQUEST, "RECORD4005", "예약된 병원 기록이 존재하지 않습니다"),
     NOT_FOUND_REPEATTIME(BAD_REQUEST, "RECORD4006", "해당 시간에 기록이 없습니다"),
-    NOT_INJECTION_RECORD(BAD_REQUEST, "RECORD4007", "주사 일정이 아닙니다"),
+    MISMATCH_RECORD_AND_TYPE(BAD_REQUEST, "RECORD4007", "일정의 타입이 일치하지 않습니다"),
     NOT_FOUND_LATEST_MEDICAL_RECORD(BAD_REQUEST, "RECORD4008", "최근의 진료 기록이 없습니다"),
     NOT_FOUND_MY_INJECTION_RECORD(BAD_REQUEST, "RECORD4009","나의 주사 일정을 찾을 수 없습니다"),
     MEN_ONLY_ETC(BAD_REQUEST, "RECORD4010","남편은 기타 일정 외에는 추가할 수 없습니다"),
+    INVALID_RECORD_DATE(BAD_REQUEST, "RECORD4011", "해당 날짜에는 일정이 존재하지 않습니다"),
 
 
     //챌린지 관련 에러
@@ -85,6 +86,7 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_FOUND_DAILY(BAD_REQUEST, "DAILY4002","하루 기록이 존재하지 않습니다"),
     NOT_FRIDAY(BAD_REQUEST, "DAILY4003","금요일이 아닙니다"),
     ALREADY_REPLY(BAD_REQUEST, "DAILY4004","이미 답장을 했습니다"),
+    ONLY_INJECTION_MEDICINE(BAD_REQUEST, "DAILY_4005", "주사와 약 정보만 제공됩니다"),
 
     //부작용 관련 에러
     NOT_FOUND_SIDEEFFECT(BAD_REQUEST, "SIDEEFFECT4001", "부작용이 존재하지 않습니다"),
