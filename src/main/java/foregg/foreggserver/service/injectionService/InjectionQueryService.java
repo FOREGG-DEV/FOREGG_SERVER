@@ -1,22 +1,25 @@
 package foregg.foreggserver.service.injectionService;
 
+import foregg.foreggserver.apiPayload.exception.handler.DailyHandler;
 import foregg.foreggserver.apiPayload.exception.handler.RecordHandler;
 import foregg.foreggserver.apiPayload.exception.handler.UserHandler;
 import foregg.foreggserver.domain.*;
 import foregg.foreggserver.domain.Record;
 import foregg.foreggserver.domain.enums.RecordType;
-import foregg.foreggserver.dto.injectionDTO.InjectionResponseDTO;
+import foregg.foreggserver.dto.injectionDTO.MedicalResponseDTO;
 import foregg.foreggserver.jwt.SecurityUtil;
-import foregg.foreggserver.repository.InjectionRepository;
+import foregg.foreggserver.repository.MedicalRepository;
 import foregg.foreggserver.repository.RecordRepository;
 import foregg.foreggserver.repository.RepeatTimeRepository;
 import foregg.foreggserver.service.fcmService.FcmService;
 import foregg.foreggserver.service.userService.UserQueryService;
+import foregg.foreggserver.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
@@ -28,7 +31,7 @@ public class InjectionQueryService {
 
     private final UserQueryService userQueryService;
     private final FcmService fcmService;
-    private final InjectionRepository injectionRepository;
+    private final MedicalRepository medicalRepository;
     private final RecordRepository recordRepository;
     private final RepeatTimeRepository repeatTimeRepository;
 
@@ -42,7 +45,7 @@ public class InjectionQueryService {
         User spouse = userQueryService.returnSpouse();
         if (spouse != null) {
             try {
-                fcmService.sendMessageTo(spouse.getFcmToken(), "주사 푸시 알림입니다", String.format("%s님이 일정을 완료했어요.", user.getNickname(),foundRecord.get().getName()),"inj_med_info_screen", id.toString(),time, null);
+                fcmService.sendMessageTo(spouse.getFcmToken(), "주사 푸시 알림입니다", String.format("%s님이 일정을 완료했어요.", user.getNickname(),foundRecord.get().getName()),"inj_med_info_screen", id.toString(), time, null);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -51,29 +54,25 @@ public class InjectionQueryService {
         }
     }
 
-    public InjectionResponseDTO getInjectionInfo(Long id, String time) {
+    public MedicalResponseDTO getMedicalInfo(Long id, RecordType type, String date, String time) {
+
         Record record = recordRepository.findById(id).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
         isMyInjectionRecord(record);
-        if (record.getType() != RecordType.INJECTION) {
-            throw new RecordHandler(NOT_INJECTION_RECORD);
-        }
+        isValidateRecord(record, type, time, date);
 
-        Optional<RepeatTime> repeatTime = repeatTimeRepository.findByRecordAndTime(record, time);
-        if (repeatTime.isEmpty()) {
-            throw new RecordHandler(NOT_FOUND_REPEATTIME);
-        }
-
-        Optional<Injection> injection = injectionRepository.findByName(record.getName());
-        if (injection.isPresent()) {
-            return InjectionResponseDTO.builder()
-                    .name(injection.get().getName())
-                    .description(injection.get().getDescription())
-                    .image(injection.get().getImage())
+        Optional<Medical> medical = medicalRepository.findByName(record.getName());
+        if (medical.isPresent()) {
+            return MedicalResponseDTO.builder()
+                    .name(medical.get().getName())
+                    .date(date)
+                    .description(medical.get().getDescription())
+                    .image(medical.get().getImage())
                     .time(time).build();
         }
 
-        return InjectionResponseDTO.builder()
+        return MedicalResponseDTO.builder()
                 .name(record.getName())
+                .date(date)
                 .description(null)
                 .image(null)
                 .time(time).build();
@@ -91,6 +90,34 @@ public class InjectionQueryService {
                 throw new RecordHandler(NOT_FOUND_MY_INJECTION_RECORD);
             }
         }
+    }
 
+    private void isValidateRecord(Record record, RecordType type, String time, String date) {
+        if (type.equals(RecordType.ETC) || type.equals(RecordType.HOSPITAL)) {
+            throw new DailyHandler(ONLY_INJECTION_MEDICINE);
+        }
+
+        if (!record.getType().equals(type)) {
+            throw new DailyHandler(MISMATCH_RECORD_AND_TYPE);
+        }
+
+        Optional<RepeatTime> repeatTime = repeatTimeRepository.findByRecordAndTime(record, time);
+        if (repeatTime.isEmpty()) {
+            throw new RecordHandler(NOT_FOUND_REPEATTIME);
+        }
+
+        if (record.getDate() != null) {
+            if (!record.getDate().equals(date)) {
+                throw new RecordHandler(INVALID_RECORD_DATE);
+            }
+        } else {
+            List<String> intervalDates = DateUtil.getIntervalDates(record.getStart_date(), record.getEnd_date());
+            if (!intervalDates.contains(date)) {
+                throw new RecordHandler(INVALID_RECORD_DATE);
+            }
+            if (!record.getRepeat_date().contains(DateUtil.getKoreanDayOfWeek(date))) {
+                throw new RecordHandler(INVALID_RECORD_DATE);
+            }
+        }
     }
 }

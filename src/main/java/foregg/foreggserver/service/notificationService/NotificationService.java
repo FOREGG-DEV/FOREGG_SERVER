@@ -162,7 +162,7 @@ public class NotificationService {
         Date date = Date.from(notificationDateTime.atZone(ZoneId.systemDefault()).toInstant());
         ScheduledFuture<?> scheduledFuture = taskScheduler.schedule(() -> {
             try {
-                fcmService.sendMessageTo(user.getFcmToken(), "주사 일정 알림", String.format("%s님 %s 주사 맞을 시간이에요.",user.getNickname(),time), "injection female", recordId.toString(), time, null);
+                fcmService.sendMessageTo(user.getFcmToken(), "주사 일정 알림", String.format("%s님 %s 주사 맞을 시간이에요.",user.getNickname(),date+time), "injection female", recordId.toString(), time, null);
                 log.info("FCM 푸시 알림이 성공적으로 {}에게 전송되었습니다.", user.getNickname());
             } catch (IOException e) {
                 log.error("FCM 푸시 알림을 보내는 도중 오류 발생: {}", e.getMessage());

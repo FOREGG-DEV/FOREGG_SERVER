@@ -4,7 +4,7 @@ import foregg.foreggserver.domain.Challenge;
 import foregg.foreggserver.domain.ChallengeParticipation;
 import foregg.foreggserver.domain.User;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeDTO;
-import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeParticipantsDTO;
+import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeParticipantsDTO.ChallengeParticipantDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeTotalDTO.MyChallengeDTO;
 import lombok.RequiredArgsConstructor;
 
@@ -48,8 +48,8 @@ public class ChallengeConverter {
                 .successDays(cp.getSuccessDays()).build();
     }
 
-    public static ChallengeParticipantsDTO toChallengeParticipantDTO(ChallengeParticipation challengeParticipations, boolean isSupported) {
-        return ChallengeParticipantsDTO.builder()
+    public static ChallengeParticipantDTO toChallengeParticipantDTO(ChallengeParticipation challengeParticipations, boolean isSupported) {
+        return ChallengeParticipantDTO.builder()
                 .userId(challengeParticipations.getUser().getId())
                 .nickname(challengeParticipations.getUser().getChallengeName())
                 .thoughts(challengeParticipations.getThoughts())

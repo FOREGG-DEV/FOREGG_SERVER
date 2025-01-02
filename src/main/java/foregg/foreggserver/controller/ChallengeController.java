@@ -19,6 +19,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -188,9 +190,15 @@ public class ChallengeController {
     @GetMapping("/{challengeId}/{isSuccess}/participants")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "PAGE4001", description = "페이지 사이즈를 벗어났습니다")
     })
-    public ApiResponse<List<ChallengeParticipantsDTO>> getCompleteList(@PathVariable(name = "challengeId") Long challengeId, @PathVariable(name = "isSuccess") boolean isSuccess) {
-        List<ChallengeParticipantsDTO> result = challengeQueryService.getParticipants(challengeId, isSuccess);
+    public ApiResponse<ChallengeParticipantsDTO> getCompleteList(
+            @PathVariable(name = "challengeId") Long challengeId,
+            @PathVariable(name = "isSuccess") boolean isSuccess,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        ChallengeParticipantsDTO result = challengeQueryService.getParticipants(challengeId, isSuccess, pageable);
         return ApiResponse.onSuccess(result);
     }
 

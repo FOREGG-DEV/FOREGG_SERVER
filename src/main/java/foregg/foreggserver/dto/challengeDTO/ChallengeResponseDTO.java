@@ -55,11 +55,21 @@ public class ChallengeResponseDTO {
     @NoArgsConstructor
     public static class ChallengeParticipantsDTO {
 
-        private Long userId;
-        private String nickname;
-        private String thoughts;
-        private boolean isSupported;
+        private List<ChallengeParticipantDTO> dto;
+        private int currentPage;
+        private int totalPage;
+        private int totalItems;
 
+        @Getter
+        @Builder
+        @AllArgsConstructor
+        @NoArgsConstructor
+        public static class ChallengeParticipantDTO {
+            private Long userId;
+            private String nickname;
+            private String thoughts;
+            private boolean isSupported;
+        }
     }
 
 }
