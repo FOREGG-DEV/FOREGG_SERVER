@@ -1,6 +1,7 @@
 package foregg.foreggserver.service.challengeService;
 
 import foregg.foreggserver.apiPayload.exception.handler.ChallengeHandler;
+import foregg.foreggserver.apiPayload.exception.handler.PageHandler;
 import foregg.foreggserver.converter.ChallengeConverter;
 import foregg.foreggserver.domain.Challenge;
 import foregg.foreggserver.domain.ChallengeParticipation;
@@ -10,6 +11,7 @@ import foregg.foreggserver.domain.enums.NotificationType;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeParticipantsDTO;
+import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeParticipantsDTO.ChallengeParticipantDTO;
 import foregg.foreggserver.repository.NotificationRepository;
 import foregg.foreggserver.repository.ChallengeParticipationRepository;
 import foregg.foreggserver.repository.ChallengeRepository;
@@ -17,6 +19,7 @@ import foregg.foreggserver.service.userService.UserQueryService;
 import foregg.foreggserver.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,41 +79,57 @@ public class ChallengeQueryService {
         return ChallengeResponseDTO.MyChallengeTotalDTO.builder().dtos(result).firstDateOfWeek(DateUtil.getFirstDayOfWeek()).build();
     }
 
-    public List<ChallengeParticipantsDTO> getParticipants(Long challengeId, boolean isSuccess) {
+    public ChallengeParticipantsDTO getParticipants(Long challengeId, boolean isSuccess, Pageable pageable) {
+        List<ChallengeParticipantDTO> result = new ArrayList<>();
 
-        List<ChallengeParticipantsDTO> result = new ArrayList<>();
-
+        // 기존 로직 수행
         User currentUser = userQueryService.getUser();
         Challenge challenge = isParticipating(challengeId);
         List<ChallengeParticipation> challengeParticipations = challenge.getChallengeParticipations();
 
         challengeParticipations.removeIf(cp -> cp.getUser().equals(currentUser));
-
         if (isSuccess) {
             challengeParticipations.removeIf(cp -> !cp.getSuccessDays().contains(DateUtil.getTodayDayOfWeek()));
-        }else{
+        } else {
             challengeParticipations.removeIf(cp -> cp.getSuccessDays().contains(DateUtil.getTodayDayOfWeek()));
         }
 
-        if (challengeParticipations.isEmpty()) {
-            return new ArrayList<>();
+        if (!challengeParticipations.isEmpty()) {
+            for (ChallengeParticipation cp : challengeParticipations) {
+                Notification notification;
+                if (isSuccess) {
+                    notification = notificationRepository.findBySenderAndReceiverAndDateAndNotificationType(currentUser.getChallengeName(), cp.getUser(), LocalDate.now().toString(), NotificationType.CLAP);
+                } else {
+                    notification = notificationRepository.findBySenderAndReceiverAndDateAndNotificationType(currentUser.getChallengeName(), cp.getUser(), LocalDate.now().toString(), NotificationType.SUPPORT);
+                }
+                boolean supported = notification != null;
+                result.add(ChallengeConverter.toChallengeParticipantDTO(cp, supported));
+            }
         }
 
-        for (ChallengeParticipation cp : challengeParticipations) {
-            Notification notification;
-            if (isSuccess) {
-                notification = notificationRepository.findBySenderAndReceiverAndDateAndNotificationType(currentUser.getChallengeName(), cp.getUser(), LocalDate.now().toString(), NotificationType.CLAP);
-            } else {
-                notification = notificationRepository.findBySenderAndReceiverAndDateAndNotificationType(currentUser.getChallengeName(), cp.getUser(), LocalDate.now().toString(), NotificationType.SUPPORT);
-            }
-            if (notification == null) {
-                result.add(ChallengeConverter.toChallengeParticipantDTO(cp, false));
-            } else {
-                result.add(ChallengeConverter.toChallengeParticipantDTO(cp, true));
-            }
+        // 페이징 처리
+        int fromIndex = (int) pageable.getOffset();
+        int toIndex = Math.min(fromIndex + pageable.getPageSize(), result.size());
+
+        // 요청 범위 검증
+        if (fromIndex > result.size()) {
+            throw new PageHandler(PAGE_OUT_OF_RANGE);
         }
-        return result;
+
+        List<ChallengeParticipantDTO> paginatedList = result.subList(fromIndex, toIndex);
+
+        // 페이징 정보만 포함한 PageResponse 반환
+        int totalPages = (int) Math.ceil((double) result.size() / pageable.getPageSize());
+        return ChallengeParticipantsDTO.builder()
+                .dto(paginatedList)
+                .currentPage(pageable.getPageNumber())
+                .totalPage(totalPages)
+                .totalItems(result.size())
+                .build();
     }
+
+
+
 
     //챌린지 검색 메서드
     public ChallengeResponseDTO searchChallenge(String keyword) {
