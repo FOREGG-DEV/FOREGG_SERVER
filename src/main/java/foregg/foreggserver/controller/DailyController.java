@@ -1,11 +1,13 @@
+
 package foregg.foreggserver.controller;
 
 import foregg.foreggserver.apiPayload.ApiResponse;
+import foregg.foreggserver.domain.enums.RecordType;
 import foregg.foreggserver.dto.dailyDTO.*;
 import foregg.foreggserver.dto.dailyDTO.DailyRequestDTO.DailyReplyRequestDTO;
 import foregg.foreggserver.dto.dailyDTO.DailyResponseDTO.DailyAllResponseDTO;
 import foregg.foreggserver.dto.dailyDTO.DailyResponseDTO.DailyByCountResponseDTO;
-import foregg.foreggserver.dto.injectionDTO.InjectionResponseDTO;
+import foregg.foreggserver.dto.injectionDTO.MedicalResponseDTO;
 import foregg.foreggserver.service.dailyService.DailyQueryService;
 import foregg.foreggserver.service.dailyService.DailyService;
 import foregg.foreggserver.service.injectionService.InjectionQueryService;
@@ -184,12 +186,23 @@ public class DailyController {
         return ApiResponse.onSuccess();
     }
 
-    @Operation(summary = "주사 정보 페이지 API")
+    @Operation(summary = "의약품 정보 페이지 API")
     @PreAuthorize("isAuthenticated()")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DAILY4001", description = "존재하지 않는 일정입니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DAILY4005", description = "주사와 약 정보만 제공됩니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DAILY4006", description = "해당 시간에 기록이 없습니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DAILY4007", description = "일정의 타입이 일치하지 않습니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DAILY4009", description = "나의 주사 일정을 찾을 수 없습니다"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "DAILY4011", description = "해당 날짜에는 일정이 존재하지 않습니다"),
+    })
     @GetMapping("/injectionInfo/{id}")
-    public ApiResponse<InjectionResponseDTO> getInjectionInfo(@PathVariable(name = "id") Long id,
-                                                              @RequestParam(name = "time") String time) {
-        InjectionResponseDTO dto = injectionQueryService.getInjectionInfo(id, time);
+    public ApiResponse<MedicalResponseDTO> getInjectionInfo(@PathVariable(name = "id") Long id,
+                                                            @RequestParam(name = "type") RecordType type,
+                                                            @RequestParam(name = "date") String date,
+                                                            @RequestParam(name = "time") String time) {
+        MedicalResponseDTO dto = injectionQueryService.getMedicalInfo(id, type, date, time);
         return ApiResponse.onSuccess(dto);
     }
 
