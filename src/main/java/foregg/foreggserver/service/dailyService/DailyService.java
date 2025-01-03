@@ -57,6 +57,10 @@ public class DailyService {
     public void writeDaily(DailyRequestDTO dto, String imageUrl) {
         User user = userQueryService.getUser();
         Daily daily = dailyRepository.findByDateAndUser(DateUtil.formatLocalDateTime(LocalDate.now()),user);
+        String navigation = "daily_hugg_graph";
+        if (daily.getReply() == null) {
+            navigation = "reply_daily_hugg/" + daily.getDate();
+        }
         int count = myPageQueryService.getSurgeryCount();
         if (daily != null) {
             throw new RecordHandler(ALREADY_WRITTEN);
@@ -64,7 +68,7 @@ public class DailyService {
         User spouse = userQueryService.returnSpouse();
         if (spouse != null) {
             try {
-                fcmService.sendMessageTo(spouse.getFcmToken(), "새로운 하루기록이 등록되었습니다", String.format("%s님의 하루 기록이 도착했어요.", user.getNickname()), "today record male", null, null, null);
+                fcmService.sendMessageTo(spouse.getFcmToken(), "여자, 데일리허그 작성 완료", String.format("%s님으로부터 데일리 허그가 도착했어요. 답장을 남겨주세요!", user.getNickname()), navigation, null, null, null);
                 log.info("FCM 푸시 알림이 성공적으로 {}에게 전송되었습니다.", spouse.getNickname());
             } catch (IOException e) {
                 log.error("FCM 푸시 알림을 보내는 도중 오류 발생: {}", e.getMessage());
