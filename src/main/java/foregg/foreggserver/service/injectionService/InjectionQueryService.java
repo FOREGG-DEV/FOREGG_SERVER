@@ -35,7 +35,7 @@ public class InjectionQueryService {
     private final RecordRepository recordRepository;
     private final RepeatTimeRepository repeatTimeRepository;
 
-    public void shareInjection(Long id, String time) {
+    public void shareMedical(Long id, String time) {
         User user = userQueryService.getUser();
         Optional<Record> foundRecord = recordRepository.findByIdAndUser(id, user);
         if (foundRecord.isEmpty()) {
@@ -45,7 +45,7 @@ public class InjectionQueryService {
         User spouse = userQueryService.returnSpouse();
         if (spouse != null) {
             try {
-                fcmService.sendMessageTo(spouse.getFcmToken(), "주사 푸시 알림입니다", String.format("%s님이 일정을 완료했어요.", user.getNickname(),foundRecord.get().getName()),"inj_med_info_screen", id.toString(), time, null);
+                fcmService.sendMessageTo(spouse.getFcmToken(), "투여 완료 공유 알림입니다", String.format("%s님이 일정을 완료했어요.", user.getNickname(),foundRecord.get().getName()),"inj_med_info_screen", id.toString(), time, null);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
