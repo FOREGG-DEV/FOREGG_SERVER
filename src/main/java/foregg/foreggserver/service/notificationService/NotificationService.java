@@ -6,6 +6,7 @@ import foregg.foreggserver.domain.Record;
 import foregg.foreggserver.domain.enums.NavigationType;
 import foregg.foreggserver.domain.enums.NotificationType;
 import foregg.foreggserver.domain.enums.RecordType;
+import foregg.foreggserver.repository.ChallengeParticipationRepository;
 import foregg.foreggserver.repository.DailyRepository;
 import foregg.foreggserver.repository.RecordRepository;
 import foregg.foreggserver.repository.UserRepository;
@@ -43,6 +44,7 @@ public class NotificationService {
     private final RecordRepository recordRepository;
     private final DailyRepository dailyRepository;
     private final RecordQueryService recordQueryService;
+    private final ChallengeParticipationRepository challengeParticipationRepository;
     private final ThreadPoolTaskScheduler taskScheduler;
     private final Map<Long, List<ScheduledFuture<?>>> scheduledTasks = new ConcurrentHashMap<>();
 
@@ -113,6 +115,46 @@ public class NotificationService {
             }
         }
     }
+
+    @Scheduled(cron = "0 0 23 * * *", zone = "Asia/Seoul")
+    public void urgeReplyAlarm() {
+        List<User> wives = userQueryService.getAllWives();
+        for (User wife : wives) {
+            User spouse = userRepository.findById(wife.getSpouseId()).orElse(null);
+            if (spouse == null) {
+                continue;
+            }
+            Optional<Daily> foundDaily = dailyRepository.findByUserAndDate(wife, LocalDate.now().toString());
+            if (foundDaily.isPresent() && foundDaily.get().getReply() == null) {
+                try {
+                    fcmService.sendMessageTo(spouse.getFcmToken(), "11시까지 데일리 허그 답장이 없을 경우 알림", String.format("%s님 데일리 허그에서 %s님이 애타게 기다리고 있어요!", spouse.getNickname(),wife.getNickname()), NavigationType.reply_daily_hugg.toString() +"/"+LocalDate.now(), null, null, null);
+                    log.info("FCM 푸시 알림이 성공적으로 {}에게 전송되었습니다.", spouse.getNickname());
+                } catch (IOException e) {
+                    log.error("FCM 푸시 알림을 보내는 도중 오류 발생: {}", e.getMessage());
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+    @Scheduled(cron = "0 0 14 * * *", zone = "Asia/Seoul")
+    public void urgeParticipateChallengeAlarm() {
+        List<User> wives = userQueryService.getAllWives();
+        for (User wife : wives) {
+            Optional<List<ChallengeParticipation>> cp = challengeParticipationRepository.findByUser(wife);
+            if (cp.isEmpty()) {
+                continue;
+            }
+            try {
+                fcmService.sendMessageTo(wife.getFcmToken(), "참여중인 챌린지가 있는 경우, 오후 2시", "오늘의 챌린지에 참여하고, 포인트 받아가세요!", NavigationType.myChallenge.toString(), null, null, null);
+                log.info("FCM 푸시 알림이 성공적으로 {}에게 전송되었습니다.", wife.getNickname());
+            } catch (IOException e) {
+                log.error("FCM 푸시 알림을 보내는 도중 오류 발생: {}", e.getMessage());
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
 
     public void scheduleNotifications(User user, Record record, List<RepeatTime> repeatTimes) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
