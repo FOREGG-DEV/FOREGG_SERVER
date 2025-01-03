@@ -7,6 +7,8 @@ import foregg.foreggserver.domain.User;
 import foregg.foreggserver.domain.enums.NotificationType;
 import foregg.foreggserver.repository.UserRepository;
 import foregg.foreggserver.service.fcmService.FcmService;
+import foregg.foreggserver.service.recordService.RecordQueryService;
+import foregg.foreggserver.service.userService.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -32,27 +34,14 @@ public class NotificationService {
 
     private final UserRepository userRepository;
     private final FcmService fcmService;
+    private final UserQueryService userQueryService;
+    private final RecordQueryService recordQueryService;
     private final ThreadPoolTaskScheduler taskScheduler;
     private final Map<Long, List<ScheduledFuture<?>>> scheduledTasks = new ConcurrentHashMap<>();
 
     @Scheduled(cron = "0 0 22 * * *", zone = "Asia/Seoul")
     public void sendDailyPush() {
-        log.info("10시 하루기록 알림이 실행되었습니다.");
-
-        List<User> users = userRepository.findAll();
-        log.info("총 {}명의 사용자가 조회되었습니다.", users.size());
-
-        List<User> wives = new ArrayList<>();
-        for (User user : users) {
-            Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
-            for (GrantedAuthority authority : authorities) {
-                if (authority.getAuthority().equals("ROLE_WIFE")) {
-                    wives.add(user);
-                }
-            }
-        }
-
-        log.info("총 {}명의 WIFE가 발견되었습니다.", wives.size());
+        List<User> wives = userQueryService.getAllWives();
 
         for (User wife : wives) {
             try {
@@ -82,6 +71,29 @@ public class NotificationService {
             }
         }
         log.info("10시 하루기록 푸시알림이 완료되었습니다.");
+    }
+
+    @Scheduled(cron = "0 0 8 * * *", zone = "Asia/Seoul")
+    public void send8Alarm() {
+
+        List<User> wives = userQueryService.getAllWives();
+        for (User wife : wives) {
+            if (recordQueryService.getUsersWithTodayHospitalAndEtcRecord(wife)) {
+                try {
+                    fcmService.sendMessageTo(wife.getFcmToken(), "병원일정, 기타일정 알림", "오늘의 일정을 확인해주세요","calendar_graph",null, null,null);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                if (wife.getSpouseId() != null) {
+                    Optional<User> foundHusband = userRepository.findById(wife.getSpouseId());
+                    try {
+                        fcmService.sendMessageTo(foundHusband.get().getFcmToken(), "병원일정, 기타일정 알림", "오늘의 일정을 확인해주세요","calendar_graph",null, null, null);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
     }
 
 
