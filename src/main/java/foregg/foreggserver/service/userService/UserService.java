@@ -5,6 +5,7 @@ import foregg.foreggserver.converter.SurgeryConverter;
 import foregg.foreggserver.converter.UserConverter;
 import foregg.foreggserver.domain.Surgery;
 import foregg.foreggserver.domain.User;
+import foregg.foreggserver.domain.enums.NavigationType;
 import foregg.foreggserver.dto.fcmDTO.FcmRenewalRequest;
 import foregg.foreggserver.dto.userDTO.LogoutWithdrawalResponseDTO;
 import foregg.foreggserver.dto.userDTO.UserHusbandJoinRequestDTO;
@@ -15,6 +16,7 @@ import foregg.foreggserver.jwt.JwtTokenProvider;
 import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.SurgeryRepository;
 import foregg.foreggserver.repository.UserRepository;
+import foregg.foreggserver.service.fcmService.FcmService;
 import foregg.foreggserver.service.notificationService.NotificationService;
 import foregg.foreggserver.service.redisService.RedisService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,6 +31,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -47,7 +50,7 @@ public class UserService {
     private final KakaoRequestService kakaoRequestService;
     private final RedisService redisService;
     private final UserQueryService userQueryService;
-    private final NotificationService notificationService;
+    private final FcmService fcmService;
 
     public UserResponseDTO login(String userPk) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(userPk);
@@ -105,10 +108,15 @@ public class UserService {
 
         String accessToken = jwtTokenProvider.createToken(userId.toString());
         String refreshToken = jwtTokenProvider.createRefresh(userId.toString());
-        //String keyCode = jwtTokenProvider.getUserPk(jwt);
 
         User husband = userRepository.save(UserConverter.toHusband(userInfo, userId.toString(), wife, dto));
         wife.setSpouseId(husband.getId());
+
+        try {
+            fcmService.sendMessageTo(wife.getFcmToken(), "남편 회원가입 완료 푸시알림", String.format("%s님이 나의 배우자 코드로 가입을 완료했어요. 함께 관리를 시작해볼까요?", husband.getNickname()), NavigationType.daily_hugg_graph.toString(), null, null, null);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         return UserConverter.toUserResponseDTO(userId.toString(), accessToken, refreshToken);
     }

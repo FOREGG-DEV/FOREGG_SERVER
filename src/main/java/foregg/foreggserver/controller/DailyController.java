@@ -86,7 +86,6 @@ public class DailyController {
     @PreAuthorize("hasRole('ROLE_WIFE')")
     public ApiResponse<String> write(@RequestPart(name = "image", required = false) MultipartFile image,
                                      @RequestPart(name = "dto") DailyRequestDTO dto) throws IOException {
-
         dailyService.writeDaily(dto, s3Service.upload(image));
         return ApiResponse.onSuccess();
     }
@@ -176,13 +175,13 @@ public class DailyController {
         return ApiResponse.onSuccess();
     }
 
-    @Operation(summary = "주사 투여 완료 공유하기 API")
+    @Operation(summary = "의약품 투여 완료 공유하기 API")
     @PreAuthorize("hasRole('ROLE_WIFE')")
-    @PostMapping("/shareInjection/{id}")
+    @PostMapping("/shareMedical/{id}")
     public ApiResponse<String> sendNotificationInjection(@PathVariable(name = "id") Long id,
                                                          @RequestParam(name = "time") String time) {
 
-        injectionQueryService.shareInjection(id, time);
+        injectionQueryService.shareMedical(id, time);
         return ApiResponse.onSuccess();
     }
 

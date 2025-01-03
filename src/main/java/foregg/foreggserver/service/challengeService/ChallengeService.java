@@ -7,12 +7,14 @@ import foregg.foreggserver.domain.Challenge;
 import foregg.foreggserver.domain.ChallengeParticipation;
 import foregg.foreggserver.domain.Notification;
 import foregg.foreggserver.domain.User;
+import foregg.foreggserver.domain.enums.NavigationType;
 import foregg.foreggserver.domain.enums.NotificationType;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeTotalDTO.MyChallengeDTO;
 import foregg.foreggserver.repository.ChallengeParticipationRepository;
 import foregg.foreggserver.repository.ChallengeRepository;
 import foregg.foreggserver.repository.NotificationRepository;
 import foregg.foreggserver.repository.UserRepository;
+import foregg.foreggserver.service.fcmService.FcmService;
 import foregg.foreggserver.service.notificationService.NotificationService;
 import foregg.foreggserver.service.userService.UserQueryService;
 import foregg.foreggserver.util.DateUtil;
@@ -22,6 +24,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +45,7 @@ public class ChallengeService {
     private final ChallengeQueryService challengeQueryService;
     private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
+    private final FcmService fcmService;
 
     public void participate(Long id) {
         User user = userQueryService.getUser();
@@ -184,6 +188,26 @@ public class ChallengeService {
 
         Notification notification = notificationService.createNotification(type, receiver, sender.getChallengeName(), challengeId);
         notificationRepository.save(notification);
+        cheerAlarm(receiver, sender, type, challengeId);
+    }
+
+    private void cheerAlarm(User receiver, User sender, NotificationType type, Long challengeId) {
+        String alarmType;
+        String rear;
+        if (type.equals(NotificationType.SUPPORT)) {
+            alarmType = "응원";
+            rear = "이";
+        }else{
+            alarmType = "박수";
+            rear = "가";
+        }
+        try {
+            fcmService.sendMessageTo(receiver.getFcmToken(), String.format("다른 사용자로부터 %s받았을 때",alarmType), String.format("%s님으로부터 %s%s 도착했어요. 오늘의 챌린지를 달성하러 가볼까요?",sender.getChallengeName(),alarmType,rear), NavigationType.challenge_support.toString()+"/"+challengeId, null, null, null);
+            log.info("FCM 푸시 알림이 성공적으로 {}에게 전송되었습니다.", receiver.getNickname());
+        } catch (IOException e) {
+            log.error("FCM 푸시 알림을 보내는 도중 오류 발생: {}", e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     private void catchCheerException(ChallengeParticipation challengeParticipation, NotificationType notificationType) {

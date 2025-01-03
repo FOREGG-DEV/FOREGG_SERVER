@@ -125,7 +125,6 @@ public class RecordQueryService {
                 }
             }
         }
-
         String spouseName = null;
         if (spouse != null) {
             spouseName = spouse.getNickname();
@@ -138,6 +137,33 @@ public class RecordQueryService {
         return HomeConverter.toHomeResponseDTO(me.getNickname(),spouseName, todayDate, me.getSsn(),resultList, null, null);
     }
 
+    public boolean getUsersWithTodayHospitalAndEtcRecord(User user) {
+        Optional<List<Record>> foundRecord = recordRepository.findByUser(user);
+        if (foundRecord.isEmpty()) {
+            return false;
+        }
+        List<Record> todayRecords = foundRecord.get();
+        String todayDate = DateUtil.formatLocalDateTime(LocalDate.now());
+
+        for (Record record : todayRecords) {
+            if (!(record.getType().equals(RecordType.ETC) || record.getType().equals(RecordType.HOSPITAL))) {
+                continue;
+            }
+
+            if (record.getDate() == null) {
+                List<String> intervalDates = DateUtil.getIntervalDates(record.getStart_date(), record.getEnd_date());
+                if (intervalDates.contains(todayDate)&& ((record.getRepeat_date().contains(DateUtil.getKoreanDayOfWeek(todayDate)))|| record.getRepeat_date().contains("매일"))) {
+                    return true;
+                }
+            }else{
+                if (todayDate.equals(record.getDate())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public Record getTodayHospitalRecord(User user) {
         String today = DateUtil.formatLocalDateTime(LocalDate.now());
 
@@ -147,7 +173,7 @@ public class RecordQueryService {
         }
         List<Record> foundRecord = recordList.get();
 
-        // 가장 최근의 Record를 찾
+        // 가장 최근의 Record를 찾기
         Optional<Record> latestRecord = foundRecord.stream()
                 .filter(record -> !record.getRepeatTimes().isEmpty())
                 .max(Comparator.comparing(record -> record.getRepeatTimes().stream()

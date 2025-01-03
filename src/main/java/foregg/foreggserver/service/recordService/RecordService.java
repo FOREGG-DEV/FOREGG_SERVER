@@ -84,7 +84,7 @@ public class RecordService {
             }
         }
 
-        if (dto.getRecordType() == RecordType.INJECTION) {
+        if (!dto.getRecordType().equals(RecordType.ETC)) {
             notificationService.scheduleNotifications(user, record, repeatTimes);
         }
         User spouse = userQueryService.returnSpouse();
