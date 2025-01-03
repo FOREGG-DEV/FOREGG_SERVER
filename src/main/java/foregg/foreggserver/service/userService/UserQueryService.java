@@ -9,9 +9,13 @@ import foregg.foreggserver.repository.UserRepository;
 import foregg.foreggserver.util.SpouseCodeGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
@@ -85,6 +89,20 @@ public class UserQueryService {
     public String getChallengeName() {
         User user = this.getUser();
         return user.getChallengeName();
+    }
+
+    public List<User> getAllWives() {
+        List<User> users = userRepository.findAll();
+        List<User> wives = new ArrayList<>();
+        for (User user : users) {
+            Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
+            for (GrantedAuthority authority : authorities) {
+                if (authority.getAuthority().equals("ROLE_WIFE")) {
+                    wives.add(user);
+                }
+            }
+        }
+        return wives;
     }
 
 }
