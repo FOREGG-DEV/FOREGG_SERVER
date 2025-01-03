@@ -106,6 +106,11 @@ public class DailyService {
         daily.setReply(reply);
         Notification notification = notificationService.createNotification(NotificationType.REPLY, wife, userQueryService.getUser().getNickname(), daily.getId());
         notificationRepository.save(notification);
+        try {
+            fcmService.sendMessageTo(wife.getFcmToken(), "남자, 데일리 허그 답장 작성 완료", String.format("%s님으로부터 답장이 도착했어요.", userQueryService.getUser().getNickname()), NavigationType.daily_hugg_graph.toString(), null, null, null);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void writeSideEffect(SideEffectRequestDTO dto) {
