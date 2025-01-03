@@ -6,6 +6,7 @@ import foregg.foreggserver.apiPayload.exception.handler.UserHandler;
 import foregg.foreggserver.converter.DailyConverter;
 import foregg.foreggserver.domain.*;
 import foregg.foreggserver.domain.Record;
+import foregg.foreggserver.domain.enums.NavigationType;
 import foregg.foreggserver.domain.enums.NotificationType;
 import foregg.foreggserver.dto.dailyDTO.DailyRequestDTO;
 import foregg.foreggserver.dto.dailyDTO.DailyRequestDTO.DailyReplyRequestDTO;
@@ -57,9 +58,9 @@ public class DailyService {
     public void writeDaily(DailyRequestDTO dto, String imageUrl) {
         User user = userQueryService.getUser();
         Daily daily = dailyRepository.findByDateAndUser(DateUtil.formatLocalDateTime(LocalDate.now()),user);
-        String navigation = "daily_hugg_graph";
+        String navigation = NavigationType.daily_hugg_graph.toString();
         if (daily.getReply() == null) {
-            navigation = "reply_daily_hugg/" + daily.getDate();
+            navigation = NavigationType.reply_daily_hugg.toString() + "/" + daily.getDate();
         }
         int count = myPageQueryService.getSurgeryCount();
         if (daily != null) {
