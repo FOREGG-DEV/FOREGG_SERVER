@@ -98,14 +98,14 @@ public class NotificationService {
         for (User wife : wives) {
             if (recordQueryService.getUsersWithTodayHospitalAndEtcRecord(wife)) {
                 try {
-                    fcmService.sendMessageTo(wife.getFcmToken(), "병원일정, 기타일정 알림", "오늘의 일정을 확인해주세요","calendar_graph",null, null,null);
+                    fcmService.sendMessageTo(wife.getFcmToken(), "병원일정, 기타일정 알림", "오늘의 일정을 확인해주세요",NavigationType.calendar_graph.toString(),null, null,null);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
                 if (wife.getSpouseId() != null) {
                     Optional<User> foundHusband = userRepository.findById(wife.getSpouseId());
                     try {
-                        fcmService.sendMessageTo(foundHusband.get().getFcmToken(), "병원일정, 기타일정 알림", "오늘의 일정을 확인해주세요","calendar_graph",null, null, null);
+                        fcmService.sendMessageTo(foundHusband.get().getFcmToken(), "병원일정, 기타일정 알림", "오늘의 일정을 확인해주세요",NavigationType.calendar_graph.toString(),null, null, null);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -212,7 +212,7 @@ public class NotificationService {
         Date date = Date.from(notificationDateTime.atZone(ZoneId.systemDefault()).toInstant());
         ScheduledFuture<?> scheduledFuture = taskScheduler.schedule(() -> {
             try {
-                fcmService.sendMessageTo(user.getFcmToken(), "약, 주사 일정이 있을 때", String.format("%s에 일정이 있어요.",date+time), "inj_med_info_screen"+record.getType(), recordId.toString(), time, record.getVibration());
+                fcmService.sendMessageTo(user.getFcmToken(), "약, 주사 일정이 있을 때", String.format("%s에 일정이 있어요.",date+time), NavigationType.inj_med_info_screen.toString()+record.getType(), recordId.toString(), time, record.getVibration());
                 log.info("FCM 푸시 알림이 성공적으로 {}에게 전송되었습니다.", user.getNickname());
             } catch (IOException e) {
                 log.error("FCM 푸시 알림을 보내는 도중 오류 발생: {}", e.getMessage());
@@ -226,7 +226,7 @@ public class NotificationService {
         Date date = Date.from(notificationDateTime.atZone(ZoneId.systemDefault()).toInstant());
         ScheduledFuture<?> scheduledFuture = taskScheduler.schedule(() -> {
             try {
-                fcmService.sendMessageTo(user.getFcmToken(), "병원 일정 3시간 후 가계부 알림", "오늘의 소비를 기록해보세요.", "account_graph", recordId.toString(), time, null);
+                fcmService.sendMessageTo(user.getFcmToken(), "병원 일정 3시간 후 가계부 알림", "오늘의 소비를 기록해보세요.", NavigationType.account_graph.toString(), recordId.toString(), time, null);
                 log.info("FCM 푸시 알림이 성공적으로 {}에게 전송되었습니다.", user.getNickname());
             } catch (IOException e) {
                 log.error("FCM 푸시 알림을 보내는 도중 오류 발생: {}", e.getMessage());
