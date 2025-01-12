@@ -25,7 +25,8 @@ public class Reply extends BaseEntity {
     @Column(nullable = false)
     private ReplyEmojiType replyEmojiType;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "daily_id")
     private Daily daily;
 
     @ManyToOne(fetch = FetchType.LAZY)

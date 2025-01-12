@@ -37,7 +37,7 @@ public class Daily extends BaseEntity {
     private User user;
 
     @Setter
-    @OneToOne(cascade = CascadeType.REMOVE)
+    @OneToOne(mappedBy = "daily", cascade = CascadeType.REMOVE)
     private Reply reply;
 
     public void updateDaily(DailyRequestDTO dto, String imageUrl) {

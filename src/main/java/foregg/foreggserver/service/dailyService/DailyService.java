@@ -57,15 +57,13 @@ public class DailyService {
 
     public void writeDaily(DailyRequestDTO dto, String imageUrl) {
         User user = userQueryService.getUser();
-        Daily daily = dailyRepository.findByDateAndUser(DateUtil.formatLocalDateTime(LocalDate.now()),user);
-        String navigation = NavigationType.daily_hugg_graph.toString();
-        if (daily.getReply() == null) {
-            navigation = NavigationType.reply_daily_hugg.toString() + "/" + daily.getDate();
-        }
-        int count = myPageQueryService.getSurgeryCount();
-        if (daily != null) {
+        Daily foundDaily  = dailyRepository.findByDateAndUser(DateUtil.formatLocalDateTime(LocalDate.now()),user);
+        if (foundDaily != null) {
             throw new RecordHandler(ALREADY_WRITTEN);
         }
+        int count = myPageQueryService.getSurgeryCount();
+        Daily daily = dailyRepository.save(DailyConverter.toDaily(dto, user, imageUrl, count));
+        String navigation = NavigationType.reply_daily_hugg.toString() + "/" + daily.getDate();
         User spouse = userQueryService.returnSpouse();
         if (spouse != null) {
             try {
@@ -76,7 +74,6 @@ public class DailyService {
                 throw new RuntimeException(e);
             }
         }
-        dailyRepository.save(DailyConverter.toDaily(dto, user, imageUrl, count));
     }
 
     //회차 전체 삭제하기
