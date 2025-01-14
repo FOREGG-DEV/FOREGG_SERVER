@@ -8,6 +8,7 @@ import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengePartic
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeTotalDTO.MyChallengeDTO;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -39,20 +40,22 @@ public class ChallengeConverter {
                 .isParticipating(isParticipating).build();
     }
 
-    public static MyChallengeDTO toMyChallengeDTO(ChallengeParticipation cp, int participants) {
+    public static MyChallengeDTO toMyChallengeDTO(ChallengeParticipation cp, int participants, List<String> successDates) {
         Challenge challenge = cp.getChallenge();
         return MyChallengeDTO.builder()
                 .id(challenge.getId())
                 .name(challenge.getName())
                 .participants(participants)
-                .successDays(cp.getSuccessDays()).build();
+                .startDate(cp.getStartDate())
+                .firstDate(cp.getFirstDate())
+                .successDays(successDates).build();
     }
 
-    public static ChallengeParticipantDTO toChallengeParticipantDTO(ChallengeParticipation challengeParticipations, boolean isSupported) {
+    public static ChallengeParticipantDTO toChallengeParticipantDTO(ChallengeParticipation challengeParticipations, boolean isSupported, String comment) {
         return ChallengeParticipantDTO.builder()
                 .userId(challengeParticipations.getUser().getId())
                 .nickname(challengeParticipations.getUser().getChallengeName())
-                .thoughts(challengeParticipations.getThoughts())
+                .thoughts(comment)
                 .isSupported(isSupported).build();
     }
 

@@ -3,15 +3,15 @@ package foregg.foreggserver.service.challengeService;
 import foregg.foreggserver.apiPayload.exception.handler.ChallengeHandler;
 import foregg.foreggserver.apiPayload.exception.handler.PageHandler;
 import foregg.foreggserver.converter.ChallengeConverter;
-import foregg.foreggserver.domain.Challenge;
-import foregg.foreggserver.domain.ChallengeParticipation;
-import foregg.foreggserver.domain.Notification;
-import foregg.foreggserver.domain.User;
+import foregg.foreggserver.domain.*;
 import foregg.foreggserver.domain.enums.NotificationType;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeParticipantsDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeParticipantsDTO.ChallengeParticipantDTO;
+import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeTotalDTO;
+import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeTotalDTO.MyChallengeDTO;
+import foregg.foreggserver.repository.ChallengeSuccessRepository;
 import foregg.foreggserver.repository.NotificationRepository;
 import foregg.foreggserver.repository.ChallengeParticipationRepository;
 import foregg.foreggserver.repository.ChallengeRepository;
@@ -38,6 +38,7 @@ public class ChallengeQueryService {
     private final ChallengeParticipationRepository challengeParticipationRepository;
     private final UserQueryService userQueryService;
     private final NotificationRepository notificationRepository;
+    private final ChallengeSuccessRepository challengeSuccessRepository;
 
     public ChallengeResponseDTO challengeMain() {
         User user = userQueryService.getUser();
@@ -65,18 +66,21 @@ public class ChallengeQueryService {
             ChallengeDTO challengeResponseDTO = ChallengeConverter.toChallengeResponseDTO(challenge, user, cp);
             resultList.add(challengeResponseDTO);
         }
-
         resultList.addAll(getCustomChallenge());
         return ChallengeResponseDTO.builder().dtos(resultList).build();
     }
 
-    public ChallengeResponseDTO.MyChallengeTotalDTO getMyChallenges() {
-        List<ChallengeResponseDTO.MyChallengeTotalDTO.MyChallengeDTO> result = new ArrayList<>();
+    public MyChallengeTotalDTO getMyChallenges() {
+        List<MyChallengeDTO> result = new ArrayList<>();
         List<ChallengeParticipation> cp = getMyCParticipation();
+
         for (ChallengeParticipation challengeParticipation : cp) {
-            result.add(ChallengeConverter.toMyChallengeDTO(challengeParticipation, getChallengeParticipants(challengeParticipation)));
+            String firstDate = DateUtil.getFirstDayOfWeek(challengeParticipation.getStartDate());
+            challengeParticipation.setFirstDate(firstDate);
+            List<String> successDates = getSuccessDates(challengeParticipation);
+            result.add(ChallengeConverter.toMyChallengeDTO(challengeParticipation, getChallengeParticipants(challengeParticipation), successDates));
         }
-        return ChallengeResponseDTO.MyChallengeTotalDTO.builder().dtos(result).firstDateOfWeek(DateUtil.getFirstDayOfWeek()).build();
+        return MyChallengeTotalDTO.builder().dtos(result).build();
     }
 
     public ChallengeParticipantsDTO getParticipants(Long challengeId, boolean isSuccess, Pageable pageable) {
@@ -89,9 +93,9 @@ public class ChallengeQueryService {
 
         challengeParticipations.removeIf(cp -> cp.getUser().equals(currentUser));
         if (isSuccess) {
-            challengeParticipations.removeIf(cp -> !cp.getSuccessDays().contains(DateUtil.getTodayDayOfWeek()));
+            challengeParticipations.removeIf(cp -> challengeSuccessRepository.findByChallengeParticipationAndDate(cp,LocalDate.now().toString()).isEmpty());
         } else {
-            challengeParticipations.removeIf(cp -> cp.getSuccessDays().contains(DateUtil.getTodayDayOfWeek()));
+            challengeParticipations.removeIf(cp -> challengeSuccessRepository.findByChallengeParticipationAndDate(cp,LocalDate.now().toString()).isPresent());
         }
 
         if (!challengeParticipations.isEmpty()) {
@@ -103,7 +107,12 @@ public class ChallengeQueryService {
                     notification = notificationRepository.findBySenderAndReceiverAndDateAndNotificationType(currentUser.getChallengeName(), cp.getUser(), LocalDate.now().toString(), NotificationType.SUPPORT);
                 }
                 boolean supported = notification != null;
-                result.add(ChallengeConverter.toChallengeParticipantDTO(cp, supported));
+                Optional<ChallengeSuccess> foundChallengeSuccess = challengeSuccessRepository.findByDate(LocalDate.now().toString());
+                String comment = null;
+                if (foundChallengeSuccess.isPresent()) {
+                    comment = foundChallengeSuccess.get().getComment();
+                }
+                result.add(ChallengeConverter.toChallengeParticipantDTO(cp, supported, comment));
             }
         }
 
@@ -127,9 +136,6 @@ public class ChallengeQueryService {
                 .totalItems(result.size())
                 .build();
     }
-
-
-
 
     //챌린지 검색 메서드
     public ChallengeResponseDTO searchChallenge(String keyword) {
@@ -227,7 +233,6 @@ public class ChallengeQueryService {
         User user = userQueryService.getUser();
         List<ChallengeParticipation> cParticipation = challengeParticipationRepository.findByUser(user).orElse(null);
         cParticipation.removeIf(cp -> !cp.isParticipating());
-        List<Challenge> result = new ArrayList<>();
         return cParticipation;
     }
 
@@ -238,6 +243,19 @@ public class ChallengeQueryService {
             return challengeParticipation.get().size();
         }
         return 0;
+    }
+
+    private List<String> getSuccessDates(ChallengeParticipation challengeParticipation) {
+        List<String> intervalDates = DateUtil.getIntervalDates(challengeParticipation.getFirstDate());
+        List<String> result = new ArrayList<>();
+        for (String date : intervalDates) {
+            log.info("date"+date);
+            Optional<ChallengeSuccess> foundElement = challengeSuccessRepository.findByChallengeParticipationAndDate(challengeParticipation, date);
+            if (foundElement.isPresent()) {
+                result.add(date);
+            }
+        }
+        return result;
     }
 
 }

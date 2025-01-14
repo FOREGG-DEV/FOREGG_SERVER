@@ -34,7 +34,6 @@ public class ChallengeResponseDTO {
     @NoArgsConstructor
     public static class MyChallengeTotalDTO {
 
-        String firstDateOfWeek;
         List<MyChallengeDTO> dtos;
 
         @Getter
@@ -45,6 +44,8 @@ public class ChallengeResponseDTO {
             private Long id;
             private String name;
             private int participants;
+            private String startDate;
+            private String firstDate;
             private List<String> successDays;
         }
     }

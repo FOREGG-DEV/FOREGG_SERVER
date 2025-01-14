@@ -3,17 +3,11 @@ package foregg.foreggserver.service.challengeService;
 import foregg.foreggserver.apiPayload.exception.handler.ChallengeHandler;
 import foregg.foreggserver.apiPayload.exception.handler.UserHandler;
 import foregg.foreggserver.converter.ChallengeConverter;
-import foregg.foreggserver.domain.Challenge;
-import foregg.foreggserver.domain.ChallengeParticipation;
-import foregg.foreggserver.domain.Notification;
-import foregg.foreggserver.domain.User;
+import foregg.foreggserver.domain.*;
 import foregg.foreggserver.domain.enums.NavigationType;
 import foregg.foreggserver.domain.enums.NotificationType;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeTotalDTO.MyChallengeDTO;
-import foregg.foreggserver.repository.ChallengeParticipationRepository;
-import foregg.foreggserver.repository.ChallengeRepository;
-import foregg.foreggserver.repository.NotificationRepository;
-import foregg.foreggserver.repository.UserRepository;
+import foregg.foreggserver.repository.*;
 import foregg.foreggserver.service.fcmService.FcmService;
 import foregg.foreggserver.service.notificationService.NotificationService;
 import foregg.foreggserver.service.userService.UserQueryService;
@@ -46,6 +40,7 @@ public class ChallengeService {
     private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
     private final FcmService fcmService;
+    private final ChallengeSuccessRepository challengeSuccessRepository;
 
     public void participate(Long id) {
         User user = userQueryService.getUser();
@@ -55,6 +50,8 @@ public class ChallengeService {
             throw new ChallengeHandler(ALREADY_PARTICIPATING);
         }
         cp.setParticipating(true);
+        cp.setStartDate(LocalDate.now().toString());
+        cp.setFirstDate(LocalDate.now().toString());
     }
 
     public void quitChallenge(Long challengeId) {
@@ -71,11 +68,11 @@ public class ChallengeService {
         Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
         ChallengeParticipation challengeParticipation = challengeParticipationRepository.findByUserAndChallenge(user, challenge).
                 orElseThrow(() -> new ChallengeHandler(NO_PARTICIPATING_CHALLENGE));
-        List<String> successDays = challengeParticipation.getSuccessDays();
-        if (successDays == null) {
+        Optional<ChallengeSuccess> foundChallengeSuccess = challengeSuccessRepository.findByChallengeParticipationAndDate(challengeParticipation, LocalDate.now().toString());
+        if (foundChallengeSuccess.isEmpty()) {
             throw new ChallengeHandler(NO_SUCCESS_DAY);
         }
-        successDays.remove(DateUtil.formatLocalDateTime(LocalDate.now()));
+        challengeSuccessRepository.delete(foundChallengeSuccess.get());
     }
 
     public String createChallengeName(ChallengeNameRequestDTO dto) {
@@ -131,38 +128,40 @@ public class ChallengeService {
         challengeParticipationRepository.save(cp);
     }
 
-    public MyChallengeDTO success(Long challengeId, String todayDayOfWeek, ChallengeCompleteRequestDTO dto) {
+    public void success(Long challengeId, String date, ChallengeCompleteRequestDTO dto) {
         User user = userQueryService.getUser();
+        String thoughts = null;
+        if (dto != null) {
+            thoughts = dto.getThoughts();
+        }
 
         Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
         ChallengeParticipation cParticipation = challengeParticipationRepository.findByUserAndChallenge(user, challenge).orElseThrow(() -> new ChallengeHandler(NO_PARTICIPATING_CHALLENGE));
         if (!cParticipation.isParticipating()) {
             throw new ChallengeHandler(NO_PARTICIPATING_CHALLENGE);
         }
-        if (cParticipation.getSuccessDays().contains(todayDayOfWeek)) {
-            throw new ChallengeHandler(DUPLICATED_SUCCESS_DATE);
-        }
-        cParticipation.getSuccessDays().add(todayDayOfWeek);
-        if (todayDayOfWeek.equals(DateUtil.getTodayDayOfWeek())) {
+
+        //오늘 날짜일때
+        if(date.equals(LocalDate.now().toString())){
+            if (challengeSuccessRepository.findByDate(LocalDate.now().toString()).isPresent()) {
+                throw new ChallengeHandler(DUPLICATED_SUCCESS_DATE);
+            }
+            ChallengeSuccess challengeSuccess = ChallengeSuccess.builder().date(LocalDate.now().toString())
+                    .challengeParticipation(cParticipation).comment(thoughts).build();
+            challengeSuccessRepository.save(challengeSuccess);
             user.addPoint(100);
-            cParticipation.setThoughts(dto.getThoughts());
-        } else if (todayDayOfWeek.equals(DateUtil.getYesterdayDayOfWeek())) {
+        } //어제 날짜일때
+        else if (date.equals(LocalDate.now().minusDays(1).toString())) {
+            if (challengeSuccessRepository.findByDate(LocalDate.now().minusDays(1).toString()).isPresent()) {
+                throw new ChallengeHandler(DUPLICATED_SUCCESS_DATE);
+            }
+            ChallengeSuccess challengeSuccess = ChallengeSuccess.builder().date(LocalDate.now().minusDays(1).toString())
+                    .challengeParticipation(cParticipation).comment(thoughts).build();
+            challengeSuccessRepository.save(challengeSuccess);
             user.addPoint(50);
-        } else {
+        }else{
             throw new ChallengeHandler(OUT_OF_VALIDATE_DAYS);
         }
-        return ChallengeConverter.toMyChallengeDTO(cParticipation, challengeQueryService.getChallengeParticipants(cParticipation));
-    }
-
-    //챌린지 성공 날짜 초기화 메서드
-    @Scheduled(cron = "0 0 0 * * SUN")
-    @Transactional
-    public void initSuccessDays() {
-        List<ChallengeParticipation> challengeParticipations = challengeParticipationRepository.findAll();
-        for (ChallengeParticipation cp : challengeParticipations) {
-            cp.getSuccessDays().clear(); // successDays 초기화
-        }
-        challengeParticipationRepository.saveAll(challengeParticipations); // 변경 사항 저장
     }
 
     public void cheer(Long receiverId, NotificationType type, Long challengeId) {
@@ -211,11 +210,11 @@ public class ChallengeService {
     }
 
     private void catchCheerException(ChallengeParticipation challengeParticipation, NotificationType notificationType) {
-        if (challengeParticipation.getSuccessDays().contains(DateUtil.getTodayDayOfWeek()) && notificationType.equals(NotificationType.SUPPORT)) {
+        if (challengeSuccessRepository.findByChallengeParticipationAndDate(challengeParticipation, LocalDate.now().toString()).isPresent() && notificationType.equals(NotificationType.SUPPORT)) {
             throw new ChallengeHandler(UNABLE_TO_SEND_SUPPORT);
         }
 
-        if (!challengeParticipation.getSuccessDays().contains(DateUtil.getTodayDayOfWeek()) && notificationType.equals(NotificationType.CLAP)) {
+        if (challengeSuccessRepository.findByChallengeParticipationAndDate(challengeParticipation, LocalDate.now().toString()).isEmpty() && notificationType.equals(NotificationType.CLAP)) {
             throw new ChallengeHandler(UNABLE_TO_SEND_CLAP);
         }
     }

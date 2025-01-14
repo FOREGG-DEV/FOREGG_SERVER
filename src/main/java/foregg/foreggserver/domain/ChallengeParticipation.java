@@ -29,25 +29,15 @@ public class ChallengeParticipation extends BaseEntity {
     private boolean isOpen;
 
     @Setter
-    private String thoughts;
-
-    @Setter
     private boolean isParticipating;
 
-    @Builder.Default
-    private List<String> successDays = new ArrayList<>();
+    @Setter
+    private String startDate;
 
-    public void setSuccessDays(String today) {
-        this.successDays.add(today);
-    }
+    @Setter
+    private String firstDate;
 
-    @PrePersist
-    @PostLoad
-    private void initializeSuccessDays() {
-        if (this.successDays == null) {
-            this.successDays = new ArrayList<>();
-        }
-    }
-
+    @OneToMany(mappedBy = "challengeParticipation", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChallengeSuccess> challengeSuccesses;
 
 }
