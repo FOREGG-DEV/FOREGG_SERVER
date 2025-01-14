@@ -302,12 +302,31 @@ public class DateUtil {
         }
     }
 
-    public static String getFirstDayOfWeek() {
-        LocalDate today = LocalDate.now(); // 현재 날짜
-        LocalDate firstDayOfWeek = today.with(TemporalAdjusters.previousOrSame(java.time.DayOfWeek.SUNDAY)); // 이번 주의 첫 번째 날
-
+    public static String getFirstDayOfWeek(String firstDate) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // 원하는 형식
-        return firstDayOfWeek.format(formatter); // 포맷팅된 날짜 반환
+        LocalDate today = LocalDate.now(); // 현재 날짜
+        LocalDate localDate = toLocalDate(firstDate);
+        LocalDate afterWeek = localDate.plusWeeks(1);
+        if (today.equals(afterWeek) || today.isAfter(afterWeek)) {
+            return afterWeek.format(formatter);
+        }
+        return localDate.format(formatter);
+    }
+
+    public static List<String> getIntervalDates(String firstDate) {
+        LocalDate localDate = toLocalDate(firstDate);
+        LocalDate today = LocalDate.now();
+
+        // 결과를 저장할 리스트
+        List<String> intervalDates = new ArrayList<>();
+
+        // localDate부터 today까지의 날짜를 순회하며 리스트에 추가
+        while (!localDate.isAfter(today)) {
+            intervalDates.add(localDate.toString()); // LocalDate를 String으로 변환
+            localDate = localDate.plusDays(1); // 하루씩 증가
+        }
+
+        return intervalDates;
     }
 
 }
