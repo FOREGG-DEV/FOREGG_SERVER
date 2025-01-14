@@ -90,15 +90,11 @@ public class ChallengeController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4005", description = "이미 성공한 날짜입니다"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4012", description = "오늘, 어제 날짜 이외에는 챌린지 성공 할 수 없습니다"),
     })
-    public ApiResponse<MyChallengeDTO> complete(@PathVariable(name = "id") Long challengeId,
-                                                @RequestParam(name = "day") ChallengeSuccessDayType day,
+    public ApiResponse<String> complete(@PathVariable(name = "id") Long challengeId,
+                                                @RequestParam(name = "date") String date,
                                                 @RequestBody(required = false) ChallengeCompleteRequestDTO dto) {
-        if (day.equals(ChallengeSuccessDayType.TODAY)) {
-            MyChallengeDTO result = challengeService.success(challengeId, DateUtil.getTodayDayOfWeek(), dto);
-            return ApiResponse.onSuccess(result);
-        }
-        MyChallengeDTO result = challengeService.success(challengeId, DateUtil.getYesterdayDayOfWeek(), dto);
-        return ApiResponse.onSuccess(result);
+        challengeService.success(challengeId, date, dto);
+        return ApiResponse.onSuccess("성공입니다");
     }
 
     @Operation(summary = "해당 챌린지 수행 완료 취소 API")
