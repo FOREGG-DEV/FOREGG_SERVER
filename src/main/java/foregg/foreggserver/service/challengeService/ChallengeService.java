@@ -143,7 +143,7 @@ public class ChallengeService {
 
         //오늘 날짜일때
         if(date.equals(LocalDate.now().toString())){
-            if (challengeSuccessRepository.findByDate(LocalDate.now().toString()).isPresent()) {
+            if (challengeSuccessRepository.findByChallengeParticipationAndDate(cParticipation,LocalDate.now().toString()).isPresent()) {
                 throw new ChallengeHandler(DUPLICATED_SUCCESS_DATE);
             }
             ChallengeSuccess challengeSuccess = ChallengeSuccess.builder().date(LocalDate.now().toString())
@@ -152,7 +152,7 @@ public class ChallengeService {
             user.addPoint(100);
         } //어제 날짜일때
         else if (date.equals(LocalDate.now().minusDays(1).toString())) {
-            if (challengeSuccessRepository.findByDate(LocalDate.now().minusDays(1).toString()).isPresent()) {
+            if (challengeSuccessRepository.findByChallengeParticipationAndDate(cParticipation,LocalDate.now().minusDays(1).toString()).isPresent()) {
                 throw new ChallengeHandler(DUPLICATED_SUCCESS_DATE);
             }
             ChallengeSuccess challengeSuccess = ChallengeSuccess.builder().date(LocalDate.now().minusDays(1).toString())
