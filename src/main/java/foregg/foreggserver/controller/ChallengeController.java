@@ -8,6 +8,7 @@ import foregg.foreggserver.dto.challengeDTO.ChallengeRequestDTO.ChallengeCreateR
 import foregg.foreggserver.dto.challengeDTO.ChallengeRequestDTO.ChallengeNameRequestDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeDTO;
+import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeParticipantDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeParticipantsDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeTotalDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeTotalDTO.MyChallengeDTO;
@@ -91,8 +92,8 @@ public class ChallengeController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4012", description = "오늘, 어제 날짜 이외에는 챌린지 성공 할 수 없습니다"),
     })
     public ApiResponse<String> complete(@PathVariable(name = "id") Long challengeId,
-                                                @RequestParam(name = "date") String date,
-                                                @RequestBody(required = false) ChallengeCompleteRequestDTO dto) {
+                                        @RequestParam(name = "date") String date,
+                                        @RequestBody(required = false) ChallengeCompleteRequestDTO dto) {
         challengeService.success(challengeId, date, dto);
         return ApiResponse.onSuccess("성공입니다");
     }
@@ -222,8 +223,20 @@ public class ChallengeController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "CHALLENGE4002", description = "존재하지 않는 챌린지입니다"),
     })
-    public ApiResponse<ChallengeDTO> detail(@PathVariable(name = "challengeId") Long challengeId){
+    public ApiResponse<ChallengeDTO> detail(@PathVariable(name = "challengeId") Long challengeId) {
         ChallengeDTO result = challengeQueryService.detail(challengeId);
         return ApiResponse.onSuccess(result);
     }
+
+    @Operation(summary = "챌린지 찌르기 객체")
+    @GetMapping("/{challengeId}/{userId}")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
+    })
+    public ApiResponse<ChallengeParticipantDTO> challengeCheerObject(@PathVariable(name = "challengeId") Long challengeId,
+                                                                     @PathVariable(name = "userId") Long userId) {
+        ChallengeParticipantDTO result = challengeQueryService.challengeSupportDetail(challengeId, userId);
+        return ApiResponse.onSuccess(result);
+    }
+
 }
