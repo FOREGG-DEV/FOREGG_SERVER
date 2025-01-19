@@ -60,17 +60,17 @@ public class ChallengeResponseDTO {
         private int currentPage;
         private int totalPage;
         private int totalItems;
+    }
 
-        @Getter
-        @Builder
-        @AllArgsConstructor
-        @NoArgsConstructor
-        public static class ChallengeParticipantDTO {
-            private Long userId;
-            private String nickname;
-            private String thoughts;
-            private boolean isSupported;
-        }
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ChallengeParticipantDTO {
+        private Long userId;
+        private String nickname;
+        private String thoughts;
+        private boolean isSupported;
     }
 
 }
