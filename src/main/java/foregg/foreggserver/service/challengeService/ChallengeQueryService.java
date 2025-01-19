@@ -2,19 +2,17 @@ package foregg.foreggserver.service.challengeService;
 
 import foregg.foreggserver.apiPayload.exception.handler.ChallengeHandler;
 import foregg.foreggserver.apiPayload.exception.handler.PageHandler;
+import foregg.foreggserver.apiPayload.exception.handler.UserHandler;
 import foregg.foreggserver.converter.ChallengeConverter;
 import foregg.foreggserver.domain.*;
 import foregg.foreggserver.domain.enums.NotificationType;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeDTO;
+import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeParticipantDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeParticipantsDTO;
-import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.ChallengeParticipantsDTO.ChallengeParticipantDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeTotalDTO;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeTotalDTO.MyChallengeDTO;
-import foregg.foreggserver.repository.ChallengeSuccessRepository;
-import foregg.foreggserver.repository.NotificationRepository;
-import foregg.foreggserver.repository.ChallengeParticipationRepository;
-import foregg.foreggserver.repository.ChallengeRepository;
+import foregg.foreggserver.repository.*;
 import foregg.foreggserver.service.userService.UserQueryService;
 import foregg.foreggserver.util.DateUtil;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +37,7 @@ public class ChallengeQueryService {
     private final UserQueryService userQueryService;
     private final NotificationRepository notificationRepository;
     private final ChallengeSuccessRepository challengeSuccessRepository;
+    private final UserRepository userRepository;
 
     public ChallengeResponseDTO challengeMain() {
         User user = userQueryService.getUser();
@@ -165,6 +164,29 @@ public class ChallengeQueryService {
         Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
         ChallengeParticipation cp = challengeParticipationRepository.findByUserAndChallenge(user, challenge).orElse(null);
         return ChallengeConverter.toChallengeDTO(challenge, cp, user);
+    }
+
+    public ChallengeParticipantDTO challengeSupportDetail(Long challengeId, Long userId) {
+        Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new ChallengeHandler(CHALLENGE_NOT_FOUND));
+        User receiver = userRepository.findById(userId).orElseThrow(() -> new UserHandler(USER_NOT_FOUND));
+        User sender = userQueryService.getUser();
+        ChallengeParticipation challengeParticipation = challengeParticipationRepository.findByUserAndChallenge(receiver, challenge).orElseThrow(() -> new ChallengeHandler(NO_PARTICIPATING_CHALLENGE));
+        Optional<ChallengeSuccess> foundChallengeSuccess = challengeSuccessRepository.findByChallengeParticipationAndDate(challengeParticipation, LocalDate.now().toString());
+        //오늘 날짜의 챌린지 성공 기록이 있는 경우
+        if (foundChallengeSuccess.isPresent()) {
+            Notification notification = notificationRepository.findBySenderAndReceiverAndDateAndNotificationType(sender.getNickname(), receiver, LocalDate.now().toString(), NotificationType.CLAP);
+            boolean isSupported = true;
+            if (notification == null) {
+                isSupported = false;
+            }
+            return ChallengeParticipantDTO.builder().userId(receiver.getId()).nickname(receiver.getChallengeName()).thoughts(foundChallengeSuccess.get().getComment()).isSupported(isSupported).build();
+        }
+        Notification notification = notificationRepository.findBySenderAndReceiverAndDateAndNotificationType(sender.getNickname(), receiver, LocalDate.now().toString(), NotificationType.SUPPORT);
+        boolean isSupported = true;
+        if (notification == null) {
+            isSupported = false;
+        }
+        return ChallengeParticipantDTO.builder().userId(receiver.getId()).nickname(receiver.getChallengeName()).thoughts(null).isSupported(isSupported).build();
     }
 
     private List<Challenge> getMainChallenge() {
