@@ -106,7 +106,7 @@ public class ChallengeQueryService {
                     notification = notificationRepository.findBySenderAndReceiverAndDateAndNotificationType(currentUser.getChallengeName(), cp.getUser(), LocalDate.now().toString(), NotificationType.SUPPORT);
                 }
                 boolean supported = notification != null;
-                Optional<ChallengeSuccess> foundChallengeSuccess = challengeSuccessRepository.findByDate(LocalDate.now().toString());
+                Optional<ChallengeSuccess> foundChallengeSuccess = challengeSuccessRepository.findByChallengeParticipationAndDate(cp,LocalDate.now().toString());
                 String comment = null;
                 if (foundChallengeSuccess.isPresent()) {
                     comment = foundChallengeSuccess.get().getComment();
