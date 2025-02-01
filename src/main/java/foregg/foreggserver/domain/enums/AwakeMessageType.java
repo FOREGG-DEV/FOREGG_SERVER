@@ -30,11 +30,5 @@ public enum AwakeMessageType {
         AwakeMessageType selected = values[new Random().nextInt(values.length)];
         return new String[]{selected.getMessage(), selected.getPairMessage()};
     }
-
-    public static void main(String[] args) {
-        String[] messages = getRandomMessagePair();
-        System.out.println("메인 메시지: " + messages[0]);
-        System.out.println("짝꿍 메시지: " + messages[1]);
-    }
 }
 
