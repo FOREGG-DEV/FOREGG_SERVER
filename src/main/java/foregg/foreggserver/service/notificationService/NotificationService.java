@@ -6,10 +6,7 @@ import foregg.foreggserver.domain.Record;
 import foregg.foreggserver.domain.enums.NavigationType;
 import foregg.foreggserver.domain.enums.NotificationType;
 import foregg.foreggserver.domain.enums.RecordType;
-import foregg.foreggserver.repository.ChallengeParticipationRepository;
-import foregg.foreggserver.repository.DailyRepository;
-import foregg.foreggserver.repository.RecordRepository;
-import foregg.foreggserver.repository.UserRepository;
+import foregg.foreggserver.repository.*;
 import foregg.foreggserver.service.fcmService.FcmService;
 import foregg.foreggserver.service.recordService.RecordQueryService;
 import foregg.foreggserver.service.userService.UserQueryService;
@@ -30,6 +27,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 
+import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.NOT_REPEAT_TIME;
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.RECORD_NOT_FOUND;
 
 @Service
@@ -46,6 +44,7 @@ public class NotificationService {
     private final RecordQueryService recordQueryService;
     private final ChallengeParticipationRepository challengeParticipationRepository;
     private final ThreadPoolTaskScheduler taskScheduler;
+    private final RepeatTimeRepository repeatTimeRepository;
     private final Map<Long, List<ScheduledFuture<?>>> scheduledTasks = new ConcurrentHashMap<>();
 
     @Scheduled(cron = "0 0 21 * * MON,TUE,WED,THU,SAT,SUN", zone = "Asia/Seoul")
@@ -120,10 +119,10 @@ public class NotificationService {
     public void urgeReplyAlarm() {
         List<User> wives = userQueryService.getAllWives();
         for (User wife : wives) {
-            User spouse = userRepository.findById(wife.getSpouseId()).orElse(null);
-            if (spouse == null) {
+            if (wife.getSpouseId() == null || userRepository.findById(wife.getSpouseId()).isEmpty()) {
                 continue;
             }
+            User spouse = userRepository.findById(wife.getSpouseId()).orElse(null);
             Optional<Daily> foundDaily = dailyRepository.findByUserAndDate(wife, LocalDate.now().toString());
             if (foundDaily.isPresent() && foundDaily.get().getReply() == null) {
                 try {
@@ -161,14 +160,18 @@ public class NotificationService {
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
         LocalDateTime now = LocalDateTime.now(); // 현재 시간
 
+        //병원 일정일 경우
         if (record.getType().equals(RecordType.HOSPITAL)) {
-            RepeatTime repeatTime = record.getRepeatTimes().get(0);
+            List<RepeatTime> foundRepeatTimes = repeatTimeRepository.findByRecord(record).orElseThrow(() -> new RecordHandler(NOT_REPEAT_TIME));
+            RepeatTime repeatTime = foundRepeatTimes.get(0);
             LocalTime time = LocalTime.parse(repeatTime.getTime(), timeFormatter);
             LocalDateTime notificationDateTime = LocalDateTime.of(LocalDate.parse(record.getDate(), dateFormatter), time);
             if (!notificationDateTime.isBefore(now)) {
                 scheduleNotification(user, notificationDateTime.plusHours(3), record.getId(), repeatTime.getTime());
             }
-        }else{
+        }
+        //약, 주사 기록일 경우
+        else{
             if (record.getDate() != null) {
                 // 단일 날짜의 경우
                 LocalDate singleDate = LocalDate.parse(record.getDate(), dateFormatter);
