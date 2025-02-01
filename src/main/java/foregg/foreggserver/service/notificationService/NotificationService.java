@@ -3,6 +3,7 @@ package foregg.foreggserver.service.notificationService;
 import foregg.foreggserver.apiPayload.exception.handler.RecordHandler;
 import foregg.foreggserver.domain.*;
 import foregg.foreggserver.domain.Record;
+import foregg.foreggserver.domain.enums.AwakeMessageType;
 import foregg.foreggserver.domain.enums.NavigationType;
 import foregg.foreggserver.domain.enums.NotificationType;
 import foregg.foreggserver.domain.enums.RecordType;
@@ -154,6 +155,43 @@ public class NotificationService {
         }
     }
 
+    @Scheduled(cron = "0 0 22 * * ?") // 매일 22시 0분에 실행
+    public void notifyInactiveUsers() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime sevenDaysAgo = now.minusDays(7);
+        LocalDateTime sevenDaysAgoMinusOneMinute = sevenDaysAgo.minusMinutes(1);
+
+        // 정확히 7일이 지난 사용자 찾기
+        List<User> inactiveUsers = userRepository.findUsersInactiveForSevenDays(sevenDaysAgo, sevenDaysAgoMinusOneMinute);
+
+        //알림 전송
+        for (User user : inactiveUsers) {
+
+            String body;
+            String navigation;
+
+            String[] randomMessagePair = AwakeMessageType.getRandomMessagePair();
+            body = randomMessagePair[0];
+            navigation = randomMessagePair[1];
+
+            if (body.equals("MESSAGE4")) {
+                body = "님 허그와 함께 건강한 생활습관 만들어요!";
+                if (user.getSurgery() != null) {
+                    navigation = NavigationType.myChallenge.toString();
+                } else {
+                    navigation = NavigationType.home_graph.toString();
+                }
+            }
+
+            try {
+                fcmService.sendMessageTo(user.getFcmToken(), "미접속 일주일 경과 알림", body, navigation, null, null, null);
+                log.info("FCM 푸시 알림이 성공적으로 {}에게 전송되었습니다.", user.getNickname());
+            } catch (IOException e) {
+                log.error("FCM 푸시 알림을 보내는 도중 오류 발생: {}", e.getMessage());
+                throw new RuntimeException(e);
+            }
+        }
+    }
 
     public void scheduleNotifications(User user, Record record, List<RepeatTime> repeatTimes) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
