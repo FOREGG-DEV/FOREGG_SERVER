@@ -87,14 +87,6 @@ public class RecordService {
         if (!dto.getRecordType().equals(RecordType.ETC)) {
             notificationService.scheduleNotifications(user, record, repeatTimes);
         }
-        User spouse = userQueryService.returnSpouse();
-        if (spouse != null) {
-            try {
-                fcmService.sendMessageTo(spouse.getFcmToken(), "새로운 일정이 등록되었습니다", String.format("%s님이 일정을 추가했어요", user.getNickname()),"calendar",null, null,dto.getVibration());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
         return getRepeatTimes(record);
     }
 
