@@ -303,15 +303,18 @@ public class DateUtil {
     }
 
     public static String getFirstDayOfWeek(String firstDate) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // 원하는 형식
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // 날짜 포맷
+        LocalDate localDate = toLocalDate(firstDate); // 기존 firstDate를 LocalDate로 변환
         LocalDate today = LocalDate.now(); // 현재 날짜
-        LocalDate localDate = toLocalDate(firstDate);
-        LocalDate afterWeek = localDate.plusWeeks(1);
-        if (today.equals(afterWeek) || today.isAfter(afterWeek)) {
-            return afterWeek.format(formatter);
+
+        // firstDate의 요일을 유지하면서 7일씩 증가시키되, today를 초과하면 멈춤
+        while (localDate.plusDays(7).isBefore(today) || localDate.plusDays(7).isEqual(today)) {
+            localDate = localDate.plusDays(7);
         }
+
         return localDate.format(formatter);
     }
+
 
     public static List<String> getIntervalDates(String firstDate) {
         LocalDate localDate = toLocalDate(firstDate);

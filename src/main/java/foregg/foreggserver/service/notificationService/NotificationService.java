@@ -293,9 +293,15 @@ public class NotificationService {
 
     public void setTaskScheduler(User user, LocalDateTime notificationDateTime, Long recordId, String time, Record record) {
         Date date = Date.from(notificationDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedDate = notificationDateTime.format(dateTimeFormatter);
+
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        String formattedTime = notificationDateTime.format(timeFormatter);
+
         ScheduledFuture<?> scheduledFuture = taskScheduler.schedule(() -> {
             try {
-                fcmService.sendMessageTo(user.getFcmToken(), "약, 주사 일정이 있을 때", String.format("%s에 일정이 있어요.",date+time), NavigationType.inj_med_info_screen.toString()+record.getType(), recordId.toString(), time, record.getVibration());
+                fcmService.sendMessageTo(user.getFcmToken(), "약, 주사 일정이 있을 때", String.format("%s에 일정이 있어요.",formattedTime), NavigationType.inj_med_info_screen.toString()+"/"+record.getType()+"/"+recordId.toString()+"/"+formattedDate+"/"+time, recordId.toString(), time, record.getVibration());
                 log.info("FCM 푸시 알림이 성공적으로 {}에게 전송되었습니다.", user.getNickname());
             } catch (IOException e) {
                 log.error("FCM 푸시 알림을 보내는 도중 오류 발생: {}", e.getMessage());
