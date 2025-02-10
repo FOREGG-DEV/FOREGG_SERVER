@@ -179,9 +179,10 @@ public class DailyController {
     @PreAuthorize("hasRole('ROLE_WIFE')")
     @PostMapping("/shareMedical/{id}")
     public ApiResponse<String> sendNotificationInjection(@PathVariable(name = "id") Long id,
+                                                         @RequestParam(name = "date") String date,
                                                          @RequestParam(name = "time") String time) {
 
-        injectionQueryService.shareMedical(id, time);
+        injectionQueryService.shareMedical(id, date, time);
         return ApiResponse.onSuccess();
     }
 
