@@ -51,7 +51,6 @@ public class ChallengeService {
         }
         cp.setParticipating(true);
         cp.setStartDate(LocalDate.now().toString());
-        cp.setFirstDate(LocalDate.now().toString());
     }
 
     public void quitChallenge(Long challengeId) {
@@ -124,6 +123,7 @@ public class ChallengeService {
                 .challenge(challenge)
                 .isOpen(true)
                 .isParticipating(true)
+                .startDate(LocalDate.now().toString())
                 .build();
         challengeParticipationRepository.save(cp);
     }
