@@ -5,6 +5,7 @@ import foregg.foreggserver.apiPayload.exception.handler.RecordHandler;
 import foregg.foreggserver.apiPayload.exception.handler.UserHandler;
 import foregg.foreggserver.domain.*;
 import foregg.foreggserver.domain.Record;
+import foregg.foreggserver.domain.enums.NavigationType;
 import foregg.foreggserver.domain.enums.RecordType;
 import foregg.foreggserver.dto.injectionDTO.MedicalResponseDTO;
 import foregg.foreggserver.jwt.SecurityUtil;
@@ -35,17 +36,17 @@ public class InjectionQueryService {
     private final RecordRepository recordRepository;
     private final RepeatTimeRepository repeatTimeRepository;
 
-    public void shareMedical(Long id, String time) {
+    public void shareMedical(Long id, String date, String time) {
         User user = userQueryService.getUser();
         Optional<Record> foundRecord = recordRepository.findByIdAndUser(id, user);
         if (foundRecord.isEmpty()) {
             throw new RecordHandler(NOT_FOUND_MY_INJECTION_RECORD);
         }
-
+        Record record = foundRecord.get();
         User spouse = userQueryService.returnSpouse();
         if (spouse != null) {
             try {
-                fcmService.sendMessageTo(spouse.getFcmToken(), "투여 완료 공유 알림입니다", String.format("%s님이 일정을 완료했어요.", user.getNickname(),foundRecord.get().getName()),"inj_med_info_screen", id.toString(), time, null);
+                fcmService.sendMessageTo(spouse.getFcmToken(), "투여 완료 공유 알림입니다", String.format("%s님이 일정을 완료했어요.", user.getNickname(),foundRecord.get().getName()),NavigationType.inj_med_info_screen.toString()+"/"+record.getType()+"/"+id+"/"+date+"/"+time, id.toString(), time, null);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
