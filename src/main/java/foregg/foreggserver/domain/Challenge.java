@@ -27,8 +27,8 @@ public class Challenge extends BaseEntity {
     @Column(nullable = false)
     private String description;
 
-    @Enumerated(EnumType.STRING)
-    private ChallengeEmojiType image;
+    @Column(nullable = false)
+    private String image;
 
     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
     private List<ChallengeParticipation> challengeParticipations;

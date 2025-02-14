@@ -4,6 +4,7 @@ import foregg.foreggserver.apiPayload.exception.handler.ChallengeHandler;
 import foregg.foreggserver.apiPayload.exception.handler.UserHandler;
 import foregg.foreggserver.converter.ChallengeConverter;
 import foregg.foreggserver.domain.*;
+import foregg.foreggserver.domain.enums.ChallengeEmojiType;
 import foregg.foreggserver.domain.enums.NavigationType;
 import foregg.foreggserver.domain.enums.NotificationType;
 import foregg.foreggserver.dto.challengeDTO.ChallengeResponseDTO.MyChallengeTotalDTO.MyChallengeDTO;
@@ -31,6 +32,8 @@ import static foregg.foreggserver.dto.challengeDTO.ChallengeRequestDTO.*;
 @RequiredArgsConstructor
 @Slf4j
 public class ChallengeService {
+
+    private static final String s3Url = "https://foregg-bucket.s3.ap-northeast-2.amazonaws.com/challenge/";
 
     private final ChallengeRepository challengeRepository;
     private final ChallengeParticipationRepository challengeParticipationRepository;
@@ -113,7 +116,7 @@ public class ChallengeService {
         User user = userQueryService.getUser();
         user.deductPoint(1000);
         Challenge challenge = Challenge.builder().name(dto.getName()).description(dto.getDescription())
-                .image(dto.getChallengeEmojiType())
+                .image(s3Url+convertToS3Url(dto.getChallengeEmojiType()))
                 .producerId(user.getId())
                 .build();
         challengeRepository.save(challenge);
@@ -217,5 +220,10 @@ public class ChallengeService {
         if (challengeSuccessRepository.findByChallengeParticipationAndDate(challengeParticipation, LocalDate.now().toString()).isEmpty() && notificationType.equals(NotificationType.CLAP)) {
             throw new ChallengeHandler(UNABLE_TO_SEND_CLAP);
         }
+    }
+
+    private String convertToS3Url(ChallengeEmojiType type) {
+        String extend = ".png";
+        return type.toString() + extend;
     }
 }
