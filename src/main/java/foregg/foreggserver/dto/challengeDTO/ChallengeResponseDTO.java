@@ -43,6 +43,7 @@ public class ChallengeResponseDTO {
         public static class MyChallengeDTO{
             private Long id;
             private String name;
+            private String image;
             private int participants;
             private String startDate;
             private String firstDate;

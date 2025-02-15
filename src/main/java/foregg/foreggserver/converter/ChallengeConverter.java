@@ -45,6 +45,7 @@ public class ChallengeConverter {
         return MyChallengeDTO.builder()
                 .id(challenge.getId())
                 .name(challenge.getName())
+                .image(challenge.getImage())
                 .participants(participants)
                 .startDate(cp.getStartDate())
                 .firstDate(cp.getFirstDate())
