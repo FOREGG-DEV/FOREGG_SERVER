@@ -17,7 +17,6 @@ public class DailyResponseDTO {
 
     private Long id;
     private int count;
-    private String date;
     private String day;
     private DailyConditionType dailyConditionType;
     private String content;
@@ -25,6 +24,8 @@ public class DailyResponseDTO {
     private String replyContent;
     private ReplyEmojiType replyEmojiType;
     private String specialQuestion;
+    private String createdAt;
+    private String modifiedAt;
 
     @Getter
     @Builder
