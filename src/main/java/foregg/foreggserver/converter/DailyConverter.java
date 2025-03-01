@@ -63,7 +63,6 @@ public class DailyConverter {
         return DailyResponseDTO.builder()
                 .id(daily.getId())
                 .count(daily.getCount())
-                .date(daily.getDate())
                 .day(DateUtil.getDayOfWeekFromString(daily.getDate()))
                 .dailyConditionType(daily.getDailyConditionType())
                 .content(daily.getContent())
@@ -71,6 +70,8 @@ public class DailyConverter {
                 .replyContent(replyContent)
                 .replyEmojiType(replyEmojiType)
                 .specialQuestion(specialQuestion)
+                .createdAt(daily.getCreatedAt().toString())
+                .modifiedAt(daily.getModifiedAt().toString())
                 .build();
     }
 

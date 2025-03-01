@@ -118,6 +118,7 @@ public class RecordService {
         Record record = recordRepository.findByIdAndUser(id,user).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
         notificationService.cancelScheduledTasks(id);
         record.updateRecord(dto);
+        RecordType recordType = dto.getRecordType();
 
         List<SideEffect> sideEffects = record.getSideEffect();
         for (SideEffect sf : sideEffects) {
@@ -137,7 +138,7 @@ public class RecordService {
             repeatTimeRepository.save(saveTime);
         }
 
-        if (dto.getRecordType() == RecordType.INJECTION) {
+        if (recordType == RecordType.INJECTION || recordType == RecordType.MEDICINE) {
             notificationService.scheduleNotifications(getUser(SecurityUtil.getCurrentUser()), record, updateTimes);
         }
     }
