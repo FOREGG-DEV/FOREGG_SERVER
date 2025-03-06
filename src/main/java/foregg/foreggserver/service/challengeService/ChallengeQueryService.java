@@ -101,9 +101,9 @@ public class ChallengeQueryService {
             for (ChallengeParticipation cp : challengeParticipations) {
                 Notification notification;
                 if (isSuccess) {
-                    notification = notificationRepository.findBySenderAndReceiverAndDateAndNotificationType(currentUser.getChallengeName(), cp.getUser(), LocalDate.now().toString(), NotificationType.CLAP);
+                    notification = notificationRepository.findBySenderAndReceiverAndDateAndNotificationTypeAndTargetId(currentUser.getChallengeName(), cp.getUser(), LocalDate.now().toString(), NotificationType.CLAP, challengeId);
                 } else {
-                    notification = notificationRepository.findBySenderAndReceiverAndDateAndNotificationType(currentUser.getChallengeName(), cp.getUser(), LocalDate.now().toString(), NotificationType.SUPPORT);
+                    notification = notificationRepository.findBySenderAndReceiverAndDateAndNotificationTypeAndTargetId(currentUser.getChallengeName(), cp.getUser(), LocalDate.now().toString(), NotificationType.SUPPORT, challengeId);
                 }
                 boolean supported = notification != null;
                 Optional<ChallengeSuccess> foundChallengeSuccess = challengeSuccessRepository.findByChallengeParticipationAndDate(cp,LocalDate.now().toString());
