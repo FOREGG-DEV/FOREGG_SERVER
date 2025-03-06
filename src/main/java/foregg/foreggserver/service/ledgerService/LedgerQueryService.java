@@ -21,10 +21,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.INVALID_DATE_RANGE;
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.NOT_FOUND_MY_LEDGER;
 
 
@@ -105,6 +107,10 @@ public class LedgerQueryService {
     public LedgerResponseDTO byCondition(String from, String to) {
         List<Ledger> ledgers = getHusbandAndWifeLedgers();
         List<String> intervalDates = DateUtil.getIntervalDates(from, to);
+
+        if (DateUtil.toLocalDate(from).isAfter(DateUtil.toLocalDate(to))) {
+            throw new LedgerHandler(INVALID_DATE_RANGE);
+        }
 
         // 사이값에 없는 가계부는 삭제
         for (Ledger ledger : ledgers) {

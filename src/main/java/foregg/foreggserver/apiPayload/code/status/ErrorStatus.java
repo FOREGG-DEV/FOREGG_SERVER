@@ -108,8 +108,10 @@ public enum ErrorStatus implements BaseErrorCode {
     OVER_BUDGET(BAD_REQUEST, "POINT4001", "포인트가 부족합니다"),
 
     //페이징 관련 에러
-    PAGE_OUT_OF_RANGE(BAD_REQUEST, "PAGE4001", "페이지를 벗어났습니다");
+    PAGE_OUT_OF_RANGE(BAD_REQUEST, "PAGE4001", "페이지를 벗어났습니다"),
 
+    //날짜 관련 에러
+    INVALID_DATE_RANGE(BAD_REQUEST, "DATE4001", "올바르지 않은 날짜 범위입니다");
 
 
     private final HttpStatus httpStatus;
