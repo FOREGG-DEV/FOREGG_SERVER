@@ -21,10 +21,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.INVALID_DATE_RANGE;
 import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.NOT_FOUND_MY_LEDGER;
 
 
@@ -54,7 +57,8 @@ public class LedgerQueryService {
         int personalSum = expenditureQueryService.getPersonalExpenditure(ledgers);
         int subsidySum = expenditureQueryService.getSubsidyExpenditure(ledgers);
         int total = personalSum + subsidySum;
-        return LedgerConverter.toLedgerResponseDTO(personalSum, subsidySum, null, total, toLedgerDetailDTO(ledgers));
+        LedgerResponseDTO result = LedgerConverter.toLedgerResponseDTO(personalSum, subsidySum, null, total, toLedgerDetailDTO(ledgers));
+        return sortByLatestDate(result);
     }
 
     //가계부 수정할 때 나오는 Detail
@@ -81,7 +85,8 @@ public class LedgerQueryService {
         int personalSum = expenditureQueryService.getPersonalExpenditure(ledgers);
         int subsidySum = expenditureQueryService.getSubsidyExpenditure(ledgers);
         int total = personalSum + subsidySum;
-        return LedgerConverter.toLedgerResponseDTO(personalSum, subsidySum, null, total, toLedgerDetailDTO(ledgers));
+        LedgerResponseDTO result = LedgerConverter.toLedgerResponseDTO(personalSum, subsidySum, null, total, toLedgerDetailDTO(ledgers));
+        return sortByLatestDate(result);
     }
 
     public LedgerResponseDTO byCountInit() {
@@ -97,25 +102,27 @@ public class LedgerQueryService {
         int subsidySum = expenditureQueryService.getSubsidyExpenditure(ledgers);
         int total = personalSum + subsidySum;
         List<LedgerResponseDTO.SubsidyAvailable> subsidyAvailable = subsidyQueryService.toSubsidyAvailable(count);
-        LedgerResponseDTO dto = LedgerConverter.toLedgerResponseDTO(personalSum, null, subsidyAvailable, total, toLedgerDetailDTO(filterLedgerByCount(ledgers, count)));
-        dto.setMemo(getLedgerMemo(count));
-        return dto;
+        LedgerResponseDTO result = LedgerConverter.toLedgerResponseDTO(personalSum, null, subsidyAvailable, total, toLedgerDetailDTO(filterLedgerByCount(ledgers, count)));
+        result.setMemo(getLedgerMemo(count));
+        return sortByLatestDate(result);
     }
 
     public LedgerResponseDTO byCondition(String from, String to) {
         List<Ledger> ledgers = getHusbandAndWifeLedgers();
         List<String> intervalDates = DateUtil.getIntervalDates(from, to);
 
-        // 사이값에 없는 가계부는 삭제
-        for (Ledger ledger : ledgers) {
-            if (!intervalDates.contains(ledger.getDate())) {
-                ledgers.remove(ledger);
-            }
+        if (DateUtil.toLocalDate(from).isAfter(DateUtil.toLocalDate(to))) {
+            throw new LedgerHandler(INVALID_DATE_RANGE);
         }
+
+        // 사이값에 없는 가계부는 삭제
+        ledgers.removeIf(ledger -> !intervalDates.contains(ledger.getDate()));
+
         int personalSum = expenditureQueryService.getPersonalExpenditure(ledgers);
         int subsidySum = expenditureQueryService.getSubsidyExpenditure(ledgers);
         int total = personalSum + subsidySum;
-        return LedgerConverter.toLedgerResponseDTO(personalSum, subsidySum, null, total, toLedgerDetailDTO(ledgers));
+        LedgerResponseDTO result = LedgerConverter.toLedgerResponseDTO(personalSum, subsidySum, null, total, toLedgerDetailDTO(ledgers));
+        return sortByLatestDate(result);
     }
 
     public List<LedgerResponseDTO.LedgerDetailResponseDTO> toLedgerDetailDTO(List<Ledger> ledgers) {
@@ -153,6 +160,25 @@ public class LedgerQueryService {
             return null;
         }
         return ledgerMemo.getMemo();
+    }
+
+    private LedgerResponseDTO sortByLatestDate(LedgerResponseDTO dto) {
+        if (dto == null || dto.getLedgerDetailResponseDTOS() == null) {
+            return dto;
+        }
+
+        List<LedgerResponseDTO.LedgerDetailResponseDTO> sortedList = dto.getLedgerDetailResponseDTOS().stream()
+                .sorted(Comparator.comparing(LedgerResponseDTO.LedgerDetailResponseDTO::getDate).reversed()) // 최신순 정렬
+                .collect(Collectors.toList());
+
+        return LedgerResponseDTO.builder()
+                .memo(dto.getMemo())
+                .personalSum(dto.getPersonalSum())
+                .subsidySum(dto.getSubsidySum())
+                .subsidyAvailable(dto.getSubsidyAvailable())
+                .total(dto.getTotal())
+                .ledgerDetailResponseDTOS(sortedList)
+                .build();
     }
 
 }
