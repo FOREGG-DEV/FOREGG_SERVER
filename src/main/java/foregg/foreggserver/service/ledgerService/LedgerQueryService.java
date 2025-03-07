@@ -113,11 +113,8 @@ public class LedgerQueryService {
         }
 
         // 사이값에 없는 가계부는 삭제
-        for (Ledger ledger : ledgers) {
-            if (!intervalDates.contains(ledger.getDate())) {
-                ledgers.remove(ledger);
-            }
-        }
+        ledgers.removeIf(ledger -> !intervalDates.contains(ledger.getDate()));
+
         int personalSum = expenditureQueryService.getPersonalExpenditure(ledgers);
         int subsidySum = expenditureQueryService.getSubsidyExpenditure(ledgers);
         int total = personalSum + subsidySum;
