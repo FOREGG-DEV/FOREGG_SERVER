@@ -11,21 +11,21 @@ import java.util.List;
 
 public class NotificationConverter {
 
-    public static List<NotificationDTO> fromReplyToNotification(List<Reply> replyList) {
-        List<NotificationDTO> result = new ArrayList<>();
-        for (Reply reply : replyList) {
-            NotificationDTO dto = NotificationDTO.builder()
-                    .id(reply.getId())
-                    .targetKey(reply.getDaily().getDate())
-                    .notificationType(NotificationType.REPLY)
-                    .sender(reply.getSender().getNickname())
-                    .elapsedTime(DateUtil.getElapsedTime(reply.getCreatedAt()))
-                    .createdAt(reply.getCreatedAt().toString())
-                    .build();
-            result.add(dto);
-        }
-        return result;
-    }
+//    public static List<NotificationDTO> fromReplyToNotification(List<Reply> replyList) {
+//        List<NotificationDTO> result = new ArrayList<>();
+//        for (Reply reply : replyList) {
+//            NotificationDTO dto = NotificationDTO.builder()
+//                    .id(reply.getId())
+//                    .targetKey(reply.getDaily().getDate())
+//                    .notificationType(NotificationType.REPLY)
+//                    .sender(reply.getSender().getNickname())
+//                    .elapsedTime(DateUtil.getElapsedTime(reply.getCreatedAt()))
+//                    .createdAt(reply.getCreatedAt().toString())
+//                    .build();
+//            result.add(dto);
+//        }
+//        return result;
+//    }
 
     public static List<NotificationDTO> toNotificationResponse(List<Notification> notificationList) {
         List<NotificationDTO> result = new ArrayList<>();

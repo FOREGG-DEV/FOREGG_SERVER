@@ -184,7 +184,7 @@ public class ChallengeService {
             throw new ChallengeHandler(NO_MORE_THAN_THIRD_TIME);
         }
 
-        if (notificationRepository.findBySenderAndReceiverAndDateAndNotificationType(sender.getChallengeName(), receiver, LocalDate.now().toString(), type) != null) {
+        if (notificationRepository.findBySenderAndReceiverAndDateAndNotificationTypeAndTargetId(sender.getChallengeName(), receiver, LocalDate.now().toString(), type, challengeId) != null) {
             throw new ChallengeHandler(ALREADY_SEND_CHEER);
         }
 
