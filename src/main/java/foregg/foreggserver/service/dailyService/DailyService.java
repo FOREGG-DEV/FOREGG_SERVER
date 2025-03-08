@@ -96,8 +96,8 @@ public class DailyService {
                 .content(dto.getContent())
                 .replyEmojiType(dto.getReplyEmojiType())
                 .daily(daily)
-                .receiver(wife)
-                .sender(userQueryService.getUser())
+                .receiverId(wife.getId())
+                .senderId(userQueryService.getUser().getId())
                 .build();
         replyRepository.save(reply);
         daily.setReply(reply);

@@ -30,12 +30,10 @@ public class Reply extends BaseEntity {
     @JoinColumn(name = "daily_id")
     private Daily daily;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiver")
-    private User receiver;
+    @Column(nullable = false)
+    private Long receiverId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender")
-    private User sender;
+    @Column(nullable = false)
+    private Long senderId;
 
 }

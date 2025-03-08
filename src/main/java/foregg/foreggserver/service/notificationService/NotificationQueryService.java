@@ -5,12 +5,15 @@ import foregg.foreggserver.converter.NotificationConverter;
 import foregg.foreggserver.domain.Notification;
 import foregg.foreggserver.domain.Reply;
 import foregg.foreggserver.domain.User;
+import foregg.foreggserver.domain.enums.NotificationType;
 import foregg.foreggserver.dto.notificationDTO.NotificationResponseDTO;
 import foregg.foreggserver.dto.notificationDTO.NotificationResponseDTO.NotificationDTO;
 import foregg.foreggserver.jwt.SecurityUtil;
 import foregg.foreggserver.repository.NotificationRepository;
 import foregg.foreggserver.repository.ReplyRepository;
+import foregg.foreggserver.repository.UserRepository;
 import foregg.foreggserver.service.userService.UserQueryService;
+import foregg.foreggserver.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +32,7 @@ import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.PAGE_OUT_OF
 public class NotificationQueryService {
 
     private final ReplyRepository replyRepository;
+    private final UserRepository userRepository;
     private final UserQueryService userQueryService;
     private final NotificationRepository notificationRepository;
 
@@ -39,7 +43,7 @@ public class NotificationQueryService {
         User user = userQueryService.getUser();
 
         // 필터링된 Reply 리스트
-        List<Reply> replyList = replyRepository.findByReceiver(user).stream()
+        List<Reply> replyList = replyRepository.findByReceiverId(user.getId()).stream()
                 .filter(reply -> reply.getCreatedAt().isAfter(thresholdDate))
                 .toList();
 
@@ -49,7 +53,7 @@ public class NotificationQueryService {
                 .toList();
 
         // 결과 생성
-        result.addAll(NotificationConverter.fromReplyToNotification(replyList));
+        result.addAll(this.fromReplyToNotification(replyList));
         result.addAll(NotificationConverter.toNotificationResponse(notificationList));
 
         // createdAt 순서로 정렬
@@ -75,6 +79,22 @@ public class NotificationQueryService {
                 .totalPage(totalPages)
                 .totalElements(totalElements)
                 .build();
+    }
+
+    private List<NotificationDTO> fromReplyToNotification(List<Reply> replyList) {
+        List<NotificationDTO> result = new ArrayList<>();
+        for (Reply reply : replyList) {
+            NotificationDTO dto = NotificationDTO.builder()
+                    .id(reply.getId())
+                    .targetKey(reply.getDaily().getDate())
+                    .notificationType(NotificationType.REPLY)
+                    .sender(userRepository.findById(reply.getSenderId()).get().getNickname())
+                    .elapsedTime(DateUtil.getElapsedTime(reply.getCreatedAt()))
+                    .createdAt(reply.getCreatedAt().toString())
+                    .build();
+            result.add(dto);
+        }
+        return result;
     }
 
 
