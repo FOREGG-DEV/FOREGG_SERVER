@@ -133,6 +133,7 @@ public class LedgerController {
         return ApiResponse.onSuccess(result);
     }
 
+    @Operation(summary = "가계부 지출 삭제 API")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "EXPENDITURE4001", description = "해당 지출이 존재하지 않습니다"),
@@ -144,6 +145,7 @@ public class LedgerController {
         return ApiResponse.onSuccess();
     }
 
+    @Operation(summary = "회차에 대한 메모 API")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "LEDGER4002", description = "해당 회차의 가계부가 존재하지 않습니다"),

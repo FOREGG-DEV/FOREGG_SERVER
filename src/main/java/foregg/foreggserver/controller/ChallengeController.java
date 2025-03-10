@@ -183,6 +183,21 @@ public class ChallengeController {
         return ApiResponse.onSuccess(userQueryService.getChallengeName());
     }
 
+
+    @Operation(summary = "닉네임 조회 API")
+    @PreAuthorize("hasRole('ROLE_WIFE')")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON200", description = "OK, 존재하는 닉네임"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404NOTFOUND", description = "존재하지 않는 닉네임"),
+    })
+    @GetMapping("/challengeName/{challengeName}")
+    public ApiResponse<String> challengeNameExist(@PathVariable(name = "challengeName") String challengeName) {
+        if (userQueryService.challengeNameExist(challengeName)) {
+            return ApiResponse.onSuccess("아이디가 존재합니다");
+        }
+        return ApiResponse.onFailure("404","NOT FOUND", "존재하지 않는 닉네임입니다");
+    }
+
     @Operation(summary = "챌린지 찌르기 리스트")
     @GetMapping("/{challengeId}/{isSuccess}/participants")
     @ApiResponses({

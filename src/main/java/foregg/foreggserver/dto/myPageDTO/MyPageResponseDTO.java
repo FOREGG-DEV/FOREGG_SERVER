@@ -20,5 +20,6 @@ public class MyPageResponseDTO {
     private String spouse;
     private String ssn;
     private String spouseCode;
+    private String challengeNickname;
 
 }

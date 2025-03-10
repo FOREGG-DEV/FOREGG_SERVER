@@ -169,8 +169,8 @@ public class UserService {
                 userRepository.delete(husband);
             }
         }else{
-            User user = userQueryService.getUser();
-            user.setSpouseId(null);
+            User wife = userQueryService.returnSpouse();
+            wife.setSpouseId(null);
         }
 
         User user = userQueryService.getUser();
