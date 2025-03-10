@@ -18,7 +18,8 @@ public class MyPageConverter {
                     .startDate(null)
                     .ssn(me.getSsn())
                     .spouseCode(me.getSpouseCode())
-                    .spouse(spouseName).build();
+                    .spouse(spouseName)
+                    .challengeNickname(me.getChallengeName()).build();
         }
 
         return MyPageResponseDTO.builder()
@@ -29,7 +30,8 @@ public class MyPageConverter {
                 .startDate(surgery.getStartAt())
                 .ssn(me.getSsn())
                 .spouseCode(me.getSpouseCode())
-                .spouse(spouseName).build();
+                .spouse(spouseName)
+                .challengeNickname(me.getChallengeName()).build();
     }
 
     public static MyPageRecordResponseDTO toMyPageRecordResponseDTO(Record record) {
