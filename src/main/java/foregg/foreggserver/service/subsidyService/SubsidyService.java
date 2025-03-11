@@ -31,16 +31,20 @@ public class SubsidyService {
     private final UserQueryService userQueryService;
     private final SubsidyQueryService subsidyQueryService;
 
+    //남편이 추가해도 아내의 지원금으로 편입시키기
     public void createSubsidy(SubsidyRequestDTO dto) {
-        User user = userQueryService.getUser();
-        subsidyQueryService.subsidyExist(dto.getNickname(), dto.getCount());
-        int userSubsidyCount = subsidyRepository.countByUserAndCount(user, dto.getCount());
+        User owner = userQueryService.getUser();
+        if (SecurityUtil.ifCurrentUserIsHusband()) {
+            owner = userQueryService.returnSpouse();
+        }
+        subsidyQueryService.subsidyExist(owner, dto.getNickname(), dto.getCount());
+        int userSubsidyCount = subsidyRepository.countByUserAndCount(owner, dto.getCount());
         SubsidyColorType color = SubsidyColorType.values()[userSubsidyCount % SubsidyColorType.values().length];
-        Subsidy subsidy = SubsidyConverter.toSubsidy(dto, user,color);
+        Subsidy subsidy = SubsidyConverter.toSubsidy(dto, owner, color);
         subsidyRepository.save(subsidy);
     }
 
-    public void updateSubsidy(Long id,SubsidyRequestDTO dto) {
+    public void updateSubsidy(Long id ,SubsidyRequestDTO dto) {
         Subsidy subsidy = subsidyQueryService.getSubsidyByIdAndUser(id);
         subsidy.updateSubsidy(dto);
     }
