@@ -114,7 +114,7 @@ public class ChallengeService {
 
     public void createChallenge(ChallengeCreateRequestDTO dto) {
         User user = userQueryService.getUser();
-        user.deductPoint(1000);
+        user.deductPoint(3000);
         Challenge challenge = Challenge.builder().name(dto.getName()).description(dto.getDescription())
                 .image(s3Url+convertToS3Url(dto.getChallengeEmojiType()))
                 .producerId(user.getId())

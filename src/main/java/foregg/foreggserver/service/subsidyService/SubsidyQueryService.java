@@ -35,23 +35,24 @@ public class SubsidyQueryService {
 
 
     public SubsidyRequestDTO detailSubsidy(Long id) {
-        Subsidy subsidy = subsidyRepository.findById(id).orElseThrow(() -> new SubsidyHandler(NOT_FOUND_MY_SUBSIDY));
+        Subsidy subsidy = getSubsidyByIdAndUser(id);
         SubsidyRequestDTO result = SubsidyConverter.toSubsidyRequestDTO(subsidy);
         return result;
     }
 
-    public Subsidy getSubsidyById(Long id) {
-        Subsidy subsidy = subsidyRepository.findById(id).orElseThrow(() -> new SubsidyHandler(NOT_FOUND_MY_SUBSIDY));
-        return subsidy;
-    }
-
     public Subsidy getSubsidyByIdAndUser(Long id) {
         User user = userQueryService.getUser();
+        if (SecurityUtil.ifCurrentUserIsHusband()) {
+            user = userQueryService.returnSpouse();
+        }
         return subsidyRepository.findByIdAndUser(id, user).orElseThrow(() -> new SubsidyHandler(NOT_FOUND_MY_SUBSIDY));
     }
 
     public SubsidyResponseDTO getSubsidyByCount(int count) {
         User user = userQueryService.getUser();
+        if (SecurityUtil.ifCurrentUserIsHusband()) {
+            user = userQueryService.returnSpouse();
+        }
         List<Subsidy> subsidies = subsidyRepository.findByUserAndCount(user, count);
         User spouse = userQueryService.returnSpouse();
         if (spouse != null) {
@@ -65,12 +66,10 @@ public class SubsidyQueryService {
 
     public Subsidy getSubsidyByUserCountName(int count, String name) {
         User user = userQueryService.getUser();
-        Subsidy subsidy = subsidyRepository.findByUserAndCountAndNickname(user, count, name);
-        if (subsidy == null) {
-            User spouse = userQueryService.returnSpouse();
-            return subsidyRepository.findByUserAndCountAndNickname(spouse, count, name);
+        if (SecurityUtil.ifCurrentUserIsHusband()) {
+            user = userQueryService.returnSpouse();
         }
-        return subsidy;
+        return subsidyRepository.findByUserAndCountAndNickname(user, count, name);
     }
 
     public List<Subsidy> getSubsidyByUserAndCount(int count) {
@@ -95,9 +94,8 @@ public class SubsidyQueryService {
         return result;
     }
 
-    public void subsidyExist(String nickname, int count) {
-        User user = userQueryService.getUser();
-        Subsidy subsidy = subsidyRepository.findByUserAndCountAndNickname(user, count, nickname);
+    public void subsidyExist(User owner, String nickname, int count) {
+        Subsidy subsidy = subsidyRepository.findByUserAndCountAndNickname(owner, count, nickname);
         if (subsidy != null) {
             throw new SubsidyHandler(SUBSIDY_ALREADY_EXIST);
         }
