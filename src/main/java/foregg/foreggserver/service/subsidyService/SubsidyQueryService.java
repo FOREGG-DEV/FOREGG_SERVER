@@ -54,11 +54,6 @@ public class SubsidyQueryService {
             user = userQueryService.returnSpouse();
         }
         List<Subsidy> subsidies = subsidyRepository.findByUserAndCount(user, count);
-        User spouse = userQueryService.returnSpouse();
-        if (spouse != null) {
-            List<Subsidy> spouseSubsidies = subsidyRepository.findByUserAndCount(spouse, count);
-            subsidies.addAll(spouseSubsidies);
-        }
 
         // 회차 날짜 로직을 구해서 null 값을 대체해야함
         return SubsidyConverter.toDetailResponseDTO(subsidies);
@@ -80,6 +75,9 @@ public class SubsidyQueryService {
 
     public List<LedgerResponseDTO.SubsidyAvailable> toSubsidyAvailable(int count) {
         User user = userQueryService.getUser();
+        if (SecurityUtil.ifCurrentUserIsHusband()) {
+            user = userQueryService.returnSpouse();
+        }
         List<LedgerResponseDTO.SubsidyAvailable> result = new ArrayList<>();
         List<Subsidy> subsidies = subsidyRepository.findByUserAndCount(user, count);
 
