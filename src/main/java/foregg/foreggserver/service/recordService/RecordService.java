@@ -145,13 +145,14 @@ public class RecordService {
 
     //일정 상세 보기
     public RecordResponseDTO recordDetail(Long id) {
-        User user;
-        if (SecurityUtil.ifCurrentUserIsHusband()) {
-            user = userQueryService.returnSpouse();
-        }else{
-            user = userQueryService.getUser();
+        User user = userQueryService.getUser();
+        User spouse = (user.getSpouseId() != null) ? userQueryService.returnSpouse() : null;
+        Record record = recordRepository.findById(id).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
+
+        if (!record.getUser().equals(user) && !record.getUser().equals(spouse)) {
+            throw new RecordHandler(RECORD_NOT_FOUND);
         }
-        Record record = recordRepository.findByIdAndUser(id, user).orElseThrow(() -> new RecordHandler(RECORD_NOT_FOUND));
+
         return getRepeatTimes(record);
     }
 
