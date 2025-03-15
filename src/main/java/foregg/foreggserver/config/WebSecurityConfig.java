@@ -31,14 +31,14 @@ public class WebSecurityConfig {
         // 아래 url은 filter 에서 제외
         return web ->
                 web.ignoring()
-                        .requestMatchers("/auth/**", "/token/refresh","/swagger-ui/**","/v3/api-docs/**", "/auth/renewalToken");
+                        .requestMatchers("/auth/**", "/token/refresh","/swagger-ui/**","/v3/api-docs/**", "/auth/renewalToken","/version");
     }
     @Bean
     public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
         return http.cors(withDefaults())
                 .csrf((csrf) -> csrf.disable())
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/auth/**", "/token/refresh", "/swagger-ui/**", "/v3/api-docs/**", "/auth/renewalToken").permitAll()
+                        .requestMatchers("/auth/**", "/token/refresh", "/swagger-ui/**", "/v3/api-docs/**", "/auth/renewalToken","/version").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .formLogin(httpSecurityFormLoginConfigurer -> httpSecurityFormLoginConfigurer.disable()) // 로그인 폼 미사용
