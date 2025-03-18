@@ -16,6 +16,7 @@ import foregg.foreggserver.service.fcmService.FcmService;
 import foregg.foreggserver.service.userService.UserQueryService;
 import foregg.foreggserver.util.DateUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,7 @@ import static foregg.foreggserver.apiPayload.code.status.ErrorStatus.*;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class InjectionQueryService {
 
     private final UserQueryService userQueryService;
@@ -116,7 +118,7 @@ public class InjectionQueryService {
             if (!intervalDates.contains(date)) {
                 throw new RecordHandler(INVALID_RECORD_DATE);
             }
-            if (!record.getRepeat_date().contains(DateUtil.getKoreanDayOfWeek(date))) {
+            if (!record.getRepeat_date().equals("매일") && !record.getRepeat_date().contains(DateUtil.getKoreanDayOfWeek(date))) {
                 throw new RecordHandler(INVALID_RECORD_DATE);
             }
         }
