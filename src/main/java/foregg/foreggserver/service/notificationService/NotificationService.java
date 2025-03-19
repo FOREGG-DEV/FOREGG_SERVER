@@ -193,6 +193,17 @@ public class NotificationService {
         }
     }
 
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void resetRecordTodo() {
+        Optional<List<RepeatTime>> foundRepeatTimes = repeatTimeRepository.findByTodo(true);
+        if (foundRepeatTimes.isPresent()) {
+            List<RepeatTime> repeatTimes = foundRepeatTimes.get();
+            for (RepeatTime repeatTime : repeatTimes) {
+                repeatTime.setTodo(false);
+            }
+        }
+    }
+
     public void scheduleNotifications(User user, Record record, List<RepeatTime> repeatTimes) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
