@@ -15,5 +15,7 @@ public interface RepeatTimeRepository extends JpaRepository<RepeatTime, Long> {
 
     Optional<RepeatTime> findByRecordIdAndTime(Long recordId, String time);
 
+    Optional<List<RepeatTime>> findByTodo(boolean todo);
+
 
 }
