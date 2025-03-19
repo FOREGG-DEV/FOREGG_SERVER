@@ -126,6 +126,8 @@ public class UserService {
         Authentication authentication = jwtTokenProvider.getAuthentication(refreshToken);
 
         String tokenOwnerKeycode = authentication.getName();
+        Optional<User> foundUser = userRepository.findByKeyCode(tokenOwnerKeycode);
+        foundUser.get().setLastConnect(LocalDateTime.now());
         String redisToken = redisService.getData(tokenOwnerKeycode);
 
         if (refreshToken.equals(redisToken)) {
